@@ -2,7 +2,7 @@
 
 **Discover your next game. Research the games behind your next idea.**
 
-Game Discovery Lens is a bilingual game-discovery portfolio application built with React, TypeScript, FastAPI, and PostgreSQL. Its 80-game sample catalog demonstrates reliable software behavior through account-owned collections, explicit persistence modes, recoverable failures, and an optional AI search provider.
+Game Discovery Lens is a bilingual game-discovery portfolio application built with React, TypeScript, FastAPI, and PostgreSQL. Its 80-game sample catalog demonstrates reliable software behavior through account-owned collections, a personal game library, an evidence-based taste profile, recoverable failures, and an optional AI search provider.
 
 The project began as group coursework using Java Swing and SQL Server. The modern web application is a subsequent refactor; the original implementation remains in the repository as project history. The modern app runs independently of the original school database.
 
@@ -16,7 +16,7 @@ The homepage offers player and developer entry points. Each opens a distinct bro
 
 | Player discovery | Developer research |
 | --- | --- |
-| Illustrated recommendations, a featured game, price/rating signals, and saved favorites. | A catalog overview, frequent tags, research references, and selected-game opportunity insights. |
+| Illustrated discovery, personal game shelves, play records, and an editable taste profile. | A catalog overview, frequent tags, research references, and selected-game opportunity insights. |
 | Recommendations use catalog rating and review count with stable tie-breaking. | Overview statistics describe the loaded catalog; ownership and revenue estimates are labelled. |
 | Search by title, genre, budget, or natural-language conditions. | Drill into a tag or search and sort games for comparison. |
 
@@ -36,6 +36,19 @@ These are viewing perspectives, independent of account permissions. Both support
 
 Screenshots show the fixed-data demo. The dark gaming interface includes locally bundled game artwork, responsive layouts, and an English/Chinese switch that preserves the current page state. Game names, user-created collection names, and external provider text remain unchanged. See [artwork sources](docs/verification/game-artwork-sources.md) and the [bilingual behavior](frontend/README.md#english-and-chinese).
 
+### Personal library and gaming taste / 游戏库与玩家画像
+
+Players can record **Want to play / Playing / Played**, mark **Like / Not for me**, and keep a short personal note. Collection membership remains independent of those records. Existing collections are preserved and start with an unspecified purpose; players can classify them as personal interests or research references.
+
+The taste profile separates games of interest from games marked Playing or Played. Each type expands to show the games behind its count. A game saved to multiple personal collections counts once, research collections are excluded, and an explicit dislike overrides collection-based interest. Players can edit preferred and avoided types. These are manually recorded preferences and game counts, not imported Steam playtime or AI-inferred personality scores. Homepage recommendations still use catalog ordering; connecting the profile to recommendations is the next phase.
+
+| 游戏库 | 玩家画像 / Gaming taste |
+| --- | --- |
+| ![Personal library in Chinese](docs/screenshots/player-library-zh.png) | ![Personal gaming taste in Chinese](docs/screenshots/player-profile-zh.png) |
+| ![Personal library in English](docs/screenshots/player-library-en.png) | ![Personal gaming taste in English](docs/screenshots/player-profile-en.png) |
+
+These screenshots use six manually entered validation records, not a real player's activity. Fresh accounts start empty. The 80 catalog entries have bilingual gameplay summaries and curated tags linked to official store descriptions in each entry's `contentSource`. Prices, ratings, review counts, ownership, and revenue in the bundled catalog remain synthetic sample values; the source check does not validate those metrics. See [the implementation and verification record](docs/verification/player-library-2026-10-08.md).
+
 ## Run the Demo
 
 Use Node.js 20, matching CI. From the repository root:
@@ -48,12 +61,12 @@ npm run dev -- --host 127.0.0.1 --port 5173
 
 Open [Game Discovery Lens demo](http://127.0.0.1:5173/?mode=demo). No database or AI key is required.
 
-| Mode | Catalog and search | Collections |
+| Mode | Catalog and search | Collections, play records, and preferences |
 | --- | --- | --- |
 | `?mode=demo` | Bundled 80-game sample catalog and local rules; no backend requests. | Saved in this browser only. |
 | `?mode=api` | FastAPI/PostgreSQL and the configured search provider. | Saved to the signed-in account. |
 
-The header identifies the active mode. An API failure remains visible with recovery controls; it never becomes a sample result or a browser-only save. Demo and account collections are separate.
+The URL or environment selects the data mode; setup controls are kept out of the customer header. The browser-only persistence limitation is stated beside the relevant save controls. An API failure remains visible with recovery controls; it never becomes a sample result or a browser-only save. Demo and account data are separate.
 
 ## Run with the API
 
@@ -71,7 +84,8 @@ The frontend defaults to `http://localhost:8000/api`. To change it, copy `fronte
 
 ## Engineering Focus
 
-- **Account ownership:** collection and saved-game routes derive the owner from a signed bearer token. Missing or expired sessions are rejected, and another account's collections are hidden.
+- **Account ownership:** collection, saved-game, play-record, and preference routes derive the owner from a signed bearer token. Missing or expired sessions are rejected, and another account's data is hidden.
+- **Explainable personal data:** the profile uses distinct games and explicit preferences, with inspectable evidence and separate interest/play-history counts. Migration `0005_player_library` adds storage without reclassifying or deleting old collections.
 - **Persistence and recovery:** loading, mutations, retries, and account changes have explicit states. Failed requests do not change storage modes or report a successful save.
 - **Concurrent requests:** an older search, game insight, or account response cannot replace a newer selection or session.
 - **Search consistency:** literal title search combines with price, tag, and review filters. Frontend rules and PostgreSQL search tests share `tests/fixtures/search-contract.json`.
@@ -113,6 +127,7 @@ Each database suite creates and removes only its own UUID-named schema. Existing
 
 Verification records separate the executed checks from their limitations:
 
+- [Personal library, evidence-based profile, catalog corrections, and migration](docs/verification/player-library-2026-10-08.md)
 - [80-game catalog expansion and artwork provenance](docs/verification/catalog-expansion-2026-09-16.md)
 - [API workflow and delivery](docs/verification/api-delivery-2026-09-15.md)
 - [Search contract fixes, live rerun, and independent follow-up](docs/verification/search-fixes-2026-09-16.md)
@@ -140,4 +155,4 @@ Read the [architecture guide](docs/architecture.md) for the current module and d
 
 The retained coursework includes marketplace workflows such as purchasing, reviews, bundles, vouchers, and folders. These are historical features, not claims about the current web interface. See the [SQL Server setup](docs/local-sqlserver-setup.md), [legacy migrations](migrations/README.md), and [migration plan](docs/migration-plan.md).
 
-Game Discovery Lens is a portfolio application. Further work centers on traceable AI evidence and evaluated provider behavior; a public production deployment is outside the current demonstration scope.
+Game Discovery Lens is a portfolio application. Further work centers on connecting personal preferences to recommendations, traceable AI evidence, and evaluated provider behavior; a public production deployment is outside the current demonstration scope.

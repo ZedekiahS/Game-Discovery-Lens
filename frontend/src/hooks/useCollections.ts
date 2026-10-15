@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import type { Game, GameCollection, SavedGame, ShortlistInsights } from "../types";
+import type { CollectionPurpose, Game, GameCollection, SavedGame, ShortlistInsights } from "../types";
 import * as catalogService from "../services/catalog";
 
 interface CollectionState {
   scope: string;
+  loadedCatalog: Game[] | null;
   collections: GameCollection[];
   savedGamesByCollection: Record<number, SavedGame[]>;
   activeCollectionId: number | null;
@@ -15,11 +16,11 @@ interface CollectionState {
 }
 
 const emptyState = (scope: string): CollectionState => ({
-  scope, collections: [], savedGamesByCollection: {}, activeCollectionId: null,
+  scope, loadedCatalog: null, collections: [], savedGamesByCollection: {}, activeCollectionId: null,
   shortlistInsights: null, insightsError: "", loading: false, busy: false, error: "",
 });
 
-export function useCollections(catalog: Game[], userId: string | null, sessionRevision = 0) {
+export function useCollections(catalog: Game[], userId: string | null, sessionRevision = 0, purpose?: CollectionPurpose) {
   const scope = `${userId ?? "anonymous"}:${sessionRevision}`;
   const currentScope = useRef(scope);
   currentScope.current = scope;
@@ -29,7 +30,7 @@ export function useCollections(catalog: Game[], userId: string | null, sessionRe
   const [state, setState] = useState(() => emptyState(scope));
   // Hide previous-account data immediately, before the new effect can run.
   const visible = state.scope === scope ? state : emptyState(scope);
-  const loading = userId !== null && (state.scope !== scope || visible.loading);
+  const loading = userId !== null && (state.scope !== scope || visible.loading || visible.loadedCatalog !== catalog);
 
   useEffect(() => {
     const request = ++generation.current;
@@ -47,11 +48,11 @@ export function useCollections(catalog: Game[], userId: string | null, sessionRe
         ] as const));
         if (!current()) return;
         setState({
-          ...emptyState(scope), collections, savedGamesByCollection: Object.fromEntries(entries),
+          ...emptyState(scope), loadedCatalog: catalog, collections, savedGamesByCollection: Object.fromEntries(entries),
           activeCollectionId: collections[0]?.id ?? null,
         });
       } catch (error) {
-        if (current()) setState({ ...emptyState(scope), error: message(error, "Unable to load collections.") });
+        if (current()) setState({ ...emptyState(scope), loadedCatalog: catalog, error: message(error, "Unable to load collections.") });
       }
     }
     void load();
@@ -141,7 +142,7 @@ export function useCollections(catalog: Game[], userId: string | null, sessionRe
   }
 
   async function create(name: string) {
-    return change(() => catalogService.createCollection(name.trim(), userId!), withCollection);
+    return change(() => catalogService.createCollection(name.trim(), userId!, purpose), withCollection);
   }
 
   async function rename(collectionId: number, name: string) {
@@ -165,7 +166,7 @@ export function useCollections(catalog: Game[], userId: string | null, sessionRe
 
   async function createAndSave(name: string, game: Game) {
     return (await change(async (current) => {
-      const collection = await catalogService.createCollection(name.trim(), userId!);
+      const collection = await catalogService.createCollection(name.trim(), userId!, purpose);
       if (!current()) return null;
       // The collection already exists even if the following save fails.
       setState((previous) => withCollection(previous, collection));
@@ -177,6 +178,9 @@ export function useCollections(catalog: Game[], userId: string | null, sessionRe
 
   return {
     ...visible, loading, save, remove, clear, create, rename, deleteCollection, createAndSave,
+    setPurpose: (collection: GameCollection, next: CollectionPurpose) => change(
+      () => catalogService.updateCollection(collection.id, collection.name, userId!, next), withCollection,
+    ),
     setActiveCollectionId: (id: number) => setState((previous) => previous.scope === scope && previous.activeCollectionId !== id
       ? { ...previous, activeCollectionId: id, shortlistInsights: null, insightsError: "" } : previous),
     retry: () => { if (mutation.current === null) setReload((value) => value + 1); },

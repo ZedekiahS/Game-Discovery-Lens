@@ -22,6 +22,9 @@ const pricePatterns = [
 const freePricePattern = /(?<![a-z0-9])free(?:-to-play|\s+to\s+play)?(?![a-z0-9])|免费/;
 
 const tagAliases: Record<string, string[]> = {
+  Racing: ["竞速", "赛车"], Rhythm: ["节奏音乐", "音游"], VR: ["虚拟现实"],
+  Building: ["自由建造"], "Auto Battler": ["自动战斗", "自走棋"], "Tower Defense": ["塔防"],
+  "Turn-Based": ["回合制"], "Real-Time Strategy": ["即时战略"], "Visual Novel": ["视觉小说"], Physics: ["物理互动"],
   Action: ["动作"],
   Adventure: ["冒险"],
   Atmospheric: ["氛围", "沉浸"],

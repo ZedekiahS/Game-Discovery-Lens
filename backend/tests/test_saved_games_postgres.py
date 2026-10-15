@@ -18,7 +18,7 @@ from app.services.auth import create_access_token
 from tests.test_saved_games_routes import PROTECTED_REQUESTS, TestSettings
 
 
-class SavedGamesPostgresTests(unittest.TestCase):
+class SavedGamesPostgresFixture(unittest.TestCase):
     """Opt-in HTTP + real PostgreSQL tests; each test owns a temporary schema."""
 
     @classmethod
@@ -98,6 +98,7 @@ class SavedGamesPostgresTests(unittest.TestCase):
         self.assertEqual(response.status_code, 201, response.text)
         return response.json()
 
+class SavedGamesPostgresTests(SavedGamesPostgresFixture):
     def test_login_save_and_reload_in_new_session_with_idempotent_retry(self) -> None:
         login = self.client.post("/api/auth/login", json={"userId": "a@example.test", "password": "test-password"})
         self.assertEqual(login.status_code, 200, login.text)

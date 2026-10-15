@@ -74,7 +74,25 @@ export interface GameCollection {
   userId: string;
   name: string;
   description: string;
+  purpose?: CollectionPurpose;
   createdAt: string;
+}
+
+export type CollectionPurpose = "unspecified" | "player" | "research";
+export type PlayStatus = "want_to_play" | "playing" | "played";
+export type GameAffinity = "neutral" | "like" | "dislike";
+export interface PlayerGameInput {
+  status: PlayStatus | null;
+  affinity: GameAffinity;
+  notes: string;
+}
+export interface PlayerGameRecord extends PlayerGameInput {
+  gameId: number;
+  updatedAt: string;
+}
+export interface PlayerPreferences {
+  preferredTags: string[];
+  avoidedTags: string[];
 }
 
 export interface SavedGame {

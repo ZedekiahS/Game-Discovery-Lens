@@ -1,4 +1,7 @@
 const chineseErrors: Record<string, string> = {
+  "Your game records could not be loaded.": "游戏记录加载失败，请检查网络或浏览器存储后重试。",
+  "Your changes could not be confirmed. Reload your library before trying again.": "无法确认更改是否已保存，请重新加载游戏库后再试。",
+  "Your preferences could not be saved. Choose up to 12 tags per group without overlap.": "偏好保存失败，每组最多选择 12 个类型，且不能重复。",
   "Cannot reach the API. Check the connection and try again.": "无法连接 API，请检查网络后重试。",
   "Unable to load the catalog.": "无法加载游戏目录。",
   "Unable to run search.": "搜索失败，请重试。",

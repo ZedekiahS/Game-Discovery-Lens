@@ -85,14 +85,14 @@ describe("language switching in the actual application", () => {
     fireEvent.click(screen.getByRole("button", { name: "搜索游戏", exact: true }));
     await waitFor(() => expect(screen.getByRole("button", { name: "剧情佳作" }).hasAttribute("disabled")).toBe(false));
     fireEvent.click(screen.getByRole("button", { name: "剧情佳作" }));
-    await screen.findByText("4 个结果");
+    await screen.findByText("5 个结果");
     expect((screen.getByLabelText("搜索游戏") as HTMLTextAreaElement).value).toBe("找25美元以下的高评分剧情游戏");
-    expect([...container.querySelectorAll(".game-card h3")].map((el) => el.textContent)).toEqual(["Celeste", "Hades", "Outer Wilds", "SIGNALIS"]);
+    expect([...container.querySelectorAll(".game-card h3")].map((el) => el.textContent)).toEqual(["Celeste", "Hades", "Outer Wilds", "SIGNALIS", "Sticky Business"]);
     fireEvent.click(screen.getByText("筛选条件", { exact: true }));
     expect((screen.getByRole("combobox", { name: "游戏类型" }) as HTMLSelectElement).value).toBe("Story Rich");
     expect(screen.getByRole("option", { name: "剧情丰富" }).getAttribute("value")).toBe("Story Rich");
     fireEvent.click(screen.getByRole("button", { name: "English", exact: true }));
-    expect(screen.getByText("4 results")).toBeTruthy();
+    expect(screen.getByText("5 results")).toBeTruthy();
     expect((screen.getByRole("combobox", { name: "Tag Focus" }) as HTMLSelectElement).value).toBe("Story Rich");
     expect((screen.getByLabelText("Search games") as HTMLTextAreaElement).value).toBe("Show highly rated story rich games under 25 dollars");
   });

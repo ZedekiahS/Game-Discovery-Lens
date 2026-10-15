@@ -43,6 +43,11 @@ GET /api/saved-games/insights
 POST /api/saved-games
 DELETE /api/saved-games
 DELETE /api/saved-games/{gameId}
+GET /api/me/games
+PUT /api/me/games/{gameId}
+DELETE /api/me/games/{gameId}
+GET /api/me/preferences
+PUT /api/me/preferences
 ```
 
 All collection and saved-game endpoints, including `/api/saved-games/insights`, require an active account's bearer token. Missing, invalid, expired, or inactive-account tokens return `401`. Ownership always comes from that token. Requests targeting another account's collection return `404`.
@@ -60,6 +65,24 @@ Collection create/update and saved-game request bodies no longer accept `userId`
 ```
 
 The anonymous `POST /api/users/session` endpoint has been removed. Use `/api/auth/register` or `/api/auth/login` for API-backed saves. The frontend's fixed-data demo stores collections in the browser without creating server guest users. Existing guest records are retained; this change does not migrate or delete their data.
+
+### Personal Game Records
+
+Run `alembic upgrade head` before using the player library. Migration `0005_player_library` adds `player_games`, `player_preferences`, and `collections.purpose`; existing collections keep their data and receive `unspecified`. Rerun the seed script to apply the corrected shared catalog descriptions and tags; this does not import user play history.
+
+The `/api/me/*` endpoints require an active bearer token and derive the owner from it. They reject extra owner fields and cannot be redirected with a `userId` query. A record is independent of collections and unique per user/game. `PUT` replaces the record; repeated writes use an atomic PostgreSQL upsert. `DELETE` is idempotent and leaves collection saves intact.
+
+```json
+{"status": "playing", "affinity": "like", "notes": "Try the next chapter"}
+```
+
+Status can be `null`, `want_to_play`, `playing`, or `played`; affinity can be `neutral`, `like`, or `dislike`. Notes are trimmed and limited to 500 characters. Preference lists contain up to 12 canonical catalog tags each, are deduplicated, and cannot overlap:
+
+```json
+{"preferredTags": ["Puzzle"], "avoidedTags": ["Survival Horror"]}
+```
+
+Empty lists clear preferences. Collection create/update accepts optional `purpose`: `player`, `research`, or `unspecified`. The default collection's purpose can change while its name remains unchanged. These fields support evidence-based frontend profiles, not measured playtime or personalized recommendation ranking yet.
 
 The seed script also creates a local admin placeholder account. Configure these values through local environment variables only:
 

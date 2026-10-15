@@ -1,10 +1,12 @@
 import { useSyncExternalStore } from "react";
 
 export type WorkspaceView = "player" | "developer";
+export type AppPage = WorkspaceView | "library" | "profile";
 
-function currentPage(): WorkspaceView | null {
+function currentPage(): AppPage | null {
   const hash = window.location.hash;
-  return hash === "#player" ? "player" : hash === "#developer" ? "developer" : null;
+  return hash === "#player" ? "player" : hash === "#developer" ? "developer"
+    : hash === "#player/library" ? "library" : hash === "#player/profile" ? "profile" : null;
 }
 
 function subscribe(onChange: () => void) {

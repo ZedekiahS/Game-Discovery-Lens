@@ -1,6 +1,6 @@
 # Game Discovery Lens Architecture
 
-Game Discovery Lens is a portfolio application demonstrating reliable search, account collections, and explicit AI integration. The current React/FastAPI/PostgreSQL application evolved from group coursework using Java Swing and SQL Server. The original implementation remains as project history.
+Game Discovery Lens is a portfolio application demonstrating reliable search, account collections, personal game records, evidence-based profiles, and explicit AI integration. The current React/FastAPI/PostgreSQL application evolved from group coursework using Java Swing and SQL Server. The original implementation remains as project history.
 
 ## Current Application
 
@@ -14,6 +14,13 @@ flowchart TD
     Discovery --> Search[SearchControls: explicit search and filters]
     Workspace --> Details[GameWorkspace / useGameDetails]
     Workspace --> Collections[CollectionsPanel and SaveGameMenu / useCollections]
+    Workspace --> Library[PlayerLibraryPage / usePlayerLibrary]
+    Workspace --> Profile[PlayerProfilePage / buildPlayerProfile]
+    Library --> PlayerAdapter[playerLibrary: demo or authenticated API]
+    Profile --> Library
+    Profile --> Collections
+    PlayerAdapter --> FastAPI
+    PlayerAdapter --> LocalPlayer[Browser-scoped play records and preferences]
     Account --> Users[users / HTTP transport]
     Discovery --> Catalog[catalog: select configured adapter]
     Details --> Catalog
@@ -47,6 +54,10 @@ The homepage has no catalog, account, collection, or insight effects. Entering a
 | `lib/researchOverview.ts`, `components/ResearchOverview.tsx` | Aggregate the full loaded catalog, provide stable research references, and expose tag drilldowns. Keep overview statistics separate from selected-game and AI insight requests. |
 | `hooks/useGameDetails.ts` | Load/retry one selected game's details and intelligence; ignore results for an earlier selection. |
 | `hooks/useCollections.ts` | Own collection loading, mutations, saved games, and collection intelligence within an account/revision scope. |
+| `hooks/usePlayerLibrary.ts` | Load play records/preferences, serialize mutations, confirm saves before displaying success, and discard old-account responses. |
+| `components/PlayerLibraryPage.tsx` | Present searchable shelves, collection management, and the native dialog for status, affinity, and notes. |
+| `components/PlayerProfilePage.tsx`, `lib/playerProfile.ts` | Present evidence-backed tag counts and preference editing; derive deduplicated interests and play history in a pure function. |
+| `services/playerLibrary.ts` | Keep player-data transport separate from catalog search. API operations use bearer ownership; demo operations use separate browser namespaces and reject unreadable stored data. |
 | `components/AccountPanel.tsx` | Own login and registration form drafts and present account status. |
 | `components/CollectionsPanel.tsx` | Own collection create/rename drafts and present collections and their intelligence. |
 | `components/SaveGameMenu.tsx` | Own the selected game's save menu and create-and-save draft. |
@@ -60,6 +71,20 @@ The homepage has no catalog, account, collection, or insight effects. Entering a
 Form drafts belong to their panels; persisted state belongs to the hooks. The composition keys collection panels by account and session revision, and save menus additionally by game ID. Changing that context discards the old draft/menu without discarding unrelated discovery state. AccountPanel keeps a stable identity so authentication progress does not erase its inputs. The hooks independently prevent delayed requests from restoring old account or game data.
 
 The adapter interface keeps existing caller inputs to preserve tested behavior. Demo operations use a browser user namespace and catalog input. API collection ownership comes exclusively from the bearer token; the API adapter does not transmit a client owner ID. Both adapters return promises, including when local storage throws, so callers use the same loading/error flow.
+
+## Personal Library and Profile
+
+`#player/library` and `#player/profile` share the player workspace's account and catalog state with `#player`. Returning home or changing perspective ends that workspace. Player-page form state is keyed by account and session revision, so switching accounts discards private drafts immediately as well as invalidating pending responses.
+
+A `player_games` row is uniquely identified by `(user_id, game_id)`. It has a nullable play status (`want_to_play`, `playing`, `played`), affinity (`neutral`, `like`, `dislike`), a note of up to 500 characters, and an update timestamp. Collection membership is separate: removing a record does not remove collection saves, and removing a collection does not erase play history. PostgreSQL upserts make repeated writes converge to one row.
+
+`player_preferences` stores preferred and avoided canonical catalog tags for one user. Each list is limited to 12, duplicates are removed, overlap is rejected, and tags must exist in the current catalog. Collection `purpose` is `player`, `research`, or `unspecified`. New player/developer collections receive the corresponding purpose; pre-existing collections remain unspecified until their owner chooses. Purpose can be changed without renaming the default collection.
+
+`buildPlayerProfile` combines liked games and personal collection membership, deduplicates by game ID, then excludes explicitly disliked games. Research/unclassified collections never provide personal-interest evidence. Avoided tags are omitted from inferred interests; preferred tags remain explicit choices rather than fabricated game evidence. Play-history counts use only Playing/Played statuses, regardless of affinity. The profile lists the games behind each tag; tags overlap, so their counts are not exclusive shares. No playtime, engagement telemetry, personality score, or AI claim is inferred.
+
+The profile currently does not alter homepage recommendations. This boundary lets the record/evidence model be verified before recommendation behavior changes. The existing search provider remains independent and makes no new AI calls for these pages.
+
+All 80 catalog records contain short English/Chinese gameplay summaries and `contentSource` links to official Steam descriptions. Curated tags distinguish such cases as first-person cleaning, rhythm/VR, building, and auto-battling from FPS. The editorial source metadata is stored in the shared catalog for auditability; it does not certify synthetic prices, ratings, review counts, revenue, or ownership.
 
 ## Search and AI
 
@@ -87,6 +112,10 @@ The evaluation CLI uses the production resolver and SQL builder with isolated Po
 
 FastAPI routes use SQLAlchemy models against PostgreSQL. Alembic migrations and the seed script provide reproducible setup. Collection and saved-game routes derive ownership from the authenticated account, reject missing/invalid sessions, and hide another account's collections. No server guest account is created by the browser demo.
 
+Migration `0005_player_library` adds the two player tables and the collection purpose column. Run `alembic upgrade head` against the configured application database before using the new endpoints. It neither removes nor automatically classifies old collections. The migration test upgrades a real PostgreSQL schema from `0004`, retaining a pre-existing collection and saved note.
+
+`GET /api/me/games`, `PUT/DELETE /api/me/games/{game_id}`, and `GET/PUT /api/me/preferences` derive ownership exclusively from the bearer token. Inputs reject extra owner fields; legacy query parameters cannot redirect a request to another user. The frontend never changes a failed API write into a local success. A mutation with an unconfirmed outcome retains the last confirmed state and requires a reload before further writes. Demo storage is separate and scoped by user; unreadable existing data is reported rather than overwritten.
+
 Accounts use PBKDF2 password hashing and signed bearer tokens. The browser stores its token under the configured API URL and checks `/auth/me` when entering a workspace. A transient verification failure retains the stored token for retry; an invalid/expired session requires authentication again. Logout clears the browser token and current account state. It does not revoke an already issued token at the server; the token remains subject to its expiry and the active-account check.
 
 Collection ownership is independent of the selected page perspective and never comes from a submitted user ID. Collection/save request bodies reject extra owner fields, and another user's collection returns 404. Saving the same game into the same collection is idempotent. Frontend account/revision guards keep late responses from restoring previous-account data or drafts.
@@ -98,6 +127,8 @@ The modern backend retains route/service boundaries while its search contract in
 Tests call the same catalog exports as application hooks; adapter internals are not a second testing interface. App tests exercise search ordering and the actual account/collection controls, while hook tests cover failure handling and account changes. Backend integration tests use isolated UUID-named PostgreSQL schemas. GitHub Actions runs backend tests with PostgreSQL, frontend tests, and a production build.
 
 Shared search fixtures check intent and results in the frontend parser and the PostgreSQL HTTP suite. UI coverage also exercises homepage navigation, recommendation and overview entry states, bilingual rendering, and provider/source presentation. Automated provider tests use controlled responses rather than a live paid service.
+
+The [personal-library verification](verification/player-library-2026-10-08.md) covers migration, record/preference persistence, owner isolation, stale responses, failed writes, evidence semantics, bilingual controls, and responsive browser checks. Its screenshots contain synthetic records entered only for validation.
 
 See the [API workflow and delivery](verification/api-delivery-2026-09-15.md), [collection](verification/collections-2026-09-14.md), [search](verification/search-2026-09-14.md), and [module refactor](verification/modules-2026-09-15.md) records for executed checks and limitations. The [entry](verification/entry-2026-09-15.md), [recommendation](verification/recommendations-2026-09-15.md), [research overview](verification/research-overview-2026-09-15.md), and [bilingual](verification/bilingual-2026-09-15.md) records cover the subsequent interface work.
 

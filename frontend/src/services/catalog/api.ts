@@ -12,19 +12,19 @@ export const apiCatalog: CatalogService = {
     return requestApi<GameCollection[]>("/collections", { headers: requireAuthHeaders() });
   },
 
-  async createCollection(name) {
+  async createCollection(name, _userId, purpose) {
     return requestApi<GameCollection>("/collections", {
       method: "POST",
       headers: buildJsonHeaders(),
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name, purpose }),
     });
   },
 
-  async updateCollection(collectionId, name) {
+  async updateCollection(collectionId, name, _userId, purpose) {
     return requestApi<GameCollection>(`/collections/${collectionId}`, {
       method: "PATCH",
       headers: buildJsonHeaders(),
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name, purpose }),
     });
   },
 

@@ -48,7 +48,7 @@ def create_collection(
     if existing is not None:
         return existing
 
-    collection = Collection(user_id=user_id, name=name, description=request.description.strip())
+    collection = Collection(user_id=user_id, name=name, description=request.description.strip(), purpose=request.purpose)
     db.add(collection)
     db.commit()
     db.refresh(collection)
@@ -64,7 +64,7 @@ def update_collection(
 ) -> Collection:
     user_id = current_user.id
     collection = get_collection_for_request(db, user_id, collection_id)
-    if collection.name == DEFAULT_COLLECTION_NAME:
+    if collection.name == DEFAULT_COLLECTION_NAME and request.name.strip() != collection.name:
         raise HTTPException(status_code=400, detail="Default collection cannot be renamed")
 
     name = request.name.strip()
@@ -84,6 +84,8 @@ def update_collection(
     collection.name = name
     if request.description is not None:
         collection.description = request.description.strip()
+    if request.purpose is not None:
+        collection.purpose = request.purpose
     db.commit()
     db.refresh(collection)
     return collection

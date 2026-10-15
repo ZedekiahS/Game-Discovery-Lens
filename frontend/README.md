@@ -17,8 +17,8 @@ Open [the demo](http://localhost:5173/?mode=demo). Demo is the default when no m
 
 | Mode | Data and saves | Accounts and AI |
 | --- | --- | --- |
-| `?mode=demo` | Bundled 80-game catalog; collections and saves stay in this browser. No backend requests. | No server account is created. Search and insight panels use local sample/rule logic. |
-| `?mode=api` | FastAPI catalog and PostgreSQL saves. API failures are shown and can be retried. | Register or sign in to access account collections. Search uses the backend rules or configured AI provider. |
+| `?mode=demo` | Bundled 80-game catalog; collections, play records, and preferences stay in this browser. No backend requests. | No server account is created. Search and insight panels use local sample/rule logic. |
+| `?mode=api` | FastAPI catalog and PostgreSQL saves, play records, and preferences. API failures are shown and can be retried. | Register or sign in to access personal data. Search uses the backend rules or configured AI provider. |
 
 API mode never changes a failed API request into a local save or sample-data success. Account collections and browser-demo collections are separate. Switching modes loads the page again. Invalid or expired authentication requires signing in again.
 
@@ -49,13 +49,17 @@ Player entry begins with **Recommended games**, a featured banner, and up to six
 
 Developer entry begins with **Research overview**: whole-catalog game/developer counts, average price (including free games), average rating, and the six most frequent tags. A game counts once for each of its tags, so tag counts are not exclusive market shares. Empty-catalog averages display a dash. Up to six research references are ordered by review count, then rating and stable title/ID. These describe the loaded catalog, not the wider market. No game is selected or analyzed on entry. Clicking a reference loads its existing detail and insight; clicking a tag filters the full catalog. **Search catalog** opens empty input, while **Back to overview** clears search/filter/selection state and rejects late search updates. Demo provenance and ownership/revenue estimate labels remain visible.
 
-The homepage does not load the catalog, account collections, or game insights. Native `#player`, `#developer`, and `#home` links support refresh and browser Back. The **Home** link is the way to choose another perspective; there is no inline role toggle. The search contract's `mode` remains an interpreted query hint and cannot change the chosen page. Returning home ends the current search/form session; saved collections and language preference remain stored. The selected perspective never assigns or changes the authenticated account's permissions.
+The homepage does not load the catalog, account collections, or game insights. Native `#player`, `#player/library`, `#player/profile`, `#developer`, and `#home` links support refresh and browser Back. The **Home** link is the way to choose another perspective; there is no inline role toggle. The three player pages share the current workspace's account and catalog. The search contract's `mode` remains an interpreted query hint and cannot change the chosen page. Returning home ends the current search/form session; saved records, collections, and language preference remain stored. The selected perspective never assigns or changes the authenticated account's permissions.
 
-Search, current results, game price/rating, and save controls are the primary flow. A dark interface with lime action colors frames a game-specific artwork banner and result thumbnails. The header shows the current data mode; open **Data & setup** for storage details and mode switching. Save location is also shown in the save menu. Account and collection controls sit below game insights beside the results on desktop and follow the results on narrow screens.
+Search, current results, game price/rating, and save controls are the discovery flow. A dark interface with lime action colors frames a game-specific artwork banner and result thumbnails. Mode selection belongs in the URL/environment, with no setup controls in the customer header. Save-location limitations are stated at relevant save controls. Account and collection controls sit below game insights beside the discovery results on desktop and follow the results on narrow screens.
+
+**My games** has cover shelves for All / Want to play / Playing / Played / Liked, a title/type search, and collection filtering. A native dialog edits status, affinity, and a 500-character note, or saves the game to a collection. Removing a play record preserves its collection membership. Existing collections remain visible, and the owner can classify their purpose as personal or research.
+
+**My taste** separates distinct games of interest from actual Playing/Played records. Expand a type to see its game evidence. Personal collections and explicit likes provide interest evidence; research/unclassified collections do not. Multiple saves of one game count once; explicit dislikes and avoided tags take priority. Preferred tags are editable choices, labelled separately from evidence. These are game counts, not playtime. New accounts start with empty guidance. Homepage recommendations do not yet use the profile.
 
 Advanced filters, extra examples, and **How this search works** are collapsed initially. Applied conditions stay visible as a short summary. Game insights keep a source label and explain their catalog-metadata basis; additional signals and nonempty collection insights expand on demand. Empty collections do not show zero-value analytics. Errors and retry actions remain visible.
 
-Artwork for the 24 sample games is bundled locally, matched by normalized exact title rather than database ID. Unknown titles and failed image loads use a neutral gamepad placeholder. Result images load lazily. Store artwork is separate from the sample prices and ratings; see [artwork sources and rights](../docs/verification/game-artwork-sources.md).
+Artwork for the 80 sample games is bundled locally, matched by normalized exact title rather than database ID. Unknown titles and failed image loads use a neutral gamepad placeholder. Result images load lazily. Store artwork is separate from the sample prices and ratings; see [artwork sources and rights](../docs/verification/game-artwork-sources.md) and [the expansion record](../docs/verification/catalog-expansion-2026-09-16.md).
 
 ## English and Chinese
 
@@ -72,6 +76,8 @@ External AI text and changed or unrecognized catalog content remain verbatim, wi
 `App.tsx` composes the interface. `useDiscovery` owns catalog/search/filter selection; `useGameDetails` owns selected-game details and AI insight loading. Account and collection persistence stay in `useAccount` and `useCollections`. Their panels own local form/menu drafts, with collection drafts reset for a new account and save-menu drafts additionally reset for a new game.
 
 `services/catalog.ts` retains the shared asynchronous caller interface and selects `catalog/api.ts` or `catalog/demo.ts` once at page load. The API adapter uses the existing HTTP/token helpers; the demo adapter contains browser storage and sample search/insight logic. Failures never switch adapters. See the [architecture guide](../docs/architecture.md) for responsibilities and the retained AI interfaces.
+
+`usePlayerLibrary` owns play-record/preference loading and confirmed writes. Its separate `services/playerLibrary.ts` adapter shares the same data-mode and authenticated HTTP helpers; demo keys do not replace old collection keys. `lib/playerProfile.ts` derives evidence without network or AI calls. Old-account responses are ignored, private drafts reset on account changes, and uncertain writes require reload before retrying. An unreadable local record is not silently overwritten.
 
 ## Verify
 

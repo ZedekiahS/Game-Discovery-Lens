@@ -4,6 +4,7 @@ import type { useCollections } from "../hooks/useCollections";
 import { useI18n } from "../i18n";
 import { hasOriginalInsightContent, localizeCollectionInsights } from "../i18n/content";
 import { ErrorNotice, Metric } from "./ui";
+import type { CollectionPurpose } from "../types";
 
 const DEFAULT_COLLECTION_NAME = "Default Shortlist";
 
@@ -13,9 +14,10 @@ interface CollectionsPanelProps {
   selectedId: number | null;
   onSelectGame: (id: number) => void;
   view?: "player" | "developer";
+  hideInsights?: boolean;
 }
 
-export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGame, view = "player" }: CollectionsPanelProps) {
+export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGame, view = "player", hideInsights = false }: CollectionsPanelProps) {
   const { language, t, money, number, tag, collectionName } = useI18n();
   const { collections, activeCollectionId, savedGamesByCollection, shortlistInsights } = state;
   const collectionDisabled = sessionUserId === null || state.loading || state.busy
@@ -145,6 +147,11 @@ export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGam
             <Trash2 size={15} aria-hidden="true" />
           </button>
         </div>
+        {selectedCollection && <label className="field collection-purpose"><span>{t("Collection purpose", "收藏夹用途")}</span>
+          <select aria-label={t("Collection purpose", "收藏夹用途")} value={selectedCollection.purpose ?? "unspecified"} disabled={collectionDisabled} onChange={(e) => void state.setPurpose(selectedCollection, e.target.value as CollectionPurpose)}>
+            <option value="unspecified">{t("Not set", "尚未设置")}</option><option value="player">{t("Personal interests", "个人喜好")}</option><option value="research">{t("Research references", "研究参考")}</option>
+          </select><small>{t("Only personal collections contribute to your taste profile.", "只有个人喜好收藏夹会计入玩家画像。")}</small>
+        </label>}
         {isCreatingCollection && (
           <form className="collection-create" onSubmit={(event) => void addCollection(event)}>
             <input
@@ -192,7 +199,7 @@ export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGam
       </section>
 
       {state.insightsError && <ErrorNotice message={state.insightsError} onRetry={state.retry} retryLabel={t("Retry collection intelligence", "重新获取收藏洞察")} disabled={state.busy} />}
-      {savedGames.length > 0 && shortlistInsights && localizedInsights && (
+      {!hideInsights && savedGames.length > 0 && shortlistInsights && localizedInsights && (
         <details className="tool-panel shortlist-insight-panel collection-insight-disclosure">
           <summary>
             <LineChart size={16} aria-hidden="true" />

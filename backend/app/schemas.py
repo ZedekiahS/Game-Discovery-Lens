@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -105,6 +106,7 @@ class CollectionCreateRequest(BaseModel):
 
     name: str
     description: str = ""
+    purpose: Literal["unspecified", "player", "research"] = "unspecified"
 
 
 class CollectionUpdateRequest(BaseModel):
@@ -112,6 +114,7 @@ class CollectionUpdateRequest(BaseModel):
 
     name: str
     description: str | None = None
+    purpose: Literal["unspecified", "player", "research"] | None = None
 
 
 class CollectionOut(BaseModel):
@@ -121,6 +124,7 @@ class CollectionOut(BaseModel):
     user_id: str = Field(alias="userId")
     name: str
     description: str
+    purpose: Literal["unspecified", "player", "research"] = "unspecified"
     created_at: datetime = Field(alias="createdAt")
 
 

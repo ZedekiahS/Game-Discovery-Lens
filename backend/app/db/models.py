@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, UniqueConstraint, func
+from sqlalchemy import Boolean, CheckConstraint, DateTime, Float, ForeignKey, Integer, String, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -46,6 +46,7 @@ class Collection(Base):
     user_id: Mapped[str] = mapped_column(String(120), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(120), nullable=False)
     description: Mapped[str] = mapped_column(String(500), nullable=False, default="")
+    purpose: Mapped[str] = mapped_column(String(20), nullable=False, default="unspecified", server_default="unspecified")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     saved_games: Mapped[list["SavedGame"]] = relationship(
@@ -70,3 +71,26 @@ class SavedGame(Base):
 
     game: Mapped[Game] = relationship()
     collection: Mapped[Collection] = relationship(back_populates="saved_games")
+
+
+class PlayerGame(Base):
+    __tablename__ = "player_games"
+    __table_args__ = (
+        CheckConstraint("status IS NULL OR status IN ('want_to_play', 'playing', 'played')", name="ck_player_game_status"),
+        CheckConstraint("affinity IN ('neutral', 'like', 'dislike')", name="ck_player_game_affinity"),
+    )
+
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    game_id: Mapped[int] = mapped_column(ForeignKey("games.id", ondelete="CASCADE"), primary_key=True)
+    status: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    affinity: Mapped[str] = mapped_column(String(20), nullable=False, default="neutral")
+    notes: Mapped[str] = mapped_column(String(500), nullable=False, default="")
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
+
+
+class PlayerPreference(Base):
+    __tablename__ = "player_preferences"
+
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    preferred_tags: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False, default=list)
+    avoided_tags: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False, default=list)

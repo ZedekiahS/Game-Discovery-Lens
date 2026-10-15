@@ -14,14 +14,19 @@
       "Open World",
       "Crafting"
     ],
-    "summary": "A survival crafting title with strong multiplayer fit and clear collection mechanics.",
-    "summaryZh": "一款生存建造游戏，适合多人同乐，收集机制清晰。",
+    "summary": "Survive at miniature scale by building shelters, crafting equipment and exploring a world of towering plants and creatures.",
+    "summaryZh": "以微小身形探索巨大的植物与生物世界，通过搭建庇护所和制作装备求生。",
     "revenue": 41820,
     "ownership": 1360,
     "artwork": {
       "appId": 768200,
       "slug": "smalland",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/768200/67c3d2f6d897225f951655df0efc1b7bb33d9d08/header.jpg?t=1787165670"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/768200/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -39,14 +44,19 @@
       "Story Rich",
       "Singleplayer"
     ],
-    "summary": "A precision platformer with exceptional review quality and lasting catalog value.",
-    "summaryZh": "一款讲究精准操作的平台跳跃游戏，评价出色，具有持久的游戏库价值。",
+    "summary": "Climb Celeste Mountain through precise platforming challenges while following Madeline's personal journey.",
+    "summaryZh": "通过讲究精准操作的平台跳跃挑战攀登塞莱斯特山，跟随玛德琳走过她的心路历程。",
     "revenue": 62300,
     "ownership": 4260,
     "artwork": {
       "appId": 504230,
       "slug": "celeste",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/504230/header.jpg?t=1714089525"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/504230/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -64,14 +74,19 @@
       "Story Rich",
       "Singleplayer"
     ],
-    "summary": "A high-sentiment horror game with strong narrative identity and review consistency.",
-    "summaryZh": "一款口碑出色的恐怖游戏，叙事风格鲜明，评价稳定。",
+    "summary": "Search an off-world facility for supplies and clues while escaping unsettling creatures in a dystopian future.",
+    "summaryZh": "在反乌托邦未来的外星设施中寻找物资与线索，躲避令人不安的生物。",
     "revenue": 36400,
     "ownership": 2170,
     "artwork": {
       "appId": 1262350,
       "slug": "signalis",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1262350/header.jpg?t=1773697315"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1262350/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -89,14 +104,19 @@
       "Exploration",
       "Singleplayer"
     ],
-    "summary": "A premium puzzle adventure with clear niche appeal and strong discovery potential.",
-    "summaryZh": "一款定位高端的解谜冒险游戏，受众明确，值得发掘。",
+    "summary": "Explore an unfamiliar civilization and solve intricate environmental puzzles to uncover Riven's secrets.",
+    "summaryZh": "探索陌生文明，通过层层环境谜题揭开里文世界的秘密。",
     "revenue": 29820,
     "ownership": 920,
     "artwork": {
       "appId": 1712350,
       "slug": "riven",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1712350/9ead2cf7de352df93cea7462e17ec0141bac1fca/header.jpg?t=1784241079"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1712350/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -114,14 +134,19 @@
       "Multiplayer",
       "Training"
     ],
-    "summary": "A free-to-play aim trainer with broad acquisition value and competitive positioning.",
-    "summaryZh": "一款免费瞄准训练游戏，具备广泛的获客价值，定位竞技玩家。",
+    "summary": "Practice aiming through repeatable training scenarios and use performance feedback to work on specific shooting skills.",
+    "summaryZh": "在可重复的训练场景中练习瞄准，根据表现反馈改进具体射击技巧。",
     "revenue": 12400,
     "ownership": 15400,
     "artwork": {
       "appId": 714010,
       "slug": "aimlabs",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/714010/7f5149ee10b877a8c281d7e8f3f7c0c1957f29ea/header_alt_assets_4.jpg?t=1788999114"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/714010/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -139,14 +164,19 @@
       "Strategy",
       "Crafting"
     ],
-    "summary": "A management sim with survival hooks and a clear strategy audience.",
-    "summaryZh": "一款融入生存要素的经营模拟游戏，面向策略游戏玩家。",
+    "summary": "Build a magical academy, train mages and explore the dangerous dungeon beneath a cursed school.",
+    "summaryZh": "建设魔法学院、培养法师，探索被诅咒学校下方的危险地牢。",
     "revenue": 16840,
     "ownership": 780,
     "artwork": {
       "appId": 1270580,
       "slug": "mind-over-magic",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1270580/header.jpg?t=1777063467"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1270580/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -164,14 +194,19 @@
       "RPG",
       "Exploration"
     ],
-    "summary": "A premium space RPG with strong genre alignment and high-value positioning.",
-    "summaryZh": "一款定位高端的太空角色扮演游戏，类型特色鲜明，注重高价值体验。",
+    "summary": "Pilot a spaceship through combat and exploration, collecting equipment and developing a build across a science-fiction world.",
+    "summaryZh": "驾驶飞船展开战斗与探索，在科幻世界中收集装备、发展自己的战斗配置。",
     "revenue": 71200,
     "ownership": 1530,
     "artwork": {
       "appId": 1128920,
       "slug": "everspace-2",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1128920/bb6d0273bdc984a934a216db1425e21b44077cef/header.jpg?t=1783351221"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1128920/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -189,14 +224,19 @@
       "Exploration",
       "Atmospheric"
     ],
-    "summary": "A compact exploration game with unusually strong sentiment and discovery momentum.",
-    "summaryZh": "一款小而精的探索游戏，口碑格外出色，关注度持续增长。",
+    "summary": "Explore an interconnected labyrinth and use unusual items to uncover secrets hidden in its surroundings.",
+    "summaryZh": "探索相互连通的迷宫，运用奇特物品发现环境中隐藏的秘密。",
     "revenue": 58200,
     "ownership": 2710,
     "artwork": {
       "appId": 813230,
       "slug": "animal-well",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/813230/header.jpg?t=1788379439"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/813230/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -214,14 +254,19 @@
       "Open World",
       "Crafting"
     ],
-    "summary": "A co-op survival sandbox with strong discovery fit for players who want long-form crafting loops.",
-    "summaryZh": "一款合作生存沙盒游戏，适合喜欢长线制作与建造体验的玩家。",
+    "summary": "Explore a Viking-inspired afterlife, gather resources and build settlements alone or with companions.",
+    "summaryZh": "探索北欧维京风格的来世，独自或与伙伴收集资源、建设聚落。",
     "revenue": 128000,
     "ownership": 6400,
     "artwork": {
       "appId": 892970,
       "slug": "valheim",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/892970/1888731b59362fca6c026cdbafa3dfffd45c3146/header_alt_assets_6.jpg?t=1789470462"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/892970/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -239,14 +284,19 @@
       "Multiplayer",
       "Co-op"
     ],
-    "summary": "A co-op shooter with unusually durable retention signals and clear squad-based appeal.",
-    "summaryZh": "一款合作射击游戏，留存表现持久，组队特色鲜明。",
+    "summary": "Join a team of space-mining dwarves to explore destructible caves, collect minerals and fight alien swarms.",
+    "summaryZh": "加入太空矮人矿工队伍，探索可破坏的洞穴、采集矿物，并抵御外星虫群。",
     "revenue": 154000,
     "ownership": 7100,
     "artwork": {
       "appId": 548430,
       "slug": "deep-rock-galactic",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/548430/37b58a6c4816ee60b0ca97cb6724d6e904c58c41/header.jpg?t=1786014445"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/548430/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -264,14 +314,19 @@
       "Multiplayer",
       "Open World"
     ],
-    "summary": "A systems-heavy survival game with strong multiplayer watchlist potential and long-tail demand.",
-    "summaryZh": "一款系统丰富的生存游戏，值得多人游戏爱好者关注，具有长尾需求。",
+    "summary": "Scavenge, build and develop survival skills in an open zombie sandbox where a single mistake can be fatal.",
+    "summaryZh": "在开放的丧尸沙盒中搜集物资、建造设施、培养生存技能，一次失误就可能致命。",
     "revenue": 88200,
     "ownership": 3900,
     "artwork": {
       "appId": 108600,
       "slug": "project-zomboid",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/108600/header.jpg?t=1787740093"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/108600/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -289,14 +344,19 @@
       "Multiplayer",
       "Exploration"
     ],
-    "summary": "A cozy survival crafting title with strong collection value for exploration-led recommendations.",
-    "summaryZh": "一款轻松惬意的生存建造游戏，适合以探索体验为核心的推荐与收藏。",
+    "summary": "Mine through a vast underground cavern, build a base and uncover the mystery surrounding an ancient core.",
+    "summaryZh": "挖掘广阔地下洞窟、建设基地，逐步揭开古老核心周围的谜团。",
     "revenue": 46200,
     "ownership": 2400,
     "artwork": {
       "appId": 1621690,
       "slug": "core-keeper",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1621690/header.jpg?t=1788195083"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1621690/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -314,14 +374,19 @@
       "Atmospheric",
       "Singleplayer"
     ],
-    "summary": "A high-sentiment survival exploration game with strong atmospheric positioning.",
-    "summaryZh": "一款口碑出色的生存探索游戏，以独特氛围见长。",
+    "summary": "Explore an alien ocean, craft equipment and pilot submersibles while managing the dangers of underwater survival.",
+    "summaryZh": "探索外星海洋、制作装备并驾驶潜水器，应对水下生存的种种危险。",
     "revenue": 136500,
     "ownership": 5300,
     "artwork": {
       "appId": 264710,
       "slug": "subnautica",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/264710/header.jpg?t=1777456112"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/264710/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -339,14 +404,19 @@
       "Story Rich",
       "Space"
     ],
-    "summary": "A discovery-driven mystery game with exceptional sentiment and strong recommendation confidence.",
-    "summaryZh": "一款以探索发现为驱动的悬疑游戏，评价出色，推荐依据充分。",
+    "summary": "Investigate a solar system caught in a repeating time loop, using each journey to piece together its mystery.",
+    "summaryZh": "调查陷入时间循环的太阳系，在一次次旅程中拼合谜团。",
     "revenue": 94500,
     "ownership": 3700,
     "artwork": {
       "appId": 753640,
       "slug": "outer-wilds",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/753640/079ae4a7ff4b5875adc5c63c4c0b84e5a3e6966b/header.jpg?t=1785424341"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/753640/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -364,14 +434,19 @@
       "Story Rich",
       "Singleplayer"
     ],
-    "summary": "A polished action roguelike with rare crossover strength between story and repeatable combat.",
-    "summaryZh": "一款打磨精良的动作肉鸽游戏，兼具出色叙事与值得反复体验的战斗。",
+    "summary": "Fight your way out of the Greek Underworld through repeated runs with changing weapons, powers and encounters.",
+    "summaryZh": "在反复挑战中运用不同武器与能力，迎战不断变化的遭遇，尝试逃出希腊冥界。",
     "revenue": 142800,
     "ownership": 6100,
     "artwork": {
       "appId": 1145360,
       "slug": "hades",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1145360/header.jpg?t=1758127023"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1145360/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -389,14 +464,19 @@
       "Exploration",
       "Atmospheric"
     ],
-    "summary": "A low-price high-sentiment metroidvania with excellent value and evergreen discovery demand.",
-    "summaryZh": "一款价格亲民、口碑出色的类银河战士恶魔城游戏，性价比高，长期受到新玩家关注。",
+    "summary": "Explore a hand-drawn insect kingdom, discover hidden routes and battle the creatures inhabiting its ruins.",
+    "summaryZh": "探索手绘昆虫王国，寻找隐蔽路线，并与栖息在废墟中的生物战斗。",
     "revenue": 104000,
     "ownership": 7200,
     "artwork": {
       "appId": 367520,
       "slug": "hollow-knight",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/367520/3c3489495136b26b34f8a9543c7f5645b99d388c/header.jpg?t=1776125684"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/367520/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -414,14 +494,19 @@
       "Card Battler",
       "Singleplayer"
     ],
-    "summary": "A strategy deckbuilder with deep replay value and strong fit for analytical recommendations.",
-    "summaryZh": "一款策略牌组构筑游戏，重玩价值丰富，适合偏重策略分析的推荐。",
+    "summary": "Build a deck during each climb, combining cards and relics to adapt to changing enemies and encounters.",
+    "summaryZh": "在每次攀塔时构筑牌组，组合卡牌与遗物，应对变化的敌人与遭遇。",
     "revenue": 116000,
     "ownership": 5100,
     "artwork": {
       "appId": 646570,
       "slug": "slay-the-spire",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/646570/header.jpg?t=1774015376"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/646570/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -439,14 +524,19 @@
       "Strategy",
       "Singleplayer"
     ],
-    "summary": "A compact card roguelike with exceptional price-to-sentiment performance.",
-    "summaryZh": "一款小而精的卡牌肉鸽游戏，价格与口碑之间的表现格外突出。",
+    "summary": "Combine poker hands with unusual jokers to build scoring strategies that change from run to run.",
+    "summaryZh": "将扑克牌型与独特小丑牌结合，在每轮挑战中构筑不同的得分策略。",
     "revenue": 76400,
     "ownership": 4800,
     "artwork": {
       "appId": 2379780,
       "slug": "balatro",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2379780/7a85430784e4d613cdb0547414d8cf16ffa45747/header.jpg?t=1788961800"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/2379780/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -464,14 +554,19 @@
       "Cozy",
       "Multiplayer"
     ],
-    "summary": "A cozy farming sim with broad audience reach and strong multiplayer-adjacent appeal.",
-    "summaryZh": "一款轻松的农场模拟游戏，受众广泛，也适合关注多人体验的玩家。",
+    "summary": "Restore an inherited farm, grow crops and build a new life in a rural community.",
+    "summaryZh": "修复继承的农场、种植作物，在乡村社区中开启新的生活。",
     "revenue": 162000,
     "ownership": 9100,
     "artwork": {
       "appId": 413150,
       "slug": "stardew-valley",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/413150/header.jpg?t=1786554168"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/413150/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -489,14 +584,19 @@
       "Survival",
       "Simulation"
     ],
-    "summary": "A settlement strategy game with survival pressure and strong developer-side category signals.",
-    "summaryZh": "一款带有生存压力的聚落策略游戏，可为开发者提供清晰的品类参考。",
+    "summary": "Lead a mixed-species settlement and balance its needs while rebuilding civilization under relentless rain.",
+    "summaryZh": "领导多种族聚落、平衡居民需求，在连绵暴雨中重建文明。",
     "revenue": 68400,
     "ownership": 2300,
     "artwork": {
       "appId": 1336490,
       "slug": "against-the-storm",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1336490/4df5edc84dea5dae1269f3f95c2bd2cf22333af6/header.jpg?t=1788340830"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1336490/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -514,14 +614,19 @@
       "Fishing",
       "Adventure"
     ],
-    "summary": "An atmospheric adventure with strong hook clarity and approachable premium pricing.",
-    "summaryZh": "一款氛围鲜明的冒险游戏，核心吸引力清晰，付费定价易于接受。",
+    "summary": "Fish around a mysterious archipelago, sell your catch and upgrade your boat while uncovering darker secrets.",
+    "summaryZh": "在神秘群岛间捕鱼、出售渔获并升级船只，逐步发现水面下的阴暗秘密。",
     "revenue": 59800,
     "ownership": 2600,
     "artwork": {
       "appId": 1562430,
       "slug": "dredge",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1562430/header.jpg?t=1780479732"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1562430/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -539,14 +644,19 @@
       "Detective",
       "Singleplayer"
     ],
-    "summary": "A narrative RPG with standout writing signals and strong story-rich recommendation fit.",
-    "summaryZh": "一款叙事角色扮演游戏，文本表现突出，适合推荐给重视剧情的玩家。",
+    "summary": "Investigate a murder through conversations, unusual skills and consequential choices in a troubled city.",
+    "summaryZh": "在动荡城市中通过对话、独特技能和影响深远的选择调查谋杀案。",
     "revenue": 98200,
     "ownership": 3400,
     "artwork": {
       "appId": 632470,
       "slug": "disco-elysium",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/632470/816ea59d6d8ac525f79a07c3a7afa94eddb3437c/header.jpg?t=1780913406"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/632470/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -564,14 +674,19 @@
       "Multiplayer",
       "Open World"
     ],
-    "summary": "A premium exploration sandbox with broad tag coverage and useful developer comparison signals.",
-    "summaryZh": "一款定位高端的探索沙盒游戏，涵盖多种类型，可为开发者提供比较参考。",
+    "summary": "Explore a procedurally generated universe, visiting unfamiliar planets and finding ways to survive among the stars.",
+    "summaryZh": "探索程序生成的宇宙，造访陌生星球，在群星之间寻找生存之道。",
     "revenue": 185000,
     "ownership": 4200,
     "artwork": {
       "appId": 275850,
       "slug": "no-mans-sky",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/275850/2c6e38b43a5309dfcd3cc0f0134e222b0fa2d1b1/header_alt_assets_25.jpg?t=1789027039"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/275850/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -589,14 +704,19 @@
       "Co-op",
       "Survival"
     ],
-    "summary": "A low-price co-op horror title with strong social discovery and shortlist value.",
-    "summaryZh": "一款价格亲民的合作恐怖游戏，适合通过好友发掘，也值得加入收藏。",
+    "summary": "Scavenge abandoned moons with teammates and bring back scrap while surviving the hazards around you.",
+    "summaryZh": "与队友搜寻废弃卫星，在周围威胁中求生，并将收集的废品带回。",
     "revenue": 72800,
     "ownership": 8300,
     "artwork": {
       "appId": 1966720,
       "slug": "lethal-company",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1966720/header.jpg?t=1775380053"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1966720/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -612,10 +732,10 @@
       "FPS",
       "Shooter",
       "Multiplayer",
-      "Action"
+      "Strategy"
     ],
-    "summary": "Counter-Strike 2 broadens the demo catalog with fps, shooter, multiplayer signals for discovery and comparison.",
-    "summaryZh": "Counter-Strike 2 为演示目录补充了第一人称射击、射击、多人等类型信号，便于发现与比较。",
+    "summary": "A competitive team shooter built around tactical rounds, map knowledge and coordinated attacks.",
+    "summaryZh": "以回合攻防为核心的竞技团队射击游戏，强调地图理解、战术配合与枪法。",
     "revenue": 42053,
     "ownership": 27307,
     "artwork": {
@@ -623,6 +743,11 @@
       "slug": "counter-strike-2",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/730/162664aa5da85f418105350c5d67ca565f6c3713/header.jpg?t=1789251637",
       "steamName": "Counter-Strike 2"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/730/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -638,10 +763,10 @@
       "Survival Horror",
       "Co-op",
       "Multiplayer",
-      "Puzzle"
+      "Physics"
     ],
-    "summary": "R.E.P.O. broadens the demo catalog with survival horror, co-op, multiplayer signals for discovery and comparison.",
-    "summaryZh": "R.E.P.O. 为演示目录补充了生存恐怖、合作、多人等类型信号，便于发现与比较。",
+    "summary": "Work together to carry fragile valuables out of dangerous locations while dealing with physical objects and lurking threats.",
+    "summaryZh": "与队友合作搬运易碎贵重物品，在物理碰撞和潜伏威胁中完成撤离。",
     "revenue": 17212,
     "ownership": 4786,
     "artwork": {
@@ -649,6 +774,11 @@
       "slug": "r-e-p-o",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3241660/1ea445e044a2d5b09cfa8291350b63ebed6e5741/header.jpg?t=1778158882",
       "steamName": "R.E.P.O."
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/3241660/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -661,13 +791,13 @@
     "developer": "NetEase Games",
     "publisher": "NetEase Games",
     "tags": [
-      "Multiplayer",
       "Shooter",
+      "Multiplayer",
       "Action",
-      "Strategy"
+      "Co-op"
     ],
-    "summary": "Marvel Rivals broadens the demo catalog with multiplayer, shooter, action signals for discovery and comparison.",
-    "summaryZh": "Marvel Rivals 为演示目录补充了多人、射击、动作等类型信号，便于发现与比较。",
+    "summary": "Build a team of Marvel heroes and combine their powers in battles across destructible environments.",
+    "summaryZh": "组建漫威英雄队伍，组合角色能力，在可破坏的场景中展开团队对战。",
     "revenue": 43914,
     "ownership": 22012,
     "artwork": {
@@ -675,6 +805,11 @@
       "slug": "marvel-rivals",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2767030/088fc787d8513a6f9782d03968e5ac1a01840087/header.jpg?t=1789119923",
       "steamName": "Marvel Rivals"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/2767030/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -690,10 +825,10 @@
       "Co-op",
       "Adventure",
       "Platformer",
-      "Space"
+      "Story Rich"
     ],
-    "summary": "Split Fiction broadens the demo catalog with co-op, adventure, platformer signals for discovery and comparison.",
-    "summaryZh": "Split Fiction 为演示目录补充了合作、冒险、平台跳跃等类型信号，便于发现与比较。",
+    "summary": "A two-player adventure that moves between science-fiction and fantasy worlds, with challenges built around working together.",
+    "summaryZh": "穿梭科幻与奇幻世界的双人合作冒险，通过配合跨越不断变化的关卡挑战。",
     "revenue": 105142,
     "ownership": 5393,
     "artwork": {
@@ -701,6 +836,11 @@
       "slug": "split-fiction",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2001120/header.jpg?t=1763484567",
       "steamName": "Split Fiction"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/2001120/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -716,10 +856,10 @@
       "Space",
       "Strategy",
       "Exploration",
-      "Open World"
+      "Simulation"
     ],
-    "summary": "Stellaris broadens the demo catalog with space, strategy, exploration signals for discovery and comparison.",
-    "summaryZh": "Stellaris 为演示目录补充了太空、策略、探索等类型信号，便于发现与比较。",
+    "summary": "Lead a space civilization, investigate unfamiliar worlds and shape relationships with other galactic powers.",
+    "summaryZh": "领导太空文明，探索陌生星球，并通过外交与扩张塑造星际格局。",
     "revenue": 19310,
     "ownership": 1006,
     "artwork": {
@@ -727,6 +867,11 @@
       "slug": "stellaris",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/281990/header.jpg?t=1782139685",
       "steamName": "Stellaris"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/281990/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -739,13 +884,13 @@
     "developer": "Keen Games GmbH",
     "publisher": "Keen Games GmbH",
     "tags": [
-      "Exploration",
       "Survival",
       "Crafting",
-      "Multiplayer"
+      "RPG",
+      "Co-op"
     ],
-    "summary": "Enshrouded broadens the demo catalog with exploration, survival, crafting signals for discovery and comparison.",
-    "summaryZh": "Enshrouded 为演示目录补充了探索、生存、制作建造等类型信号，便于发现与比较。",
+    "summary": "Explore a fog-threatened fantasy land, gather materials, build a home and fight powerful enemies with companions.",
+    "summaryZh": "探索被迷雾侵蚀的奇幻大陆，收集材料、建造家园，与伙伴共同挑战强敌。",
     "revenue": 362944,
     "ownership": 21611,
     "artwork": {
@@ -753,6 +898,11 @@
       "slug": "enshrouded",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1203620/062c788d22ecf236269da0f115150c0d3b7055a4/header.jpg?t=1782800102",
       "steamName": "Enshrouded"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1203620/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -765,13 +915,13 @@
     "developer": "VOID Interactive",
     "publisher": "VOID Interactive",
     "tags": [
-      "Strategy",
       "FPS",
       "Shooter",
-      "Multiplayer"
+      "Strategy",
+      "Co-op"
     ],
-    "summary": "Ready or Not broadens the demo catalog with strategy, fps, shooter signals for discovery and comparison.",
-    "summaryZh": "Ready or Not 为演示目录补充了策略、第一人称射击、射击等类型信号，便于发现与比较。",
+    "summary": "Lead a tactical police team through dangerous encounters where careful planning and controlled movement matter.",
+    "summaryZh": "带领战术警队应对危险现场，通过周密计划与谨慎推进完成任务。",
     "revenue": 518919,
     "ownership": 17594,
     "artwork": {
@@ -779,6 +929,11 @@
       "slug": "ready-or-not",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1144200/2b44644b033a996a9efb95051bb01809215d0d23/header.jpg?t=1789019569",
       "steamName": "Ready or Not"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1144200/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -796,8 +951,8 @@
       "RPG",
       "Management"
     ],
-    "summary": "Crusader Kings III broadens the demo catalog with strategy, simulation, rpg signals for discovery and comparison.",
-    "summaryZh": "Crusader Kings III 为演示目录补充了策略、模拟、角色扮演等类型信号，便于发现与比较。",
+    "summary": "Guide a medieval dynasty through generations of politics, family relationships, conflict and succession.",
+    "summaryZh": "经营中世纪家族，在政治、亲缘、战争与继承中延续王朝。",
     "revenue": 489020,
     "ownership": 15778,
     "artwork": {
@@ -805,6 +960,11 @@
       "slug": "crusader-kings-iii",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1158310/8a7e814d13f8e73c0d40471f585ece908f9be282/header.jpg?t=1785862913",
       "steamName": "Crusader Kings III"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1158310/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -818,12 +978,12 @@
     "publisher": "Hooded Horse",
     "tags": [
       "Strategy",
+      "Building",
       "Management",
-      "Simulation",
-      "Crafting"
+      "Simulation"
     ],
-    "summary": "Manor Lords broadens the demo catalog with strategy, management, simulation signals for discovery and comparison.",
-    "summaryZh": "Manor Lords 为演示目录补充了策略、经营管理、模拟等类型信号，便于发现与比较。",
+    "summary": "Develop a medieval settlement while managing its economy, seasonal needs and large tactical battles.",
+    "summaryZh": "建设中世纪聚落，平衡经济与季节需求，并指挥大规模战术战斗。",
     "revenue": 208047,
     "ownership": 9816,
     "artwork": {
@@ -831,6 +991,11 @@
       "slug": "manor-lords",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1363080/header.jpg?t=1787906126",
       "steamName": "Manor Lords"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1363080/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -844,12 +1009,12 @@
     "publisher": "Axolot Games",
     "tags": [
       "Survival",
-      "Multiplayer",
       "Crafting",
+      "Exploration",
       "Co-op"
     ],
-    "summary": "Raft broadens the demo catalog with survival, multiplayer, crafting signals for discovery and comparison.",
-    "summaryZh": "Raft 为演示目录补充了生存、多人、制作建造等类型信号，便于发现与比较。",
+    "summary": "Collect floating debris, expand a raft and explore the ocean while keeping yourself and your companions alive.",
+    "summaryZh": "收集海上漂流物、扩建木筏并探索海洋，为自己与同伴争取生存空间。",
     "revenue": 97951,
     "ownership": 12250,
     "artwork": {
@@ -857,6 +1022,11 @@
       "slug": "raft",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/648800/header.jpg?t=1727184011",
       "steamName": "Raft"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/648800/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -870,12 +1040,12 @@
     "publisher": "Ninja Kiwi",
     "tags": [
       "Strategy",
-      "Multiplayer",
+      "Tower Defense",
       "Singleplayer",
       "Co-op"
     ],
-    "summary": "Bloons TD 6 broadens the demo catalog with strategy, multiplayer, singleplayer signals for discovery and comparison.",
-    "summaryZh": "Bloons TD 6 为演示目录补充了策略、多人、单人等类型信号，便于发现与比较。",
+    "summary": "Plan a network of monkey towers and upgrades to stop increasingly demanding waves of balloons.",
+    "summaryZh": "布置猴子防御塔并规划升级路线，抵御不断增强的气球攻势。",
     "revenue": 35554,
     "ownership": 6051,
     "artwork": {
@@ -883,6 +1053,11 @@
       "slug": "bloons-td-6",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/960090/header.jpg?t=1782123772",
       "steamName": "Bloons TD 6"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/960090/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -897,11 +1072,11 @@
     "tags": [
       "Action",
       "Roguelike",
-      "RPG",
-      "Story Rich"
+      "Story Rich",
+      "Singleplayer"
     ],
-    "summary": "Hades II broadens the demo catalog with action, roguelike, rpg signals for discovery and comparison.",
-    "summaryZh": "Hades II 为演示目录补充了动作、肉鸽、角色扮演等类型信号，便于发现与比较。",
+    "summary": "Use witchcraft and changing combat builds on repeated journeys to confront the Titan of Time.",
+    "summaryZh": "在反复挑战中运用巫术与不同战斗组合，踏上对抗时间泰坦的旅程。",
     "revenue": 32344,
     "ownership": 2201,
     "artwork": {
@@ -909,6 +1084,11 @@
       "slug": "hades-ii",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1145350/91ac334a2c137d08968ccc0bc474a02579602100/header.jpg?t=1779901265",
       "steamName": "Hades II"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1145350/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -919,15 +1099,15 @@
     "reviewCount": 1005,
     "releaseYear": 2022,
     "developer": "FuturLab",
-    "publisher": "Square Enix",
+    "publisher": "FuturLab",
     "tags": [
-      "Cozy",
       "Simulation",
-      "Multiplayer",
-      "FPS"
+      "Cozy",
+      "First-Person",
+      "Co-op"
     ],
-    "summary": "PowerWash Simulator broadens the demo catalog with cozy, simulation, multiplayer signals for discovery and comparison.",
-    "summaryZh": "PowerWash Simulator 为演示目录补充了休闲治愈、模拟、多人等类型信号，便于发现与比较。",
+    "summary": "Clean dirt from buildings, vehicles and objects with a pressure washer, working through each job at your own pace.",
+    "summaryZh": "用高压水枪清洗建筑、车辆与物件，按自己的节奏完成一项项清洁工作。",
     "revenue": 199280,
     "ownership": 19936,
     "artwork": {
@@ -935,6 +1115,11 @@
       "slug": "powerwash-simulator",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1290000/header.jpg?t=1780392261",
       "steamName": "PowerWash Simulator"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1290000/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -945,15 +1130,15 @@
     "reviewCount": 1974,
     "releaseYear": 2014,
     "developer": "Kunos Simulazioni",
-    "publisher": "Kunos Simulazioni",
+    "publisher": "505 Games",
     "tags": [
+      "Racing",
       "Simulation",
-      "Multiplayer",
-      "Exploration",
-      "Singleplayer"
+      "Singleplayer",
+      "Multiplayer"
     ],
-    "summary": "Assetto Corsa broadens the demo catalog with simulation, multiplayer, exploration signals for discovery and comparison.",
-    "summaryZh": "Assetto Corsa 为演示目录补充了模拟、多人、探索等类型信号，便于发现与比较。",
+    "summary": "Drive licensed cars on detailed circuits in a racing simulator focused on vehicle physics and driving technique.",
+    "summaryZh": "驾驶授权车辆驰骋细致还原的赛道，在重视车辆物理的模拟竞速中磨炼驾驶技术。",
     "revenue": 226856,
     "ownership": 25792,
     "artwork": {
@@ -961,6 +1146,11 @@
       "slug": "assetto-corsa",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/244210/header.jpg?t=1782208838",
       "steamName": "Assetto Corsa"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/244210/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -970,16 +1160,16 @@
     "rating": 4.5,
     "reviewCount": 975,
     "releaseYear": 2021,
-    "developer": "Relic Entertainment",
+    "developer": "World's Edge, Relic Entertainment, Forgotten Empires, Climax Studios",
     "publisher": "Xbox Game Studios",
     "tags": [
       "Strategy",
-      "Crafting",
-      "Multiplayer",
-      "Management"
+      "Real-Time Strategy",
+      "Management",
+      "Multiplayer"
     ],
-    "summary": "Age of Empires IV: Anniversary Edition broadens the demo catalog with strategy, crafting, multiplayer signals for discovery and comparison.",
-    "summaryZh": "Age of Empires IV: Anniversary Edition 为演示目录补充了策略、制作建造、多人等类型信号，便于发现与比较。",
+    "summary": "Build historical civilizations, manage resources and command armies in real-time battles.",
+    "summaryZh": "发展历史文明、管理资源并指挥军队，在即时战斗中争夺胜利。",
     "revenue": 347788,
     "ownership": 18504,
     "artwork": {
@@ -987,6 +1177,11 @@
       "slug": "age-of-empires-iv-anniversary-edition",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1466860/header.jpg?t=1780854334",
       "steamName": "Age of Empires IV: Anniversary Edition"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1466860/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -999,13 +1194,13 @@
     "developer": "Valve",
     "publisher": "Valve",
     "tags": [
-      "Co-op",
       "FPS",
-      "Multiplayer",
-      "Shooter"
+      "Shooter",
+      "Co-op",
+      "Survival Horror"
     ],
-    "summary": "Left 4 Dead 2 broadens the demo catalog with co-op, fps, multiplayer signals for discovery and comparison.",
-    "summaryZh": "Left 4 Dead 2 为演示目录补充了合作、第一人称射击、多人等类型信号，便于发现与比较。",
+    "summary": "Move through zombie-infested campaigns with teammates, combining weapons and cooperation to reach safety.",
+    "summaryZh": "与队友穿越丧尸遍布的战役场景，依靠武器与合作抵达安全地带。",
     "revenue": 27536,
     "ownership": 5992,
     "artwork": {
@@ -1013,6 +1208,11 @@
       "slug": "left-4-dead-2",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/550/header.jpg?t=1772742214",
       "steamName": "Left 4 Dead 2"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/550/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1025,13 +1225,13 @@
     "developer": "Miju Games",
     "publisher": "Miju Games",
     "tags": [
-      "Crafting",
-      "Co-op",
       "Survival",
-      "Exploration"
+      "Crafting",
+      "Space",
+      "Co-op"
     ],
-    "summary": "The Planet Crafter broadens the demo catalog with crafting, co-op, survival signals for discovery and comparison.",
-    "summaryZh": "The Planet Crafter 为演示目录补充了制作建造、合作、生存等类型信号，便于发现与比较。",
+    "summary": "Build a base on an inhospitable planet and gradually transform its atmosphere and ecosystem.",
+    "summaryZh": "在不宜居星球建设基地，逐步改变大气环境，培育新的生态系统。",
     "revenue": 72628,
     "ownership": 5822,
     "artwork": {
@@ -1039,6 +1239,11 @@
       "slug": "the-planet-crafter",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1284190/11848866d47b6432b83e2ce812d261272a44c3be/header_alt_assets_13.jpg?t=1788266415",
       "steamName": "The Planet Crafter"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1284190/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1051,13 +1256,13 @@
     "developer": "Pounce Light",
     "publisher": "Pounce Light",
     "tags": [
-      "Crafting",
+      "Building",
       "Cozy",
-      "Open World",
-      "FPS"
+      "Simulation",
+      "Singleplayer"
     ],
-    "summary": "Tiny Glade broadens the demo catalog with crafting, cozy, open world signals for discovery and comparison.",
-    "summaryZh": "Tiny Glade 为演示目录补充了制作建造、休闲治愈、开放世界等类型信号，便于发现与比较。",
+    "summary": "Shape castles, cottages and ruins in a freeform building space without combat or resource management.",
+    "summaryZh": "自由塑造城堡、小屋与遗迹，享受无需战斗或资源管理的轻松建造。",
     "revenue": 62158,
     "ownership": 7679,
     "artwork": {
@@ -1065,6 +1270,11 @@
       "slug": "tiny-glade",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2198150/header.jpg?t=1788786547",
       "steamName": "Tiny Glade"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/2198150/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1078,12 +1288,12 @@
     "publisher": "TaleWorlds Entertainment",
     "tags": [
       "Strategy",
-      "Exploration",
       "RPG",
+      "Action",
       "Open World"
     ],
-    "summary": "Mount & Blade II: Bannerlord broadens the demo catalog with strategy, exploration, rpg signals for discovery and comparison.",
-    "summaryZh": "Mount & Blade II: Bannerlord 为演示目录补充了策略、探索、角色扮演等类型信号，便于发现与比较。",
+    "summary": "Recruit an army, navigate medieval politics and fight alongside your soldiers in large real-time battles.",
+    "summaryZh": "招募军队、周旋于中世纪政治，并与士兵并肩参与大规模即时战斗。",
     "revenue": 21304,
     "ownership": 761,
     "artwork": {
@@ -1091,6 +1301,11 @@
       "slug": "mount-blade-ii-bannerlord",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/261550/header.jpg?t=1764252300",
       "steamName": "Mount & Blade II: Bannerlord"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/261550/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1103,13 +1318,13 @@
     "developer": "Endnight Games Ltd",
     "publisher": "Endnight Games Ltd",
     "tags": [
-      "Crafting",
+      "Survival Horror",
       "Survival",
-      "Exploration",
-      "Survival Horror"
+      "Crafting",
+      "Exploration"
     ],
-    "summary": "The Forest broadens the demo catalog with crafting, survival, exploration signals for discovery and comparison.",
-    "summaryZh": "The Forest 为演示目录补充了制作建造、生存、探索等类型信号，便于发现与比较。",
+    "summary": "Survive in a hostile forest by constructing shelter, gathering supplies and exploring its unsettling secrets.",
+    "summaryZh": "在危机四伏的森林中搭建庇护所、搜集物资，并探索令人不安的秘密。",
     "revenue": 27622,
     "ownership": 2342,
     "artwork": {
@@ -1117,6 +1332,11 @@
       "slug": "the-forest",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242760/header.jpg?t=1699381053",
       "steamName": "The Forest"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/242760/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1129,13 +1349,13 @@
     "developer": "Beat Games",
     "publisher": "Beat Games",
     "tags": [
-      "Singleplayer",
-      "FPS",
-      "Difficult",
+      "Rhythm",
+      "VR",
+      "Action",
       "Multiplayer"
     ],
-    "summary": "Beat Saber broadens the demo catalog with singleplayer, fps, difficult signals for discovery and comparison.",
-    "summaryZh": "Beat Saber 为演示目录补充了单人、第一人称射击、高难度等类型信号，便于发现与比较。",
+    "summary": "Use motion-controlled sabers to cut incoming blocks in time with music in a virtual-reality rhythm game.",
+    "summaryZh": "在虚拟现实中随音乐节奏挥动光剑，切开迎面而来的方块。",
     "revenue": 383056,
     "ownership": 28384,
     "artwork": {
@@ -1143,6 +1363,11 @@
       "slug": "beat-saber",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/620980/3067664ee110fed550f5c3a1b74340cabd7d53f0/header.jpg?t=1788339334",
       "steamName": "Beat Saber"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/620980/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1155,13 +1380,13 @@
     "developer": "Valve",
     "publisher": "Valve",
     "tags": [
+      "VR",
       "FPS",
-      "Survival Horror",
-      "Story Rich",
-      "Shooter"
+      "Adventure",
+      "Story Rich"
     ],
-    "summary": "Half-Life: Alyx broadens the demo catalog with fps, survival horror, story rich signals for discovery and comparison.",
-    "summaryZh": "Half-Life: Alyx 为演示目录补充了第一人称射击、生存恐怖、剧情丰富等类型信号，便于发现与比较。",
+    "summary": "Explore and fight through a virtual-reality chapter of Half-Life as Alyx resists the alien Combine.",
+    "summaryZh": "化身艾莉克斯，在虚拟现实中的半衰期世界探索、战斗，并反抗联合军。",
     "revenue": 743175,
     "ownership": 25809,
     "artwork": {
@@ -1169,6 +1394,11 @@
       "slug": "half-life-alyx",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/546560/header.jpg?t=1762986588",
       "steamName": "Half-Life: Alyx"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/546560/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1182,12 +1412,12 @@
     "publisher": "Frontier Developments",
     "tags": [
       "Space",
-      "Exploration",
       "Simulation",
+      "Exploration",
       "Multiplayer"
     ],
-    "summary": "Elite Dangerous broadens the demo catalog with space, exploration, simulation signals for discovery and comparison.",
-    "summaryZh": "Elite Dangerous 为演示目录补充了太空、探索、模拟等类型信号，便于发现与比较。",
+    "summary": "Pilot a starship through a vast galaxy, choosing routes through combat, trading, mining or exploration.",
+    "summaryZh": "驾驶飞船穿行广阔银河，在战斗、贸易、采矿与探索之间选择自己的道路。",
     "revenue": 57410,
     "ownership": 7762,
     "artwork": {
@@ -1195,6 +1425,11 @@
       "slug": "elite-dangerous",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/359320/header.jpg?t=1759842966",
       "steamName": "Elite Dangerous"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/359320/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1208,12 +1443,12 @@
     "publisher": "Klei Entertainment",
     "tags": [
       "Management",
-      "Crafting",
+      "Simulation",
       "Survival",
-      "Singleplayer"
+      "Building"
     ],
-    "summary": "Oxygen Not Included broadens the demo catalog with management, crafting, survival signals for discovery and comparison.",
-    "summaryZh": "Oxygen Not Included 为演示目录补充了经营管理、制作建造、生存等类型信号，便于发现与比较。",
+    "summary": "Keep a space colony alive by managing its resources, living conditions and increasingly complex systems.",
+    "summaryZh": "管理资源、生活环境与不断复杂化的设施，让太空殖民地持续生存。",
     "revenue": 138627,
     "ownership": 11321,
     "artwork": {
@@ -1221,6 +1456,11 @@
       "slug": "oxygen-not-included",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/457140/header.jpg?t=1789505197",
       "steamName": "Oxygen Not Included"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/457140/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1234,12 +1474,12 @@
     "publisher": "Annapurna Interactive",
     "tags": [
       "Adventure",
+      "Exploration",
       "Atmospheric",
-      "Singleplayer",
-      "Cozy"
+      "Singleplayer"
     ],
-    "summary": "Stray broadens the demo catalog with adventure, atmospheric, singleplayer signals for discovery and comparison.",
-    "summaryZh": "Stray 为演示目录补充了冒险、氛围感、单人等类型信号，便于发现与比较。",
+    "summary": "Explore a forgotten cybercity as a stray cat and uncover a mystery while searching for a way home.",
+    "summaryZh": "扮演流浪猫探索被遗忘的赛博城市，在寻找归途的过程中揭开谜团。",
     "revenue": 180156,
     "ownership": 10012,
     "artwork": {
@@ -1247,6 +1487,11 @@
       "slug": "stray",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1332010/71daca1910d664d31240b9623a495e0c0828807f/header.jpg?t=1785424330",
       "steamName": "Stray"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1332010/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1257,15 +1502,15 @@
     "reviewCount": 90,
     "releaseYear": 2018,
     "developer": "Empyrean",
-    "publisher": "Frozen District",
+    "publisher": "Frozen District, PlayWay S.A.",
     "tags": [
       "Simulation",
-      "Singleplayer",
-      "Crafting",
-      "Cozy"
+      "Building",
+      "Management",
+      "Singleplayer"
     ],
-    "summary": "House Flipper broadens the demo catalog with simulation, singleplayer, crafting signals for discovery and comparison.",
-    "summaryZh": "House Flipper 为演示目录补充了模拟、单人、制作建造等类型信号，便于发现与比较。",
+    "summary": "Buy neglected homes, repair and redesign their interiors, then prepare them for sale.",
+    "summaryZh": "买下破旧房屋，修缮并重新设计室内空间，再将改造后的房屋出售。",
     "revenue": 74546,
     "ownership": 6629,
     "artwork": {
@@ -1273,6 +1518,11 @@
       "slug": "house-flipper",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/613100/6cee40fe293f0bab47534e78bcda64487902efc1/header.jpg?t=1788885563",
       "steamName": "House Flipper"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/613100/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1285,13 +1535,13 @@
     "developer": "Valve",
     "publisher": "Valve",
     "tags": [
-      "Platformer",
       "Puzzle",
-      "FPS",
+      "First-Person",
+      "Co-op",
       "Story Rich"
     ],
-    "summary": "Portal 2 broadens the demo catalog with platformer, puzzle, fps signals for discovery and comparison.",
-    "summaryZh": "Portal 2 为演示目录补充了平台跳跃、解谜、第一人称射击等类型信号，便于发现与比较。",
+    "summary": "Solve spatial test chambers using linked portals, with separate adventures for solo play and two-player cooperation.",
+    "summaryZh": "利用相连的传送门破解空间试验室，在单人剧情与独立双人合作关卡中解谜。",
     "revenue": 154706,
     "ownership": 28678,
     "artwork": {
@@ -1299,6 +1549,11 @@
       "slug": "portal-2",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/620/header.jpg?t=1745363004",
       "steamName": "Portal 2"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/620/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1313,11 +1568,11 @@
     "tags": [
       "RPG",
       "Action",
-      "Singleplayer",
-      "Co-op"
+      "Co-op",
+      "Exploration"
     ],
-    "summary": "Grim Dawn broadens the demo catalog with rpg, action, singleplayer signals for discovery and comparison.",
-    "summaryZh": "Grim Dawn 为演示目录补充了角色扮演、动作、单人等类型信号，便于发现与比较。",
+    "summary": "Develop a combat build, collect equipment and make quest choices in an apocalyptic fantasy world.",
+    "summaryZh": "在末世奇幻世界中构筑战斗流派、收集装备，并在任务中作出选择。",
     "revenue": 206728,
     "ownership": 18801,
     "artwork": {
@@ -1325,6 +1580,11 @@
       "slug": "grim-dawn",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/219990/header.jpg?t=1785095531",
       "steamName": "Grim Dawn"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/219990/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1337,13 +1597,13 @@
     "developer": "Nolla Games",
     "publisher": "Nolla Games",
     "tags": [
-      "Puzzle",
       "Roguelike",
-      "Difficult",
+      "Action",
+      "Physics",
       "Exploration"
     ],
-    "summary": "Noita broadens the demo catalog with puzzle, roguelike, difficult signals for discovery and comparison.",
-    "summaryZh": "Noita 为演示目录补充了解谜、肉鸽、高难度等类型信号，便于发现与比较。",
+    "summary": "Create spells and experiment with a destructible, physically simulated world during dangerous procedural runs.",
+    "summaryZh": "创造法术，在程序生成的危险旅程中探索可破坏、遵循物理模拟的世界。",
     "revenue": 223276,
     "ownership": 20308,
     "artwork": {
@@ -1351,6 +1611,11 @@
       "slug": "noita",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/881100/header.jpg?t=1675987871",
       "steamName": "Noita"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/881100/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1361,15 +1626,15 @@
     "reviewCount": 1516,
     "releaseYear": 2022,
     "developer": "It's happening",
-    "publisher": "Yogscast Games",
+    "publisher": "Yogscast Games, Gamersky Games",
     "tags": [
       "Co-op",
       "Management",
       "Roguelike",
-      "Crafting"
+      "Simulation"
     ],
-    "summary": "PlateUp! broadens the demo catalog with co-op, management, roguelike signals for discovery and comparison.",
-    "summaryZh": "PlateUp! 为演示目录补充了合作、经营管理、肉鸽等类型信号，便于发现与比较。",
+    "summary": "Cook, serve and organize a restaurant with friends while adapting its layout and progression between runs.",
+    "summaryZh": "与朋友合作烹饪、上菜和经营餐厅，在一轮轮经营中调整布局与成长路线。",
     "revenue": 11240,
     "ownership": 953,
     "artwork": {
@@ -1377,6 +1642,11 @@
       "slug": "plateup",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1599600/eb8fa3ad44fb5b4e4de4ef402101a55063797958/header.jpg?t=1788525768",
       "steamName": "PlateUp!"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1599600/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1390,12 +1660,12 @@
     "publisher": "Devolver Digital",
     "tags": [
       "Roguelike",
-      "Difficult",
-      "Co-op",
-      "Multiplayer"
+      "Shooter",
+      "Action",
+      "Co-op"
     ],
-    "summary": "Enter the Gungeon broadens the demo catalog with roguelike, difficult, co-op signals for discovery and comparison.",
-    "summaryZh": "Enter the Gungeon 为演示目录补充了肉鸽、高难度、合作等类型信号，便于发现与比较。",
+    "summary": "Dodge dense projectile patterns and gather unusual weapons while descending through a gun-filled dungeon.",
+    "summaryZh": "闪避密集弹幕、收集奇特武器，逐层深入枪械主题地牢。",
     "revenue": 127576,
     "ownership": 13298,
     "artwork": {
@@ -1403,6 +1673,11 @@
       "slug": "enter-the-gungeon",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/311690/471d245bd8a37011c16852694342e5ad2d8a4667/header.jpg?t=1779733990",
       "steamName": "Enter the Gungeon"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/311690/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1415,13 +1690,13 @@
     "developer": "Pixel Sprout Studios",
     "publisher": "Pixel Sprout Studios",
     "tags": [
-      "Multiplayer",
+      "Farming",
       "Simulation",
       "RPG",
-      "Cozy"
+      "Co-op"
     ],
-    "summary": "Sun Haven broadens the demo catalog with multiplayer, simulation, rpg signals for discovery and comparison.",
-    "summaryZh": "Sun Haven 为演示目录补充了多人、模拟、角色扮演等类型信号，便于发现与比较。",
+    "summary": "Grow a farm, build relationships and pursue magical adventures alone or with friends.",
+    "summaryZh": "经营农场、结交镇民，并独自或与朋友展开魔法冒险。",
     "revenue": 183463,
     "ownership": 17906,
     "artwork": {
@@ -1429,6 +1704,11 @@
       "slug": "sun-haven",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1432860/header.jpg?t=1741982676",
       "steamName": "Sun Haven"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1432860/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1438,16 +1718,16 @@
     "rating": 4.0,
     "reviewCount": 779,
     "releaseYear": 2010,
-    "developer": "Firaxis Games",
-    "publisher": "2K",
+    "developer": "Firaxis Games, Aspyr (Mac), Aspyr (Linux)",
+    "publisher": "2K, Aspyr (Mac), Aspyr (Linux)",
     "tags": [
       "Strategy",
-      "Multiplayer",
-      "Singleplayer",
-      "Co-op"
+      "Turn-Based",
+      "Management",
+      "Multiplayer"
     ],
-    "summary": "Sid Meier's Civilization V broadens the demo catalog with strategy, multiplayer, singleplayer signals for discovery and comparison.",
-    "summaryZh": "Sid Meier's Civilization V 为演示目录补充了策略、多人、单人等类型信号，便于发现与比较。",
+    "summary": "Lead a civilization through research, diplomacy and warfare on a turn-based hexagonal map.",
+    "summaryZh": "在六角地图上通过科研、外交与战争，以回合制方式带领文明发展。",
     "revenue": 69187,
     "ownership": 4614,
     "artwork": {
@@ -1455,6 +1735,11 @@
       "slug": "sid-meier-s-civilization-v",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/8930/header.jpg?t=1724341158",
       "steamName": "Sid Meier's Civilization® V"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/8930/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1468,12 +1753,12 @@
     "publisher": "Electronic Arts",
     "tags": [
       "FPS",
-      "Multiplayer",
       "Shooter",
-      "Singleplayer"
+      "Action",
+      "Multiplayer"
     ],
-    "summary": "Titanfall 2 broadens the demo catalog with fps, multiplayer, shooter signals for discovery and comparison.",
-    "summaryZh": "Titanfall 2 为演示目录补充了第一人称射击、多人、射击等类型信号，便于发现与比较。",
+    "summary": "Fight as a mobile pilot and alongside a powerful Titan in a story campaign and multiplayer battles.",
+    "summaryZh": "作为灵活机动的驾驶员，与强大的泰坦并肩参与剧情战役和多人战斗。",
     "revenue": 328613,
     "ownership": 17963,
     "artwork": {
@@ -1481,6 +1766,11 @@
       "slug": "titanfall-2",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1237970/header.jpg?t=1779987598",
       "steamName": "Titanfall® 2"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1237970/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1491,15 +1781,15 @@
     "reviewCount": 1656,
     "releaseYear": 2023,
     "developer": "Black Tabby Games",
-    "publisher": "Black Tabby Games",
+    "publisher": "Black Tabby Games, Serenity Forge",
     "tags": [
+      "Visual Novel",
+      "Horror",
       "Story Rich",
-      "Survival Horror",
-      "RPG",
-      "Simulation"
+      "Singleplayer"
     ],
-    "summary": "Slay the Princess — The Pristine Cut broadens the demo catalog with story rich, survival horror, rpg signals for discovery and comparison.",
-    "summaryZh": "Slay the Princess — The Pristine Cut 为演示目录补充了剧情丰富、生存恐怖、角色扮演等类型信号，便于发现与比较。",
+    "summary": "A branching horror story in which your dialogue and choices reshape an encounter with a captive princess.",
+    "summaryZh": "一段分支丰富的恐怖故事，你的对话与选择将重塑与被囚公主的相遇。",
     "revenue": 122900,
     "ownership": 13942,
     "artwork": {
@@ -1507,6 +1797,11 @@
       "slug": "slay-the-princess-the-pristine-cut",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1989270/74a54248cfec29144de5e867a333c30e6d62801d/header.jpg?t=1775751748",
       "steamName": "Slay the Princess — The Pristine Cut"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1989270/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1520,12 +1815,12 @@
     "publisher": "Xbox Game Studios",
     "tags": [
       "Survival",
-      "Exploration",
-      "Crafting",
-      "Multiplayer"
+      "Management",
+      "Open World",
+      "Co-op"
     ],
-    "summary": "State of Decay 2: Juggernaut Edition broadens the demo catalog with survival, exploration, crafting signals for discovery and comparison.",
-    "summaryZh": "State of Decay 2: Juggernaut Edition 为演示目录补充了生存、探索、制作建造等类型信号，便于发现与比较。",
+    "summary": "Gather survivors, scavenge supplies and manage a community in a world overrun by the undead.",
+    "summaryZh": "在亡者横行的世界召集幸存者、搜集物资，并管理自己的生存社区。",
     "revenue": 121983,
     "ownership": 7822,
     "artwork": {
@@ -1533,6 +1828,11 @@
       "slug": "state-of-decay-2-juggernaut-edition",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/495420/header.jpg?t=1741378867",
       "steamName": "State of Decay 2: Juggernaut Edition"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/495420/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1550,8 +1850,8 @@
       "Singleplayer",
       "Multiplayer"
     ],
-    "summary": "Plague Inc: Evolved broadens the demo catalog with strategy, simulation, singleplayer signals for discovery and comparison.",
-    "summaryZh": "Plague Inc: Evolved 为演示目录补充了策略、模拟、单人等类型信号，便于发现与比较。",
+    "summary": "Adapt a pathogen and plan its spread while responding to humanity's attempts to stop an outbreak.",
+    "summaryZh": "调整病原体特性、规划传播路线，并应对人类阻止疫情的行动。",
     "revenue": 60106,
     "ownership": 9113,
     "artwork": {
@@ -1559,6 +1859,11 @@
       "slug": "plague-inc-evolved",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/246620/4c67f0dc09d833b843cf5c3834d95bef246ccd49/header.jpg?t=1779100239",
       "steamName": "Plague Inc: Evolved"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/246620/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1571,13 +1876,13 @@
     "developer": "No Brakes Games",
     "publisher": "Curve Games",
     "tags": [
-      "Co-op",
+      "Physics",
+      "Platformer",
       "Puzzle",
-      "Adventure",
-      "Open World"
+      "Co-op"
     ],
-    "summary": "Human Fall Flat broadens the demo catalog with co-op, puzzle, adventure signals for discovery and comparison.",
-    "summaryZh": "Human Fall Flat 为演示目录补充了合作、解谜、冒险等类型信号，便于发现与比较。",
+    "summary": "Guide a wobbly character through floating dreamscapes, solving physical obstacles alone or with friends.",
+    "summaryZh": "操控摇摇晃晃的角色穿越漂浮梦境，独自或与朋友破解物理障碍。",
     "revenue": 113948,
     "ownership": 14616,
     "artwork": {
@@ -1585,6 +1890,11 @@
       "slug": "human-fall-flat",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/477160/9258286b309480a3ce438c07cb51fadf3ea2f1d1/header_alt_assets_27.jpg?t=1789479416",
       "steamName": "Human Fall Flat"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/477160/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1597,13 +1907,13 @@
     "developer": "Monomi Park",
     "publisher": "Monomi Park",
     "tags": [
-      "Cozy",
+      "Farming",
+      "Simulation",
       "Exploration",
-      "Adventure",
-      "Singleplayer"
+      "Cozy"
     ],
-    "summary": "Slime Rancher broadens the demo catalog with cozy, exploration, adventure signals for discovery and comparison.",
-    "summaryZh": "Slime Rancher 为演示目录补充了休闲治愈、探索、冒险等类型信号，便于发现与比较。",
+    "summary": "Build a ranch on a distant frontier and discover colorful slimes to raise and care for.",
+    "summaryZh": "在遥远边疆经营牧场，发现并照料形态各异的彩色史莱姆。",
     "revenue": 49410,
     "ownership": 5259,
     "artwork": {
@@ -1611,6 +1921,11 @@
       "slug": "slime-rancher",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/433340/header.jpg?t=1758651509",
       "steamName": "Slime Rancher"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/433340/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1623,13 +1938,13 @@
     "developer": "TECOPARK",
     "publisher": "TECOPARK",
     "tags": [
-      "Multiplayer",
       "Co-op",
+      "Puzzle",
       "Platformer",
-      "Cozy"
+      "Multiplayer"
     ],
-    "summary": "PICO PARK broadens the demo catalog with multiplayer, co-op, platformer signals for discovery and comparison.",
-    "summaryZh": "PICO PARK 为演示目录补充了多人、合作、平台跳跃等类型信号，便于发现与比较。",
+    "summary": "Coordinate a group of small characters to solve compact action puzzles that depend on teamwork.",
+    "summaryZh": "协调一队小角色，通过紧密配合解决短小而富有变化的动作谜题。",
     "revenue": 52676,
     "ownership": 18520,
     "artwork": {
@@ -1637,6 +1952,11 @@
       "slug": "pico-park",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1509960/header.jpg?t=1740033204",
       "steamName": "PICO PARK"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1509960/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1649,13 +1969,13 @@
     "developer": "Sad Owl Studios",
     "publisher": "Thunderful Publishing",
     "tags": [
-      "Platformer",
       "Puzzle",
-      "FPS",
+      "First-Person",
+      "Exploration",
       "Singleplayer"
     ],
-    "summary": "Viewfinder broadens the demo catalog with platformer, puzzle, fps signals for discovery and comparison.",
-    "summaryZh": "Viewfinder 为演示目录补充了平台跳跃、解谜、第一人称射击等类型信号，便于发现与比较。",
+    "summary": "Use photographs and a camera to alter the surrounding world and solve perspective-based puzzles.",
+    "summaryZh": "利用照片与相机改变周围世界，破解围绕视觉透视展开的谜题。",
     "revenue": 30785,
     "ownership": 2369,
     "artwork": {
@@ -1663,6 +1983,11 @@
       "slug": "viewfinder",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1382070/a69eb56f73446624325dec8a4fe74dc4ae09fb96/header.jpg?t=1764842475",
       "steamName": "Viewfinder"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1382070/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1675,13 +2000,13 @@
     "developer": "TUNIC Team",
     "publisher": "Finji",
     "tags": [
+      "Action",
       "Exploration",
       "Puzzle",
-      "Difficult",
-      "Cozy"
+      "Difficult"
     ],
-    "summary": "TUNIC broadens the demo catalog with exploration, puzzle, difficult signals for discovery and comparison.",
-    "summaryZh": "TUNIC 为演示目录补充了探索、解谜、高难度等类型信号，便于发现与比较。",
+    "summary": "Guide a small fox through an isometric world of ancient secrets, dangerous creatures and hidden paths.",
+    "summaryZh": "带领小狐狸探索等距视角的世界，发现古老秘密、危险生物与隐蔽道路。",
     "revenue": 265211,
     "ownership": 14037,
     "artwork": {
@@ -1689,6 +2014,11 @@
       "slug": "tunic",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/553420/header.jpg?t=1783359656",
       "steamName": "TUNIC"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/553420/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1701,13 +2031,13 @@
     "developer": "Aggro Crab",
     "publisher": "Aggro Crab",
     "tags": [
-      "Difficult",
-      "Platformer",
+      "Action",
       "RPG",
-      "Atmospheric"
+      "Difficult",
+      "Exploration"
     ],
-    "summary": "Another Crab's Treasure broadens the demo catalog with difficult, platformer, rpg signals for discovery and comparison.",
-    "summaryZh": "Another Crab's Treasure 为演示目录补充了高难度、平台跳跃、角色扮演等类型信号，便于发现与比较。",
+    "summary": "Follow a hermit crab through an underwater kingdom on a quest to recover its lost shell.",
+    "summaryZh": "跟随寄居蟹探索水下王国，踏上找回失去的贝壳的冒险。",
     "revenue": 94052,
     "ownership": 5702,
     "artwork": {
@@ -1715,6 +2045,11 @@
       "slug": "another-crab-s-treasure",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1887840/header.jpg?t=1785949147",
       "steamName": "Another Crab's Treasure"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1887840/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1727,13 +2062,13 @@
     "developer": "Double Dagger Studio",
     "publisher": "Double Dagger Studio",
     "tags": [
-      "Cozy",
+      "Adventure",
       "Exploration",
-      "Open World",
-      "Simulation"
+      "Cozy",
+      "Singleplayer"
     ],
-    "summary": "Little Kitty, Big City broadens the demo catalog with cozy, exploration, open world signals for discovery and comparison.",
-    "summaryZh": "Little Kitty, Big City 为演示目录补充了休闲治愈、探索、开放世界等类型信号，便于发现与比较。",
+    "summary": "Roam a city as a curious cat, meet other animals and cause small distractions on the way home.",
+    "summaryZh": "化身好奇的小猫漫游城市，结识动物伙伴，在寻找归途时制造一点小混乱。",
     "revenue": 117713,
     "ownership": 12078,
     "artwork": {
@@ -1741,6 +2076,11 @@
       "slug": "little-kitty-big-city",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1177980/c6f401a25f3c49c72adbb8936013648a51935c4b/header.jpg?t=1785431897",
       "steamName": "Little Kitty, Big City"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1177980/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1755,11 +2095,11 @@
     "tags": [
       "Metroidvania",
       "Platformer",
-      "Singleplayer",
-      "Action"
+      "Action",
+      "Exploration"
     ],
-    "summary": "Ori and the Will of the Wisps broadens the demo catalog with metroidvania, platformer, singleplayer signals for discovery and comparison.",
-    "summaryZh": "Ori and the Will of the Wisps 为演示目录补充了类银河战士恶魔城、平台跳跃、单人等类型信号，便于发现与比较。",
+    "summary": "Explore an interconnected fantasy world, face large enemies and overcome traversal puzzles as Ori.",
+    "summaryZh": "作为奥日探索相互连通的奇幻世界，挑战巨型敌人并跨越移动与跳跃谜题。",
     "revenue": 362932,
     "ownership": 27504,
     "artwork": {
@@ -1767,6 +2107,11 @@
       "slug": "ori-and-the-will-of-the-wisps",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1057090/header.jpg?t=1759530749",
       "steamName": "Ori and the Will of the Wisps"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1057090/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1779,13 +2124,13 @@
     "developer": "The Chinese Room",
     "publisher": "Secret Mode",
     "tags": [
-      "Survival Horror",
+      "Horror",
       "Story Rich",
       "Atmospheric",
-      "Action"
+      "First-Person"
     ],
-    "summary": "Still Wakes the Deep broadens the demo catalog with survival horror, story rich, atmospheric signals for discovery and comparison.",
-    "summaryZh": "Still Wakes the Deep 为演示目录补充了生存恐怖、剧情丰富、氛围感等类型信号，便于发现与比较。",
+    "summary": "Navigate a collapsing offshore oil rig and try to save the crew from an otherworldly threat.",
+    "summaryZh": "穿行于濒临崩塌的海上钻井平台，尝试从超自然威胁中救出船员。",
     "revenue": 185799,
     "ownership": 12349,
     "artwork": {
@@ -1793,6 +2138,11 @@
       "slug": "still-wakes-the-deep",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1622910/4922a49a07bf4f8eb23c33571e723d69de5dc5fb/header.jpg?t=1786719937",
       "steamName": "Still Wakes the Deep"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1622910/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1807,11 +2157,11 @@
     "tags": [
       "Co-op",
       "Puzzle",
-      "Multiplayer",
-      "Detective"
+      "Adventure",
+      "Multiplayer"
     ],
-    "summary": "We Were Here Forever broadens the demo catalog with co-op, puzzle, multiplayer signals for discovery and comparison.",
-    "summaryZh": "We Were Here Forever 为演示目录补充了合作、解谜、多人等类型信号，便于发现与比较。",
+    "summary": "Work with a partner to unravel puzzles and escape the mysteries of Castle Rock.",
+    "summaryZh": "与搭档合作解开谜题，探索并逃离岩石城堡中的重重秘密。",
     "revenue": 156927,
     "ownership": 15860,
     "artwork": {
@@ -1819,6 +2169,11 @@
       "slug": "we-were-here-forever",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1341290/header.jpg?t=1764331788",
       "steamName": "We Were Here Forever"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1341290/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1833,11 +2188,11 @@
     "tags": [
       "Detective",
       "Puzzle",
-      "Story Rich",
-      "Atmospheric"
+      "Exploration",
+      "First-Person"
     ],
-    "summary": "Return of the Obra Dinn broadens the demo catalog with detective, puzzle, story rich signals for discovery and comparison.",
-    "summaryZh": "Return of the Obra Dinn 为演示目录补充了侦探、解谜、剧情丰富等类型信号，便于发现与比较。",
+    "summary": "Investigate a deserted merchant ship and use observation and deduction to reconstruct what happened aboard.",
+    "summaryZh": "登上一艘空无一人的商船，通过观察与逻辑推理还原船上发生的事件。",
     "revenue": 103741,
     "ownership": 14026,
     "artwork": {
@@ -1845,6 +2200,11 @@
       "slug": "return-of-the-obra-dinn",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/653530/header.jpg?t=1686697594",
       "steamName": "Return of the Obra Dinn"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/653530/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1858,12 +2218,12 @@
     "publisher": "Chasing Carrots",
     "tags": [
       "Roguelike",
-      "RPG",
       "Action",
+      "RPG",
       "Singleplayer"
     ],
-    "summary": "Halls of Torment broadens the demo catalog with roguelike, rpg, action signals for discovery and comparison.",
-    "summaryZh": "Halls of Torment 为演示目录补充了肉鸽、角色扮演、动作等类型信号，便于发现与比较。",
+    "summary": "Survive waves of monsters, gather equipment and develop heroes while descending into a threatening underworld.",
+    "summaryZh": "深入危险地下世界，抵御怪物浪潮、收集装备，并培养不同英雄。",
     "revenue": 51993,
     "ownership": 22305,
     "artwork": {
@@ -1871,6 +2231,11 @@
       "slug": "halls-of-torment",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2218750/header.jpg?t=1779993327",
       "steamName": "Halls of Torment"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/2218750/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1881,15 +2246,15 @@
     "reviewCount": 1840,
     "releaseYear": 2024,
     "developer": "HAMMER95",
-    "publisher": "Epopeia Games",
+    "publisher": "Epopeia Games, HAMMER95",
     "tags": [
       "FPS",
+      "Shooter",
       "Action",
-      "Singleplayer",
-      "Shooter"
+      "Singleplayer"
     ],
-    "summary": "MULLET MADJACK broadens the demo catalog with fps, action, singleplayer signals for discovery and comparison.",
-    "summaryZh": "MULLET MADJACK 为演示目录补充了第一人称射击、动作、单人等类型信号，便于发现与比较。",
+    "summary": "Rush through anime-inspired combat floors, choosing weapons and chasing faster clears.",
+    "summaryZh": "穿过动画风格的战斗楼层，选择武器并挑战更快的通关速度。",
     "revenue": 254760,
     "ownership": 24989,
     "artwork": {
@@ -1897,6 +2262,11 @@
       "slug": "mullet-madjack",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2111190/header.jpg?t=1787078659",
       "steamName": "MULLET MADJACK"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/2111190/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1907,15 +2277,15 @@
     "reviewCount": 69,
     "releaseYear": 2024,
     "developer": "PlayWithFurcifer",
-    "publisher": "PlayWithFurcifer",
+    "publisher": "IndieArk, Shochiku (Japan)",
     "tags": [
+      "Auto Battler",
       "Strategy",
-      "Multiplayer",
-      "Card Battler",
-      "Roguelike"
+      "Management",
+      "Multiplayer"
     ],
-    "summary": "Backpack Battles broadens the demo catalog with strategy, multiplayer, card battler signals for discovery and comparison.",
-    "summaryZh": "Backpack Battles 为演示目录补充了策略、多人、卡牌对战等类型信号，便于发现与比较。",
+    "summary": "Buy, combine and arrange equipment in a backpack to build a stronger setup for player-versus-player auto battles.",
+    "summaryZh": "购买、合成并排列背包中的装备，构筑更强组合参加玩家间的自动战斗。",
     "revenue": 73935,
     "ownership": 14594,
     "artwork": {
@@ -1923,6 +2293,11 @@
       "slug": "backpack-battles",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2427700/75fd59d3c14c32bbba9be83dcae2585b5e17eff5/header.jpg?t=1778121458",
       "steamName": "Backpack Battles"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/2427700/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1937,11 +2312,11 @@
     "tags": [
       "Puzzle",
       "Adventure",
-      "Singleplayer",
-      "Atmospheric"
+      "Exploration",
+      "Singleplayer"
     ],
-    "summary": "Chants of Sennaar broadens the demo catalog with puzzle, adventure, singleplayer signals for discovery and comparison.",
-    "summaryZh": "Chants of Sennaar 为演示目录补充了解谜、冒险、单人等类型信号，便于发现与比较。",
+    "summary": "Observe the inhabitants of a mysterious tower and decipher their languages to reconnect its peoples.",
+    "summaryZh": "观察神秘高塔中的居民，破译他们的语言，让不同族群重新建立联系。",
     "revenue": 348728,
     "ownership": 29568,
     "artwork": {
@@ -1949,6 +2324,11 @@
       "slug": "chants-of-sennaar",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1931770/header.jpg?t=1774006124",
       "steamName": "Chants of Sennaar"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1931770/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1963,11 +2343,11 @@
     "tags": [
       "Cozy",
       "Simulation",
-      "Puzzle",
-      "Singleplayer"
+      "Management",
+      "Story Rich"
     ],
-    "summary": "Sticky Business broadens the demo catalog with cozy, simulation, puzzle signals for discovery and comparison.",
-    "summaryZh": "Sticky Business 为演示目录补充了休闲治愈、模拟、解谜等类型信号，便于发现与比较。",
+    "summary": "Design stickers, pack customer orders and learn the stories behind a small creative shop.",
+    "summaryZh": "设计贴纸、打包顾客订单，在经营创意小店的过程中了解顾客的故事。",
     "revenue": 49423,
     "ownership": 9514,
     "artwork": {
@@ -1975,6 +2355,11 @@
       "slug": "sticky-business",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2303350/e58c5499c07af0bd1f9e9a96415a69d108e6f6ef/header.jpg?t=1785331313",
       "steamName": "Sticky Business"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/2303350/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -1992,8 +2377,8 @@
       "Management",
       "Puzzle"
     ],
-    "summary": "Mini Motorways broadens the demo catalog with strategy, simulation, management signals for discovery and comparison.",
-    "summaryZh": "Mini Motorways 为演示目录补充了策略、模拟、经营管理等类型信号，便于发现与比较。",
+    "summary": "Draw and revise a growing city's road network to keep traffic moving as demand changes.",
+    "summaryZh": "绘制并调整不断扩张的城市道路网络，在需求变化中维持交通运转。",
     "revenue": 158084,
     "ownership": 29857,
     "artwork": {
@@ -2001,6 +2386,11 @@
       "slug": "mini-motorways",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1127500/cb2bf5e828d15bf9c2fc46effd248badfccb3df2/header.jpg?t=1781042728",
       "steamName": "Mini Motorways"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1127500/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -2013,13 +2403,13 @@
     "developer": "Re-Logic",
     "publisher": "Re-Logic",
     "tags": [
-      "Crafting",
-      "Open World",
       "Survival",
+      "Crafting",
+      "Exploration",
       "Action"
     ],
-    "summary": "Terraria broadens the demo catalog with crafting, open world, survival signals for discovery and comparison.",
-    "summaryZh": "Terraria 为演示目录补充了制作建造、开放世界、生存等类型信号，便于发现与比较。",
+    "summary": "Dig into a layered world, construct a home and discover equipment while exploring and battling creatures.",
+    "summaryZh": "深入层层地下世界，建造家园，在探索和战斗中发现新的装备。",
     "revenue": 85277,
     "ownership": 23071,
     "artwork": {
@@ -2027,6 +2417,11 @@
       "slug": "terraria",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/105600/header.jpg?t=1769844435",
       "steamName": "Terraria"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/105600/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   },
   {
@@ -2037,15 +2432,15 @@
     "reviewCount": 1940,
     "releaseYear": 2022,
     "developer": "FromSoftware, Inc.",
-    "publisher": "FromSoftware, Inc.",
+    "publisher": "FromSoftware, Inc., Bandai Namco Entertainment",
     "tags": [
-      "Difficult",
-      "Exploration",
       "RPG",
-      "Multiplayer"
+      "Action",
+      "Open World",
+      "Difficult"
     ],
-    "summary": "ELDEN RING broadens the demo catalog with difficult, exploration, rpg signals for discovery and comparison.",
-    "summaryZh": "ELDEN RING 为演示目录补充了高难度、探索、角色扮演等类型信号，便于发现与比较。",
+    "summary": "Explore the Lands Between, develop a character build and face demanding battles across a large fantasy world.",
+    "summaryZh": "探索交界地、塑造角色流派，在广阔奇幻世界中迎接充满挑战的战斗。",
     "revenue": 950150,
     "ownership": 28283,
     "artwork": {
@@ -2053,6 +2448,11 @@
       "slug": "elden-ring",
       "sourceUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/f0b19c231f86fa0e633ff88a1a63459443017728/header_alt_assets_3.jpg?t=1789162449",
       "steamName": "ELDEN RING"
+    },
+    "contentSource": {
+      "url": "https://store.steampowered.com/app/1245620/",
+      "checkedOn": "2026-10-08",
+      "scope": "Gameplay summary and editorial tags; not prices or audience metrics"
     }
   }
 ]

@@ -1,6 +1,6 @@
 import { games } from "../../data/games";
 import { filterGames, getSignal, parseSearchIntent } from "../../lib/search";
-import type { Game, GameCollection, GameInsights, SavedGame, ShortlistInsights } from "../../types";
+import type { CollectionPurpose, Game, GameCollection, GameInsights, SavedGame, ShortlistInsights } from "../../types";
 import type { CatalogService } from "./contract";
 
 const DEFAULT_COLLECTION_ID = 1;
@@ -19,12 +19,12 @@ export const demoCatalog: CatalogService = {
     return getLocalCollections(userId);
   },
 
-  async createCollection(name, userId) {
-    return createLocalCollection(name, userId);
+  async createCollection(name, userId, purpose) {
+    return createLocalCollection(name, userId, purpose);
   },
 
-  async updateCollection(collectionId, name, userId) {
-    return updateLocalCollection(collectionId, name, userId);
+  async updateCollection(collectionId, name, userId, purpose) {
+    return updateLocalCollection(collectionId, name, userId, purpose);
   },
 
   async deleteCollection(collectionId, userId) {
@@ -165,7 +165,7 @@ function getLocalCollections(userId: string): GameCollection[] {
   return [defaultCollection, ...collections];
 }
 
-function createLocalCollection(name: string, userId: string): GameCollection {
+function createLocalCollection(name: string, userId: string, purpose: CollectionPurpose = "unspecified"): GameCollection {
   const collections = getLocalCollections(userId);
   const existing = collections.find((collection) => collection.name.toLowerCase() === name.toLowerCase());
   if (existing) return existing;
@@ -175,19 +175,20 @@ function createLocalCollection(name: string, userId: string): GameCollection {
     userId,
     name,
     description: "",
+    purpose,
     createdAt: new Date().toISOString(),
   };
   window.localStorage.setItem(getUserStorageKey(COLLECTION_STORAGE_KEY, userId), JSON.stringify([...collections, collection]));
   return collection;
 }
 
-function updateLocalCollection(collectionId: number, name: string, userId: string): GameCollection {
+function updateLocalCollection(collectionId: number, name: string, userId: string, purpose?: CollectionPurpose): GameCollection {
   const collections = getLocalCollections(userId);
   const collection = collections.find((item) => item.id === collectionId);
   if (!collection) {
     throw new Error("Collection not found");
   }
-  if (collection.name === DEFAULT_COLLECTION_NAME) {
+  if (collection.name === DEFAULT_COLLECTION_NAME && name.trim() !== collection.name) {
     throw new Error("Default collection cannot be renamed");
   }
 
@@ -203,7 +204,7 @@ function updateLocalCollection(collectionId: number, name: string, userId: strin
     throw new Error("Collection name already exists");
   }
 
-  const updated = { ...collection, name: normalizedName };
+  const updated = { ...collection, name: normalizedName, ...(purpose ? { purpose } : {}) };
   window.localStorage.setItem(
     getUserStorageKey(COLLECTION_STORAGE_KEY, userId),
     JSON.stringify(collections.map((item) => (item.id === collectionId ? updated : item))),

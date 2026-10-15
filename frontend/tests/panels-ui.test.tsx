@@ -107,7 +107,7 @@ describe("account, collection and save panel wiring", () => {
     fireEvent.change(screen.getByLabelText("Collection name"), { target: { value: " Wishlist " } });
     fireEvent.click(screen.getByRole("button", { name: "Create" }));
     await screen.findByRole("option", { name: "Wishlist" });
-    expect(catalog.createCollection).toHaveBeenCalledWith("Wishlist", profile.id);
+    expect(catalog.createCollection).toHaveBeenCalledWith("Wishlist", profile.id, "player");
     expect((screen.getByRole("combobox", { name: "Collection" }) as HTMLSelectElement).value).toBe("2");
     expect(screen.queryByLabelText("Collection name")).toBeNull();
 
