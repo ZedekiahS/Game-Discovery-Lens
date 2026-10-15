@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../src/App";
 import * as catalog from "../src/services/catalog";
 import * as users from "../src/services/users";
+import { playerLibrary } from "../src/services/playerLibrary";
 import fixture from "../../tests/fixtures/search-contract.json";
 import type { AuthSession, Game, GameCollection, UserProfile } from "../src/types";
 
@@ -17,6 +18,10 @@ vi.mock("../src/services/catalog", () => ({
   createCollection: vi.fn(), updateCollection: vi.fn(), deleteCollection: vi.fn(),
   saveGame: vi.fn(), removeSavedGame: vi.fn(), clearSavedGames: vi.fn(),
 }));
+vi.mock("../src/services/playerLibrary", () => ({
+  emptyPreferences: () => ({ preferredTags: [], avoidedTags: [] }),
+  playerLibrary: { getRecords: vi.fn(), getPreferences: vi.fn(), saveRecord: vi.fn(), removeRecord: vi.fn(), savePreferences: vi.fn() },
+}));
 
 const games: Game[] = fixture.games;
 const celeste = games[0];
@@ -30,12 +35,12 @@ const defaultCollection: GameCollection = {
   id: 1, userId: profile.id, name: "Default Shortlist", description: "", createdAt: "2026-01-01",
 };
 
-async function signIn() {
+async function signIn(expected = profile) {
   fireEvent.click(await screen.findByRole("button", { name: "Sign In" }));
-  fireEvent.change(screen.getByLabelText("User ID or email"), { target: { value: " a@example.test " } });
+  fireEvent.change(screen.getByLabelText("User ID or email"), { target: { value: ` ${expected.email} ` } });
   fireEvent.change(screen.getByLabelText("Account password"), { target: { value: "test-password" } });
   fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
-  await screen.findByText(profile.displayName);
+  await screen.findByText(expected.displayName);
   await waitFor(() => expect(screen.getByRole("combobox", { name: "Collection" }).hasAttribute("disabled")).toBe(false));
 }
 
@@ -44,6 +49,8 @@ beforeEach(() => {
   window.localStorage.clear();
   window.history.replaceState(null, "", "/?mode=api#player");
   vi.mocked(users.loginUser).mockResolvedValue(session);
+  vi.mocked(playerLibrary.getRecords).mockResolvedValue([]);
+  vi.mocked(playerLibrary.getPreferences).mockResolvedValue({ preferredTags: [], avoidedTags: [] });
   vi.mocked(catalog.getCatalog).mockResolvedValue(games);
   vi.mocked(catalog.getCollections).mockResolvedValue([defaultCollection]);
   vi.mocked(catalog.getSavedGames).mockResolvedValue([]);
@@ -62,6 +69,51 @@ beforeEach(() => {
 afterEach(() => { cleanup(); window.history.replaceState(null, "", "/"); });
 
 describe("account, collection and save panel wiring", () => {
+  it("replaces personalized recommendations when signing out and signing in as another account", async () => {
+    vi.mocked(playerLibrary.getPreferences).mockImplementation(async (id) => ({ preferredTags: [id === profile.id ? "Platformer" : "FPS"], avoidedTags: [] }));
+    const { container } = render(<App />);
+    await signIn();
+    await screen.findByRole("heading", { name: "For you", exact: true });
+    expect(container.querySelector(".feature-reasons")?.textContent).toContain("Platformer");
+    fireEvent.click(screen.getByRole("button", { name: "Sign Out" }));
+    expect(screen.queryByRole("heading", { name: "For you", exact: true })).toBeNull();
+    expect(container.querySelector(".feature-reasons")).toBeNull();
+    const second = { ...profile, id: "account-b", email: "b@example.test", displayName: "Account B" };
+    vi.mocked(users.loginUser).mockResolvedValue({ ...session, user: second, accessToken: "token-b" });
+    await signIn(second);
+    await screen.findByRole("heading", { name: "For you", exact: true });
+    expect(container.querySelector(".feature-reasons")?.textContent).toContain("FPS");
+    expect(container.querySelector(".feature-reasons")?.textContent).not.toContain("Platformer");
+  });
+
+  it("shows general picks with recovery after preference failure, then applies the retried profile", async () => {
+    vi.mocked(playerLibrary.getPreferences).mockRejectedValueOnce(new Error("Unavailable"));
+    const { container } = render(<App />);
+    await signIn();
+    await screen.findByText("Your preferences could not be loaded. Showing general picks for now.");
+    expect(screen.getByRole("heading", { name: "Recommended games", exact: true })).toBeTruthy();
+    expect(container.querySelector(".feature-reasons")).toBeNull();
+    vi.mocked(playerLibrary.getPreferences).mockResolvedValue({ preferredTags: ["Platformer"], avoidedTags: [] });
+    fireEvent.click(screen.getByRole("button", { name: "Retry preferences", exact: true }));
+    await screen.findByRole("heading", { name: "For you", exact: true });
+    expect(container.querySelector(".feature-reasons")?.textContent).toContain("Platformer");
+    expect(screen.queryByRole("button", { name: "Retry preferences" })).toBeNull();
+  });
+
+  it("waits for a full profile and ignores a late profile response after logout", async () => {
+    let resolve!: (value: { preferredTags: string[]; avoidedTags: string[] }) => void;
+    vi.mocked(playerLibrary.getPreferences).mockReturnValue(new Promise((done) => { resolve = done; }));
+    const { container } = render(<App />);
+    await signIn();
+    await screen.findByText("Finding your next game…");
+    expect(container.querySelectorAll(".game-card")).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: "Sign Out" }));
+    resolve({ preferredTags: ["Platformer"], avoidedTags: [] });
+    await waitFor(() => expect(container.querySelectorAll(".game-card").length).toBeGreaterThan(0));
+    expect(screen.queryByRole("heading", { name: "For you", exact: true })).toBeNull();
+    expect(container.querySelector(".feature-reasons")).toBeNull();
+  });
+
   it("keeps account permissions independent of the selected developer view", async () => {
     window.history.replaceState(null, "", "/?mode=api#developer");
     render(<App />);

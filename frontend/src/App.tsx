@@ -1,5 +1,5 @@
 import { ArrowLeft, Gamepad2, Languages } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { LanguageProvider, useI18n } from "./i18n";
 import { useAccount } from "./hooks/useAccount";
 import { useCollections } from "./hooks/useCollections";
@@ -14,6 +14,7 @@ import { usePage, type AppPage, type WorkspaceView } from "./hooks/usePage";
 import { usePlayerLibrary } from "./hooks/usePlayerLibrary";
 import { PlayerLibraryPage } from "./components/PlayerLibraryPage";
 import { PlayerProfilePage } from "./components/PlayerProfilePage";
+import { recommendForPlayer, type RecommendationFeed } from "./lib/recommendations";
 import "./components/player-pages.css";
 
 export default function App() {
@@ -64,7 +65,28 @@ function WorkspaceSession({ view, page }: { view: WorkspaceView; page: AppPage }
   const collections = useCollections(discovery.catalog, sessionUserId, account.revision, view === "player" ? "player" : "research");
   const library = usePlayerLibrary(view === "player" ? sessionUserId : null, account.revision);
   const [recordGameId, setRecordGameId] = useState<number | null>(null);
+  const [browseSelection, setBrowseSelection] = useState<{ id: number | null; feed: RecommendationFeed; scope: string } | null>(null);
   const sessionKey = `${sessionUserId ?? "anonymous"}:${account.revision}`;
+  const recommendationsLoading = view === "player" && (account.status === "checking"
+    || !!sessionUserId && (library.loading || collections.loading));
+  const recommendationsError = !!sessionUserId && !!(library.error || collections.error);
+  const recommendations = useMemo(() => recommendForPlayer(discovery.catalog,
+    sessionUserId && library.loaded && !recommendationsLoading && !recommendationsError
+      ? { records: library.records, preferences: library.preferences, collections: collections.collections, saved: collections.savedGamesByCollection }
+      : undefined), [discovery.catalog, sessionUserId, library.loaded, library.records, library.preferences,
+        collections.collections, collections.savedGamesByCollection, recommendationsLoading, recommendationsError]);
+  const browseGames = recommendationsLoading ? [] : recommendations.items.map((item) => item.game);
+  const browseSelectedId = !recommendationsLoading && browseSelection?.scope === sessionKey
+    && (browseSelection.feed === recommendations || browseGames.some((game) => game.id === browseSelection.id))
+    ? browseSelection.id : browseGames[0]?.id ?? null;
+  const playerDiscovery = {
+    ...discovery, resetBrowse: () => { setBrowseSelection(null); discovery.resetBrowse(); },
+  };
+  const visibleDiscovery = view !== "player" ? discovery : discovery.isBrowsing ? {
+    ...playerDiscovery, filteredGames: browseGames, selectedId: browseSelectedId,
+    selectedPreview: discovery.catalog.find((game) => game.id === browseSelectedId),
+    selectGame: (id: number | null) => setBrowseSelection({ id, feed: recommendations, scope: sessionKey }),
+  } : playerDiscovery;
 
   return <>
       <nav className="workspace-navigation" aria-label={t("Page navigation", "页面导航")}>
@@ -82,7 +104,11 @@ function WorkspaceSession({ view, page }: { view: WorkspaceView; page: AppPage }
         {page === "library" ? <PlayerLibraryPage catalog={discovery.catalog} catalogLoading={discovery.catalogLoading} catalogError={discovery.catalogError} retryCatalog={discovery.retryCatalog} library={library} collections={collections} userId={sessionUserId} startGameId={recordGameId} />
           : <PlayerProfilePage catalog={discovery.catalog} catalogLoading={discovery.catalogLoading} catalogError={discovery.catalogError} retryCatalog={discovery.retryCatalog} library={library} collections={collections} userId={sessionUserId} />}
       </div> : <GameWorkspace
-        discovery={discovery}
+        discovery={visibleDiscovery}
+        recommendations={recommendations}
+        recommendationsLoading={recommendationsLoading}
+        recommendationsError={recommendationsError}
+        retryRecommendations={() => { library.retry(); collections.retry(); }}
         renderSaveMenu={(game) => <><SaveGameMenu
           key={`${sessionKey}:${game.id}`}
           state={collections}
@@ -95,8 +121,8 @@ function WorkspaceSession({ view, page }: { view: WorkspaceView; page: AppPage }
             key={sessionKey}
             state={collections}
             sessionUserId={sessionUserId}
-            selectedId={discovery.selectedId}
-            onSelectGame={discovery.selectGame}
+            selectedId={visibleDiscovery.selectedId}
+            onSelectGame={visibleDiscovery.selectGame}
             view={view}
           />
         </aside>}

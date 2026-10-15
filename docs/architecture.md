@@ -16,6 +16,10 @@ flowchart TD
     Workspace --> Collections[CollectionsPanel and SaveGameMenu / useCollections]
     Workspace --> Library[PlayerLibraryPage / usePlayerLibrary]
     Workspace --> Profile[PlayerProfilePage / buildPlayerProfile]
+    Workspace --> Recommendations[recommendForPlayer: ranked games and reasons]
+    Library --> Recommendations
+    Collections --> Recommendations
+    Recommendations --> Browse
     Library --> PlayerAdapter[playerLibrary: demo or authenticated API]
     Profile --> Library
     Profile --> Collections
@@ -50,7 +54,7 @@ The homepage has no catalog, account, collection, or insight effects. Entering a
 | `i18n/` | Own UI language preference, paired interface copy, display-only tag/error translation, and recognized catalog-content translation. Keep canonical identifiers, user drafts, and provider outputs intact. |
 | `hooks/useAccount.ts` | Validate and retain the account session, perform login/register/logout, and reject stale authentication results. |
 | `hooks/useDiscovery.ts` | Load/retry the catalog, coordinate search/filter results and selection, and accept only the latest search response. |
-| `lib/recommendations.ts` | Select up to six catalog recommendations by rating, review count, then stable title/ID. Use the same ordering for initial selection and visible recommendation cards. |
+| `lib/recommendations.ts` | Return up to six games and their structured recommendation reasons from explicit preferences and deduplicated profile evidence. Retain stable rating/review/title/ID ordering for cold start. |
 | `lib/researchOverview.ts`, `components/ResearchOverview.tsx` | Aggregate the full loaded catalog, provide stable research references, and expose tag drilldowns. Keep overview statistics separate from selected-game and AI insight requests. |
 | `hooks/useGameDetails.ts` | Load/retry one selected game's details and intelligence; ignore results for an earlier selection. |
 | `hooks/useCollections.ts` | Own collection loading, mutations, saved games, and collection intelligence within an account/revision scope. |
@@ -82,7 +86,9 @@ A `player_games` row is uniquely identified by `(user_id, game_id)`. It has a nu
 
 `buildPlayerProfile` combines liked games and personal collection membership, deduplicates by game ID, then excludes explicitly disliked games. Research/unclassified collections never provide personal-interest evidence. Avoided tags are omitted from inferred interests; preferred tags remain explicit choices rather than fabricated game evidence. Play-history counts use only Playing/Played statuses, regardless of affinity. The profile lists the games behind each tag; tags overlap, so their counts are not exclusive shares. No playtime, engagement telemetry, personality score, or AI claim is inferred.
 
-The profile currently does not alter homepage recommendations. This boundary lets the record/evidence model be verified before recommendation behavior changes. The existing search provider remains independent and makes no new AI calls for these pages.
+`recommendForPlayer` derives a feed and its evidence from the same confirmed records, collection memberships, and preferences. It reuses `buildPlayerProfile` rather than storing a second inferred profile. Known research/unclassified saves do not affect personal ranking. Avoided types and explicit dislikes are hard exclusions, as are Playing/Played games. Known liked/collected games are excluded unless they are on the want-to-play list. Wishlist candidates rank before explicit preferred types, followed by inferred matches and broader exploration; a small repeated-tag penalty adds variety only within each tier. Play-history evidence is weaker than interest evidence and never treats a disliked game as a positive signal. Reasons retain source game names and canonical tags for bilingual rendering.
+
+The workspace waits for both private data stores before showing a personalized feed. A load failure shows catalog picks and a retry action, without claiming personalized reasons. An account/revision change invalidates private data immediately. Manual browse selection is associated with the current feed and account scope: still-eligible choices survive a save, while newly excluded selections fall back to the new first pick. An intentional click on a saved game can inspect it outside the recommendation list without labelling it as a recommendation. Explicit search is independent of personal exclusions. The existing search provider remains independent; ranking adds no AI calls or database migrations.
 
 All 80 catalog records contain short English/Chinese gameplay summaries and `contentSource` links to official Steam descriptions. Curated tags distinguish such cases as first-person cleaning, rhythm/VR, building, and auto-battling from FPS. The editorial source metadata is stored in the shared catalog for auditability; it does not certify synthetic prices, ratings, review counts, revenue, or ownership.
 
@@ -102,7 +108,7 @@ The backend's optional DeepSeek search provider normalizes output into the same 
 
 Responses retain `source: rules` or `source: deepseek`. Disabled AI uses rules directly. Provider errors use rules when fallback is enabled, or return HTTP 503 when fallback is disabled. Blank search is resolved by the rules parser without a provider request. The title guard no longer adds `free` as a literal title fragment when it was recognized as a price condition.
 
-Game and collection insight endpoints remain separate from search parsing. Current insight text is generated from metadata and aggregate statistics, not review source text. Collection intelligence requires the owning account. The interface preserves the supplied source and estimate labels. Recognized demo/rules content can be translated for display; external or unrecognized text is retained verbatim. Provider keys stay in backend configuration.
+Game and collection insight endpoints remain separate from search parsing. Current insight text is generated from metadata and aggregate statistics, not review source text. Collection intelligence requires the owning account. Game insight labels distinguish game details from DeepSeek output while the response retains the original source identifier; estimate labels remain visible. Recognized demo/rules content can be translated for display; external or unrecognized text is retained verbatim. Provider keys stay in backend configuration.
 
 The [first live provider evaluation](verification/ai-evaluation-2026-09-15.md) exposed missing product thresholds and the title guard's handling of `free`; its reports remain unchanged. The [subsequent contract fixes and live rerun](verification/search-fixes-2026-09-16.md) record 31/31 passing nonblank integration cases against the original 24/31 baseline. An eight-query independent formulation set extends the boundary catalog; its original 7/8 report is retained alongside a separately explained correction of one authored expectation and an offline 8/8 rescore. Neither set establishes general held-out model accuracy.
 
@@ -129,6 +135,8 @@ Tests call the same catalog exports as application hooks; adapter internals are 
 Shared search fixtures check intent and results in the frontend parser and the PostgreSQL HTTP suite. UI coverage also exercises homepage navigation, recommendation and overview entry states, bilingual rendering, and provider/source presentation. Automated provider tests use controlled responses rather than a live paid service.
 
 The [personal-library verification](verification/player-library-2026-10-08.md) covers migration, record/preference persistence, owner isolation, stale responses, failed writes, evidence semantics, bilingual controls, and responsive browser checks. Its screenshots contain synthetic records entered only for validation.
+
+The [personalized-recommendation verification](verification/personalized-recommendations-2026-10-15.md) records exclusions, ranking tiers, evidence provenance, immediate profile updates, selection consistency, account changes, failed-load recovery, and responsive bilingual rendering. These are behavior checks, not a claim of measured recommendation relevance.
 
 See the [API workflow and delivery](verification/api-delivery-2026-09-15.md), [collection](verification/collections-2026-09-14.md), [search](verification/search-2026-09-14.md), and [module refactor](verification/modules-2026-09-15.md) records for executed checks and limitations. The [entry](verification/entry-2026-09-15.md), [recommendation](verification/recommendations-2026-09-15.md), [research overview](verification/research-overview-2026-09-15.md), and [bilingual](verification/bilingual-2026-09-15.md) records cover the subsequent interface work.
 

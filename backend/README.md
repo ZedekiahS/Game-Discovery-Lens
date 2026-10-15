@@ -82,7 +82,7 @@ Status can be `null`, `want_to_play`, `playing`, or `played`; affinity can be `n
 {"preferredTags": ["Puzzle"], "avoidedTags": ["Survival Horror"]}
 ```
 
-Empty lists clear preferences. Collection create/update accepts optional `purpose`: `player`, `research`, or `unspecified`. The default collection's purpose can change while its name remains unchanged. These fields support evidence-based frontend profiles, not measured playtime or personalized recommendation ranking yet.
+Empty lists clear preferences. Collection create/update accepts optional `purpose`: `player`, `research`, or `unspecified`. The default collection's purpose can change while its name remains unchanged. These fields support evidence-based frontend profiles and deterministic personalized recommendations. They do not represent measured playtime; no separate recommendation endpoint or additional migration is needed.
 
 The seed script also creates a local admin placeholder account. Configure these values through local environment variables only:
 

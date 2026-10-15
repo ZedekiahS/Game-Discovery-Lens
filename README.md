@@ -17,7 +17,7 @@ The homepage offers player and developer entry points. Each opens a distinct bro
 | Player discovery | Developer research |
 | --- | --- |
 | Illustrated discovery, personal game shelves, play records, and an editable taste profile. | A catalog overview, frequent tags, research references, and selected-game opportunity insights. |
-| Recommendations use catalog rating and review count with stable tie-breaking. | Overview statistics describe the loaded catalog; ownership and revenue estimates are labelled. |
+| Recommendations use explicit preferences and game-library evidence; new players start with stable catalog picks. | Overview statistics describe the loaded catalog; ownership and revenue estimates are labelled. |
 | Search by title, genre, budget, or natural-language conditions. | Drill into a tag or search and sort games for comparison. |
 
 These are viewing perspectives, independent of account permissions. Both support collections and return to the homepage to choose another perspective.
@@ -26,7 +26,7 @@ These are viewing perspectives, independent of account permissions. Both support
 
 | 中文 | English |
 | --- | --- |
-| ![Chinese player discovery with recommendations](docs/screenshots/player-zh.png) | ![English player discovery with recommendations](docs/screenshots/player-en.png) |
+| ![Chinese personalized player discovery](docs/screenshots/personalized-recommendations-zh.png) | ![English personalized player discovery](docs/screenshots/personalized-recommendations-en.png) |
 
 ### Developer / 开发者
 
@@ -40,7 +40,9 @@ Screenshots show the fixed-data demo. The dark gaming interface includes locally
 
 Players can record **Want to play / Playing / Played**, mark **Like / Not for me**, and keep a short personal note. Collection membership remains independent of those records. Existing collections are preserved and start with an unspecified purpose; players can classify them as personal interests or research references.
 
-The taste profile separates games of interest from games marked Playing or Played. Each type expands to show the games behind its count. A game saved to multiple personal collections counts once, research collections are excluded, and an explicit dislike overrides collection-based interest. Players can edit preferred and avoided types. These are manually recorded preferences and game counts, not imported Steam playtime or AI-inferred personality scores. Homepage recommendations still use catalog ordering; connecting the profile to recommendations is the next phase.
+The taste profile separates games of interest from games marked Playing or Played. Each type expands to show the games behind its count. A game saved to multiple personal collections counts once, research collections are excluded, and an explicit dislike overrides collection-based interest. Players can edit preferred and avoided types. These are manually recorded preferences and game counts, not imported Steam playtime or AI-inferred personality scores.
+
+The player homepage now uses that profile. Want-to-play games and explicit preferred types take precedence, followed by related personal interests and play history. Recommendations exclude avoided types, disliked games, and Playing/Played records; other known favorites stay in the library unless marked Want to play. Each recommendation gives a concrete reason in either language. Changes apply when returning from the library/profile, and explicit search still covers the full catalog. A new account receives general picks. Preference-loading failures show general picks with a retry action instead of claiming personalization. See [the ranking rules and verification](docs/verification/personalized-recommendations-2026-10-15.md).
 
 | 游戏库 | 玩家画像 / Gaming taste |
 | --- | --- |
@@ -96,7 +98,7 @@ The frontend defaults to `http://localhost:8000/api`. To change it, copy `fronte
 
 Natural-language search supports a local rules parser and an optional DeepSeek provider. Provider output is normalized into the same search contract, with recognized product price/rating/review conditions enforced in code; PostgreSQL executes the resulting filters and ranking. Free games have a zero-price ceiling, `cheap` defaults to US$35 unless a budget is specified, and `highly rated` requires a rating of at least 4.4 and a positive review count. Known and quoted titles are separated from those conditions. Search responses identify their source as `rules` or `deepseek`. Configured fallback returns rules results when the provider fails; disabling fallback exposes the provider error.
 
-Game and collection insight text currently uses catalog metadata and aggregate statistics. It is not a summary of review source text, and recommendations are not personalized or live-trending claims. Source labels and estimate notes stay visible. The Chinese interface translates recognized sample/rule content and preserves unrecognized provider text with an original-content note.
+Game and collection insight text currently uses catalog metadata and aggregate statistics; it is not a summary of review source text. Personal recommendations use deterministic rules over the player's records and preferences, with no additional model call or live-trending claim. Game insight labels distinguish game details from DeepSeek output; API responses retain the precise source identifiers. The Chinese interface translates recognized sample/rule content and preserves unrecognized provider text with an original-content note.
 
 See the [optional provider configuration](backend/README.md#optional-ai-provider). Provider keys stay in backend environment variables, never in `VITE_*` variables or Git. The preserved [first live evaluation](docs/verification/ai-evaluation-2026-09-15.md) found 24/31 DeepSeek integration cases meeting both intent and ordered-result expectations. After the contract fixes, a [new live pass](docs/verification/search-fixes-2026-09-16.md) met both in 31/31 on the same queries, with no observed fallbacks. These are application-integration results, including deterministic constraints, not raw model accuracy. Eight independently formulated follow-up queries have a separately documented fixture correction and offline rescore; broader held-out evaluation and traceable review evidence remain future work.
 
@@ -127,6 +129,7 @@ Each database suite creates and removes only its own UUID-named schema. Existing
 
 Verification records separate the executed checks from their limitations:
 
+- [Personalized recommendations, account transitions, and bilingual evidence](docs/verification/personalized-recommendations-2026-10-15.md)
 - [Personal library, evidence-based profile, catalog corrections, and migration](docs/verification/player-library-2026-10-08.md)
 - [80-game catalog expansion and artwork provenance](docs/verification/catalog-expansion-2026-09-16.md)
 - [API workflow and delivery](docs/verification/api-delivery-2026-09-15.md)
@@ -155,4 +158,4 @@ Read the [architecture guide](docs/architecture.md) for the current module and d
 
 The retained coursework includes marketplace workflows such as purchasing, reviews, bundles, vouchers, and folders. These are historical features, not claims about the current web interface. See the [SQL Server setup](docs/local-sqlserver-setup.md), [legacy migrations](migrations/README.md), and [migration plan](docs/migration-plan.md).
 
-Game Discovery Lens is a portfolio application. Further work centers on connecting personal preferences to recommendations, traceable AI evidence, and evaluated provider behavior; a public production deployment is outside the current demonstration scope.
+Game Discovery Lens is a portfolio application. Further work centers on evaluating recommendation quality with independent user scenarios, traceable AI evidence, and evaluated provider behavior; a public production deployment is outside the current demonstration scope.

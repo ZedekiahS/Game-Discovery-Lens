@@ -3,6 +3,13 @@
 .browse-search-button { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; gap: 8px; min-height: 44px; padding: 10px 16px; border: 1px solid #586d42; border-radius: 8px; color: var(--accent); background: #222e23; font-size: 13px; font-weight: 650; }
 .browse-search-button:hover { background: #30402a; border-color: var(--accent); }
 .recommendation-basis { color: var(--muted); font-size: 12px; line-height: 1.6; margin: -4px 0 16px; }
+.recommendation-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 22px; padding: 14px 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.recommendation-controls p { color: var(--muted); font-size: 14px; line-height: 1.6; flex: 1 1 240px; }
+.recommendation-controls > div { display: flex; flex-wrap: wrap; gap: 10px; }
+.recommendation-controls .small-button { display: inline-flex; align-items: center; min-height: 44px; }
+.recommendation-reason { margin: 12px 0 2px; color: var(--accent); font-size: 13px; line-height: 1.65; overflow-wrap: anywhere; }
+.feature-reasons { margin-top: 14px; border-left: 2px solid var(--accent); padding-left: 12px; }
+.feature-reasons p { color: var(--accent); font-size: 13px; line-height: 1.65; margin: 4px 0; }
 .recommendation-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .recommendation-grid .game-card { display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 0; overflow: hidden; border-radius: 12px; }
 .recommendation-grid .result-artwork { width: 100%; height: auto; aspect-ratio: 460 / 215; border-radius: 0; }

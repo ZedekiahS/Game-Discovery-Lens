@@ -11,12 +11,17 @@ import { SearchControls } from "./SearchControls";
 import { GameArtwork } from "./GameArtwork";
 import { DATA_MODE } from "../services/runtime";
 import { ResearchOverview } from "./ResearchOverview";
+import type { RecommendationFeed, RecommendationReason } from "../lib/recommendations";
 import "./audience-workspace.css";
 
-export function GameWorkspace({ discovery, renderSaveMenu, collectionPanel }: {
+export function GameWorkspace({ discovery, renderSaveMenu, collectionPanel, recommendations, recommendationsLoading, recommendationsError, retryRecommendations }: {
   discovery: ReturnType<typeof useDiscovery>;
   renderSaveMenu: (game: Game) => ReactNode;
   collectionPanel: ReactNode;
+  recommendations: RecommendationFeed;
+  recommendationsLoading: boolean;
+  recommendationsError: boolean;
+  retryRecommendations: () => void;
 }) {
   const { language, t, money, number, tag } = useI18n();
   const { catalog, selectedId, selectedPreview, view, filteredGames,
@@ -41,10 +46,14 @@ export function GameWorkspace({ discovery, renderSaveMenu, collectionPanel }: {
   const selectedRecommendation = view === "developer" ? localizedInsights?.developerOpportunity : localizedInsights?.playerRecommendation;
   const originalRecommendationText = originalRecommendation && selectedRecommendation && hasOriginalInsightContent(originalRecommendation, selectedRecommendation, language);
   const originalReviewText = visibleInsights && reviewInsight && hasOriginalInsightContent(visibleInsights.reviewIntelligence, reviewInsight, language);
-  const insightSource = visibleInsights?.source === "deepseek" ? "DeepSeek" : visibleInsights?.source === "mock" ? t("Demo rules", "演示规则") : t("Backend rules", "后端规则");
+  const insightSource = visibleInsights?.source === "deepseek" ? "DeepSeek" : t("Game details", "游戏资料");
   const signalLabel = signal === "Strong" ? t("Strong", "强劲") : signal === "Watch" ? t("Watch", "关注") : t("Risk", "风险");
   const gameSummary = selectedGame ? localizeGameSummary(selectedGame, language) : "";
   const isDeveloper = view === "developer";
+  const personalBrowse = !isDeveloper && isBrowsing;
+  const personalized = personalBrowse && recommendations.personalized && !recommendationsLoading;
+  const reasonsById = new Map(recommendations.items.map((item) => [item.game.id, item.reasons]));
+  const selectedIsRecommended = personalized && selectedId !== null && reasonsById.has(selectedId);
   const searchVisible = !isBrowsing || searchExpanded;
   function returnToBrowse() {
     focusSelectedGame.current = false;
@@ -59,7 +68,7 @@ export function GameWorkspace({ discovery, renderSaveMenu, collectionPanel }: {
         <div>
           <p className="eyebrow">{isDeveloper ? <BarChart3 size={14} aria-hidden="true" /> : <Gamepad2 size={14} aria-hidden="true" />} {isDeveloper ? t("Research / Compare / Create", "研究 / 对照 / 创作") : t("Discover / Play / Repeat", "发现 / 畅玩 / 再来一局")}</p>
           <h2 ref={workspaceHeading} tabIndex={-1}>{isDeveloper ? isBrowsing ? <>{t("Research ", "研究")}<span>{t("overview", "概览")}</span></> : <>{t("Find your next ", "寻找下一个")}<span>{t("opportunity.", "创作机会。")}</span></> : isBrowsing ? <>{t("What will you ", "今天，")}<span>{t("play next?", "玩点什么？")}</span></> : <>{t("Find your next ", "发现你的下一款")}<span>{t("game.", "游戏。")}</span></>}</h2>
-          <p className="audience-intro">{isDeveloper ? isBrowsing ? t("Get to know the catalog, choose a genre, or inspect a game to start your research.", "先了解目录，选择感兴趣的类型，或从一款参考作品开始研究。") : t("Explore comparable games, inspect catalog signals, and build a research shortlist.", "探索同类游戏，查看目录数据与机会分析，建立你的研究清单。") : isBrowsing ? t("Start with a few standout games. Pick one to explore, or search for something on your mind.", "先从几款口碑佳作逛起。挑一款看看，或搜索你已经感兴趣的游戏。") : t("Discover games for your taste and budget, then save your next adventure.", "按喜好和预算发现游戏，收藏你的下一场冒险。")}</p>
+          <p className="audience-intro">{isDeveloper ? isBrowsing ? t("Get to know the catalog, choose a genre, or inspect a game to start your research.", "先了解目录，选择感兴趣的类型，或从一款参考作品开始研究。") : t("Explore comparable games, inspect catalog signals, and build a research shortlist.", "探索同类游戏，查看目录数据与机会分析，建立你的研究清单。") : isBrowsing ? personalized ? t("Follow your favorites into a new adventure, or return to a game you want to try.", "沿着你的喜好，发现下一场冒险，也看看那些一直想玩的作品。") : t("Start with a few standout games. Pick one to explore, or search for something on your mind.", "先从几款口碑佳作逛起。挑一款看看，或搜索你已经感兴趣的游戏。") : t("Discover games for your taste and budget, then save your next adventure.", "按喜好和预算发现游戏，收藏你的下一场冒险。")}</p>
         </div>
         <div className="workspace-actions">
           {(searchVisible || (isDeveloper && selectedId !== null)) && <button className="browse-search-button" type="button" onClick={returnToBrowse}><ArrowLeft size={16} aria-hidden="true" />{isDeveloper ? t("Back to overview", "返回概览") : t("Back to recommendations", "返回推荐")}</button>}
@@ -69,6 +78,13 @@ export function GameWorkspace({ discovery, renderSaveMenu, collectionPanel }: {
       {searchVisible && <SearchControls discovery={discovery} onReturnToBrowse={returnToBrowse} />}
       {catalogLoading && <p role="status" className="mode-description">{t("Loading game catalog…", "正在加载游戏库…")}</p>}
       {catalogError && <ErrorNotice message={catalogError} onRetry={retryCatalog} retryLabel={t("Retry catalog", "重新加载游戏库")} disabled={catalogLoading} />}
+      {personalBrowse && !catalogLoading && !catalogError && <div className="recommendation-controls">
+        {recommendationsLoading ? <p role="status">{t("Finding your next game…", "正在挑选适合你的游戏…")}</p>
+          : recommendationsError ? <p role="status">{t("Your preferences could not be loaded. Showing general picks for now.", "暂时无法加载你的偏好，先看看精选游戏。")}</p>
+            : <p>{personalized ? t("Shaped by your preferences and game library.", "根据你的偏好与游戏库挑选。") : t("Make these picks yours with a few favorite games or genres.", "记录几款喜欢的游戏或类型，让推荐更合你的口味。")}</p>}
+        <div>{recommendationsError && !recommendationsLoading && <button className="small-button" type="button" onClick={retryRecommendations}>{t("Retry preferences", "重新加载偏好")}</button>}
+          <a className="small-button" href="#player/profile">{personalized ? t("Adjust my taste", "调整我的偏好") : t("Set my preferences", "设置我的偏好")}</a></div>
+      </div>}
       {isDeveloper && isBrowsing && !catalogLoading && !catalogError && <ResearchOverview catalog={catalog} onResearchTag={(gameTag) => discovery.updateIntent({ tags: [gameTag] })} />}
       {detailError && <ErrorNotice message={detailError} onRetry={retryDetails} retryLabel={t("Retry game details", "重新加载游戏详情")} disabled={detailLoading} />}
 
@@ -77,10 +93,13 @@ export function GameWorkspace({ discovery, renderSaveMenu, collectionPanel }: {
           <GameArtwork key={selectedGame.name} name={selectedGame.name} className="feature-artwork" priority />
           <div className="feature-shade" aria-hidden="true" />
           <div className="feature-copy">
-            <div className="feature-kicker"><span /> {isDeveloper ? t("Research focus", "研究对象") : isBrowsing ? t("Featured pick", "精选游戏") : t("In focus", "正在查看")}</div>
+            <div className="feature-kicker"><span /> {isDeveloper ? t("Research focus", "研究对象") : selectedIsRecommended ? t("Picked for you", "为你挑选") : personalBrowse && !personalized ? t("Featured pick", "精选游戏") : t("In focus", "正在查看")}</div>
             <p className="feature-genres">{selectedGame.tags.slice(0, 3).map(tag).join(" / ")}</p>
             <h2>{selectedGame.name}</h2>
             <p className="feature-summary">{gameSummary}</p>
+            {selectedIsRecommended && <div className="feature-reasons" aria-label={t("Why this pick", "推荐理由")}>
+              {(reasonsById.get(selectedGame.id) ?? []).map((reason, index) => <p key={index}><RecommendationReasonText reason={reason} /></p>)}
+            </div>}
             {language === "zh" && selectedGame.summary && gameSummary === selectedGame.summary && <p className="supporting-note">{t("Original content", "原始内容")}</p>}
             <p className="feature-byline">{selectedGame.developer} <span aria-hidden="true">·</span> {selectedGame.releaseYear}</p>
             <div className="feature-stats">
@@ -108,13 +127,13 @@ export function GameWorkspace({ discovery, renderSaveMenu, collectionPanel }: {
           <div className="section-heading">
             <h2>
               <Tags size={16} aria-hidden="true" />
-              {isDeveloper ? isBrowsing ? t("Research starting points", "研究参考作品") : t("Research results", "研究结果") : isBrowsing ? t("Recommended games", "精选推荐") : t("Matching Games", "匹配游戏")}
+              {isDeveloper ? isBrowsing ? t("Research starting points", "研究参考作品") : t("Research results", "研究结果") : isBrowsing ? personalized ? t("For you", "为你推荐") : t("Recommended games", "精选推荐") : t("Matching Games", "匹配游戏")}
             </h2>
             <span>
               {isBrowsing ? isDeveloper ? t(`${filteredGames.length} references`, `${filteredGames.length} 款参考`) : t(`${filteredGames.length} picks`, `${filteredGames.length} 款精选`) : t(`${filteredGames.length} ${filteredGames.length === 1 ? "result" : "results"}`, `${filteredGames.length} 个结果`)}
             </span>
           </div>
-          {isBrowsing && <p className="recommendation-basis">{isDeveloper ? t("Start with the most-reviewed titles in this catalog. Select one to inspect its signals.", "从当前目录中评价较多的作品开始，选择一款查看分析依据。") : DATA_MODE === "demo" ? t("Selected from the sample catalog by rating, with review count breaking ties.", "依据示例目录评分挑选，同分时参考评价数量。") : t("Selected from the catalog by rating, with review count breaking ties.", "依据游戏目录评分挑选，同分时参考评价数量。")}</p>}
+          {isBrowsing && <p className="recommendation-basis">{isDeveloper ? t("Start with the most-reviewed titles in this catalog. Select one to inspect its signals.", "从当前目录中评价较多的作品开始，选择一款查看分析依据。") : personalized ? t("New discoveries and games you want to try. Playing, played and avoided games stay out of this list.", "发现新作品，也重拾想玩的游戏；已玩、在玩和不合口味的作品不会出现在这里。") : t("A few highly rated games to start exploring.", "从几款高评分作品开始探索。")}</p>}
           <div className={`game-list${isBrowsing ? " recommendation-grid" : ""}`}>
             {filteredGames.map((game) => (
               <button
@@ -141,6 +160,7 @@ export function GameWorkspace({ discovery, renderSaveMenu, collectionPanel }: {
                       <span key={gameTag}>{tag(gameTag)}</span>
                     ))}
                   </div>
+                  {personalized && reasonsById.get(game.id)?.[0] && <p className="recommendation-reason"><RecommendationReasonText reason={reasonsById.get(game.id)![0]} /></p>}
                 </div>
                 <div className="game-meta">
                   <strong>{isDeveloper ? t(`${number(game.reviewCount)} reviews`, `${number(game.reviewCount)} 条评价`) : money(game.price)}</strong>
@@ -149,7 +169,19 @@ export function GameWorkspace({ discovery, renderSaveMenu, collectionPanel }: {
                 </div>
               </button>
             ))}
-            {filteredGames.length === 0 && !catalogLoading && !catalogError && <div className="empty-state">{isBrowsing ? isDeveloper ? t("There are no games in this catalog to research yet.", "游戏目录暂无可研究的作品。") : t("There are no games to recommend yet.", "游戏目录暂无可推荐的游戏。") : t("No games match these filters.", "没有符合这些筛选条件的游戏。")}{!isBrowsing && <p>{isDeveloper ? t("Try another query or return to the overview to explore a genre.", "试试其他条件，或返回概览，从游戏类型开始研究。") : t("Try another title or return to recommendations to keep exploring.", "试试其他游戏名，或返回推荐继续探索。")}</p>}</div>}
+            {filteredGames.length === 0 && !catalogLoading && !catalogError && !(personalBrowse && recommendationsLoading) && (
+              <div className="empty-state">
+                {!isBrowsing ? t("No games match these filters.", "没有符合这些筛选条件的游戏。")
+                  : isDeveloper ? t("There are no games in this catalog to research yet.", "游戏目录暂无可研究的作品。")
+                    : personalized && catalog.length > 0 ? <>
+                      {t("No new games fit your current preferences.", "暂时没有符合当前偏好的新游戏。打算换个口味吗？")}
+                      <p>{t("Adjust your preferences above, or search the full catalog.", "可以调整上方的偏好，或搜索完整游戏库。")}</p>
+                    </> : t("There are no games to recommend yet.", "游戏目录暂无可推荐的游戏。")}
+                {!isBrowsing && <p>{isDeveloper
+                  ? t("Try another query or return to the overview to explore a genre.", "试试其他条件，或返回概览，从游戏类型开始研究。")
+                  : t("Try another title or return to recommendations to keep exploring.", "试试其他游戏名，或返回推荐继续探索。")}</p>}
+              </div>
+            )}
           </div>
         </div>
 
@@ -166,7 +198,7 @@ export function GameWorkspace({ discovery, renderSaveMenu, collectionPanel }: {
             <p className="insight-verdict">{selectedRecommendation?.body ?? (detailLoading ? t("Loading game insights…", "正在加载游戏洞察…") : selectedGame ? t("Game insights are unavailable.", "暂时无法获取游戏洞察。") : isDeveloper ? t("Choose a reference game to explore its pricing, reception, and development opportunities.", "选择一款参考作品，了解定价、评价表现和开发机会。") : t("Select a game to inspect recommendation signals.", "选择一款游戏，查看推荐依据。"))}</p>
             {isDeveloper && !selectedGame && <p className="supporting-note insight-basis">{t("Game analysis shows its source and supporting signals. Save useful references to a research collection.", "游戏分析会标明来源与依据，你也可以将有用的参考作品加入收藏夹。")}</p>}
             {originalRecommendationText && <p className="supporting-note">{t("Original content", "原始内容")}</p>}
-            {visibleInsights && <p className="supporting-note insight-basis">{t("Based on catalog metadata · No review text analyzed.", "依据游戏目录元数据 · 未分析评价正文。")}</p>}
+            {visibleInsights && <p className="supporting-note insight-basis">{t("Based on game genres, ratings and review counts.", "参考游戏类型、评分与评价数量。")}</p>}
             {view === "developer" && selectedGame && <p className="supporting-note">{visibleInsights?.source === "mock" ? t("Catalog estimates · demo data", "目录估算 · 演示数据") : t("Catalog estimates", "目录估算")}</p>}
             {selectedGame && visibleInsights && (
               <details className="insight-disclosure" key={`${selectedGame.id}-${view}`}>
@@ -176,7 +208,7 @@ export function GameWorkspace({ discovery, renderSaveMenu, collectionPanel }: {
                 {reviewInsight && (
                   <div className="catalog-commentary">
                     <h3>{t("Catalog signal commentary", "目录信号解读")}</h3>
-                    <p className="supporting-note">{t("This commentary uses rating, review counts, and tags. No review text was analyzed.", "以下解读依据评分、评价数量与标签，未分析评价正文。")}</p>
+                    <p className="supporting-note">{t("See how the game's genres, rating and review count compare.", "结合游戏类型，查看评分与评价数量的表现。")}</p>
                     {originalReviewText && <p className="supporting-note">{t("Original content", "原始内容")}</p>}
                     <p>{reviewInsight.body}</p>
                     <InsightBullets bullets={reviewInsight.bullets} />
@@ -190,6 +222,16 @@ export function GameWorkspace({ discovery, renderSaveMenu, collectionPanel }: {
       </section>
     </main>
   );
+}
+
+function RecommendationReasonText({ reason }: { reason: RecommendationReason }) {
+  const { t, tag } = useI18n();
+  if (reason.kind === "preferred") return <>{t(`Matches your preference: ${reason.tags.map(tag).join(" · ")}`, `符合你的偏好：${reason.tags.map(tag).join(" · ")}`)}</>;
+  if (reason.kind === "interest") return <>{t(`From your interests: ${tag(reason.tag)}, like ${reason.gameName}`, `与你喜欢或收藏的 ${reason.gameName} 同属${tag(reason.tag)}`)}</>;
+  if (reason.kind === "history") return <>{t(`Explore more ${tag(reason.tag)} after ${reason.gameName}`, `玩过 ${reason.gameName}，再探索一款${tag(reason.tag)}游戏`)}</>;
+  if (reason.kind === "wishlist") return <>{t("On your want-to-play list", "来自你的想玩清单")}</>;
+  if (reason.kind === "explore") return <>{t("Something different to explore", "换个口味，探索不同作品")}</>;
+  return <>{t("A highly rated catalog pick", "高评分精选作品")}</>;
 }
 
 function Stat({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {

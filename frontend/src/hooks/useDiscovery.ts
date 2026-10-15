@@ -116,7 +116,7 @@ export function useDiscovery(view: SearchIntent["mode"] = "player") {
 
   return {
     catalog, catalogLoading, catalogError, query, setQuery, intent, tags, priceCeiling,
-    filteredGames, selectedId, selectedPreview, selectGame: setSelectedId, view,
+    filteredGames, selectedId, selectedPreview, selectGame: (id: number | null) => setSelectedId(id), view,
     searchSource, searchError, searchLoading, runSearch, updateIntent, isBrowsing, resetBrowse,
     retryCatalog: () => setCatalogRevision((value) => value + 1),
   };
