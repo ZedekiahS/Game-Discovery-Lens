@@ -139,7 +139,7 @@ function WorkspaceSession({ view, page }: { view: WorkspaceView; page: AppPage }
           game={game}
           onSignIn={account.status === "checking" ? undefined : () => { setPendingSaveGameId(game.id); setLoginRequest((current) => current + 1); }}
           resumeSave={resumeSaveGameId === game.id}
-          onOpen={() => { visibleDiscovery.selectGame(game.id); setResumeSaveGameId(null); }}
+          onOpen={() => { visibleDiscovery.selectGame(game.id); setPendingSaveGameId(null); setResumeSaveGameId(null); }}
         />{view === "player" && <button type="button" className="small-button" onClick={() => { setRecordGameId(game.id); window.location.hash = "#player/library"; }}>{t("Track this game", "记录这款游戏")}</button>}</>}
         collectionPanel={<aside className="sidebar" aria-label={t("Your account and collections", "你的账号与收藏")}>
           {DATA_MODE === "api" && accountPanel}

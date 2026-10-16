@@ -40,20 +40,21 @@ export function SaveGameMenu({ state, sessionUserId, game, onOpen, onSignIn, res
   useEffect(() => {
     if (!isSaveMenuOpen) return;
     menuRef.current?.querySelector<HTMLButtonElement>("button:not(:disabled)")?.focus();
-    function dismissOutside(event: PointerEvent) {
+    function dismissOutside(event: MouseEvent) {
       if (!rootRef.current?.contains(event.target as Node)) setIsSaveMenuOpen(false);
     }
     function dismissWithEscape(event: KeyboardEvent) {
-      if (event.key !== "Escape") return;
+      if (event.key !== "Escape" || event.isComposing || event.keyCode === 229) return;
       // Handle this before a containing record dialog receives its native cancel event.
       event.preventDefault(); event.stopPropagation();
       setIsSaveMenuOpen(false);
       triggerRef.current?.focus();
     }
-    document.addEventListener("pointerdown", dismissOutside);
+    // Wait for click so collapsing the mobile inline picker cannot move the tapped target before activation.
+    document.addEventListener("click", dismissOutside);
     document.addEventListener("keydown", dismissWithEscape, true);
     return () => {
-      document.removeEventListener("pointerdown", dismissOutside);
+      document.removeEventListener("click", dismissOutside);
       document.removeEventListener("keydown", dismissWithEscape, true);
     };
   }, [isSaveMenuOpen]);

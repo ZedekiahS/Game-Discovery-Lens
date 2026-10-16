@@ -189,13 +189,15 @@ describe("account, collection and save panel wiring", () => {
     fireEvent.click(screen.getByRole("button", { name: "New Collection" }));
     const draft = screen.getByLabelText("New collection name");
     fireEvent.change(draft, { target: { value: "Weekend picks" } });
+    fireEvent.keyDown(draft, { key: "Escape", isComposing: true });
+    expect(screen.getByLabelText("New collection name")).toBe(draft);
     fireEvent.keyDown(draft, { key: "Escape" });
     expect(document.activeElement).toBe(screen.getByRole("button", { name: "Save", exact: true }));
     fireEvent.click(screen.getByRole("button", { name: "Save", exact: true }));
     expect((screen.getByLabelText("New collection name") as HTMLInputElement).value).toBe("Weekend picks");
     const outside = screen.getByRole("button", { name: "English" });
     outside.focus();
-    fireEvent.pointerDown(outside);
+    fireEvent.click(outside);
     expect(screen.queryByText("Choose Collection")).toBeNull();
     expect(document.activeElement).toBe(outside);
   });
