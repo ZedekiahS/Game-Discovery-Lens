@@ -65,6 +65,9 @@ function WorkspaceSession({ view, page }: { view: WorkspaceView; page: AppPage }
   const collections = useCollections(discovery.catalog, sessionUserId, account.revision, view === "player" ? "player" : "research");
   const library = usePlayerLibrary(view === "player" ? sessionUserId : null, account.revision);
   const [recordGameId, setRecordGameId] = useState<number | null>(null);
+  const [pendingSaveGameId, setPendingSaveGameId] = useState<number | null>(null);
+  const [resumeSaveGameId, setResumeSaveGameId] = useState<number | null>(null);
+  const [loginRequest, setLoginRequest] = useState(0);
   const [browseSelection, setBrowseSelection] = useState<{ id: number | null; feed: RecommendationFeed; scope: string; records: typeof library.records; preferences: typeof library.preferences } | null>(null);
   const sessionKey = `${sessionUserId ?? "anonymous"}:${account.revision}`;
   const recommendationsLoading = view === "player" && (account.status === "checking"
@@ -88,6 +91,26 @@ function WorkspaceSession({ view, page }: { view: WorkspaceView; page: AppPage }
     selectGame: (id: number | null) => setBrowseSelection({ id, feed: recommendations, scope: sessionKey, records: library.records, preferences: library.preferences }),
   } : playerDiscovery;
 
+  useEffect(() => {
+    if (page !== "player" && page !== "developer") {
+      setPendingSaveGameId(null);
+      setResumeSaveGameId(null);
+    }
+  }, [page]);
+  useEffect(() => {
+    if (pendingSaveGameId === null || !sessionUserId || recommendationsLoading || collections.loading || recommendationsError) return;
+    // Keep the requested game selected even when signing in changes the recommendation feed.
+    if (view === "player" && discovery.isBrowsing) {
+      setBrowseSelection({ id: pendingSaveGameId, feed: recommendations, scope: sessionKey, records: library.records, preferences: library.preferences });
+    } else discovery.selectGame(pendingSaveGameId);
+    setResumeSaveGameId(pendingSaveGameId);
+    setPendingSaveGameId(null);
+  }, [pendingSaveGameId, sessionUserId, recommendationsLoading, collections.loading, recommendationsError,
+    view, discovery.isBrowsing, discovery.selectGame, recommendations, sessionKey, library.records, library.preferences]);
+  const accountPanel = <AccountPanel account={account}
+    loginRequest={pendingSaveGameId === null ? 0 : loginRequest}
+    onCancelSignIn={() => { setPendingSaveGameId(null); setResumeSaveGameId(null); }} />;
+
   return <>
       <nav className="workspace-navigation" aria-label={t("Page navigation", "页面导航")}>
         <a href="#home"><ArrowLeft size={15} aria-hidden="true" />{t("Home", "首页")}</a>
@@ -100,7 +123,7 @@ function WorkspaceSession({ view, page }: { view: WorkspaceView; page: AppPage }
         </div>}
       </nav>
       {(page === "library" || page === "profile") ? <div key={sessionKey}>
-        {DATA_MODE === "api" && <div className="player-account"><AccountPanel account={account} /></div>}
+        {DATA_MODE === "api" && <div className="player-account">{accountPanel}</div>}
         {page === "library" ? <PlayerLibraryPage catalog={discovery.catalog} catalogLoading={discovery.catalogLoading} catalogError={discovery.catalogError} retryCatalog={discovery.retryCatalog} library={library} collections={collections} userId={sessionUserId} startGameId={recordGameId} />
           : <PlayerProfilePage catalog={discovery.catalog} catalogLoading={discovery.catalogLoading} catalogError={discovery.catalogError} retryCatalog={discovery.retryCatalog} library={library} collections={collections} userId={sessionUserId} />}
       </div> : <GameWorkspace
@@ -114,10 +137,12 @@ function WorkspaceSession({ view, page }: { view: WorkspaceView; page: AppPage }
           state={collections}
           sessionUserId={sessionUserId}
           game={game}
-          onOpen={() => visibleDiscovery.selectGame(game.id)}
+          onSignIn={account.status === "checking" ? undefined : () => { setPendingSaveGameId(game.id); setLoginRequest((current) => current + 1); }}
+          resumeSave={resumeSaveGameId === game.id}
+          onOpen={() => { visibleDiscovery.selectGame(game.id); setResumeSaveGameId(null); }}
         />{view === "player" && <button type="button" className="small-button" onClick={() => { setRecordGameId(game.id); window.location.hash = "#player/library"; }}>{t("Track this game", "记录这款游戏")}</button>}</>}
         collectionPanel={<aside className="sidebar" aria-label={t("Your account and collections", "你的账号与收藏")}>
-          {DATA_MODE === "api" && <AccountPanel account={account} />}
+          {DATA_MODE === "api" && accountPanel}
           <CollectionsPanel
             key={sessionKey}
             state={collections}

@@ -148,6 +148,70 @@ test("protects unsaved drafts on close and browser Back, and cancels destructive
   await expect(page).toHaveURL(/#player\/profile$/);
   await expect(page.getByRole("button", { name: "Remove Puzzle from preferred types", exact: true })).toBeVisible();
   expect(discardedPrompts).toBe(3);
+  await page.getByRole("button", { name: "Sign Out", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Sign Out", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Remove Puzzle from preferred types", exact: true })).toBeVisible();
+  expect(discardedPrompts).toBe(4);
   await page.getByRole("button", { name: "Save preferences", exact: true }).click();
   await expect(page.getByText("Preferences saved", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Sign Out", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Sign In", exact: true })).toBeVisible();
+  expect(discardedPrompts).toBe(4);
+});
+
+test("resumes a signed-out save, reports real write progress, and supports keyboard dismissal and search", async ({ page }) => {
+  const email = await register(page);
+  await page.getByRole("link", { name: "My taste", exact: true }).click();
+  await page.getByRole("combobox", { name: "More of this", exact: true }).selectOption("Puzzle");
+  await page.getByRole("button", { name: "Save preferences", exact: true }).click();
+  await expect(page.getByText("Preferences saved", { exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "Discover", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "For you", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Sign Out", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Ready or Not", level: 2 })).toBeVisible();
+  await page.getByRole("button", { name: "Sign in to save", exact: true }).click();
+  await expect(page.getByLabel("User ID or email", { exact: true })).toBeFocused();
+  await page.getByLabel("User ID or email", { exact: true }).fill(email);
+  await page.getByLabel("Account password", { exact: true }).fill(password);
+  await page.getByRole("button", { name: "Sign In", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Default Shortlist Save", exact: true })).toBeFocused();
+  await expect(page.getByRole("heading", { name: "Ready or Not", level: 2 })).toBeVisible();
+
+  let releaseResponse!: () => void;
+  const heldResponse = new Promise<void>((resolve) => { releaseResponse = resolve; });
+  let writes = 0;
+  await page.route("**/api/saved-games", async (route) => {
+    if (route.request().method() !== "POST") return route.continue();
+    writes++;
+    const response = await route.fetch();
+    await heldResponse;
+    await route.fulfill({ response }); // Return the real server response after checking the pending UI.
+  });
+  try {
+    await page.getByRole("button", { name: "Default Shortlist Save", exact: true }).click();
+    await expect(page.locator(".save-picker [role=status]")).toHaveText("Saving…");
+    await expect(page.getByRole("button", { name: "Default Shortlist Saving…", exact: true })).toBeDisabled();
+  } finally { releaseResponse(); }
+  await expect(page.locator(".save-picker [role=status]")).toHaveText("Saved to Default Shortlist");
+  expect(writes).toBe(1);
+  await page.keyboard.press("Escape");
+  await expect(page.locator(".save-menu")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Saved (1)", exact: true })).toBeFocused();
+  await page.getByRole("button", { name: "Saved (1)", exact: true }).click();
+  await page.getByRole("button", { name: "English", exact: true }).click();
+  await expect(page.locator(".save-menu")).toHaveCount(0);
+  await page.getByRole("button", { name: "Search games", exact: true }).click();
+  const search = page.getByRole("textbox", { name: "Search games", exact: true });
+  await search.fill("Celeste");
+  await search.press("Enter");
+  await expect(page.getByRole("heading", { name: "Celeste", level: 2 })).toBeVisible();
+  await page.getByRole("button", { name: "Track this game", exact: true }).click();
+  const editor = page.getByRole("dialog");
+  await editor.getByRole("button", { name: "Save", exact: true }).click();
+  await page.keyboard.press("Escape");
+  await expect(editor).toBeVisible();
+  await expect(editor.locator(".save-menu")).toHaveCount(0);
+  await expect(editor.getByRole("button", { name: "Save", exact: true })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(editor).not.toBeVisible();
 });

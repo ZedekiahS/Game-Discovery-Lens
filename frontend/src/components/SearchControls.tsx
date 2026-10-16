@@ -67,6 +67,12 @@ export function SearchControls({ discovery, onReturnToBrowse }: { discovery: Ret
         placeholder={isDeveloper ? t("Try exploration games with reviews", "例如：有玩家评价的探索类游戏") : t("Try story-rich games under $25", "例如：25 美元以下的剧情游戏")}
         autoFocus
         onChange={(event) => setQuery(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key !== "Enter" || event.shiftKey || event.ctrlKey || event.altKey || event.metaKey
+            || event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229) return;
+          event.preventDefault();
+          if (!catalogLoading && catalog.length > 0) event.currentTarget.form?.requestSubmit();
+        }}
         spellCheck={false}
         rows={1}
       />

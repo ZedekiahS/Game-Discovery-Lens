@@ -60,6 +60,24 @@ beforeEach(() => {
 afterEach(() => { cleanup(); window.history.replaceState(null, "", "/"); });
 
 describe("search results and selection", () => {
+  it("searches with Enter but preserves Shift+Enter and IME confirmation", async () => {
+    vi.mocked(catalog.searchCatalog).mockResolvedValue(result(celeste));
+    await openApp();
+    const input = screen.getByRole("textbox", { name: "Search games" });
+    fireEvent.change(input, { target: { value: "Celeste" } });
+    expect(fireEvent.keyDown(input, { key: "Enter", shiftKey: true })).toBe(true);
+    expect(fireEvent.keyDown(input, { key: "Enter", isComposing: true })).toBe(true);
+    expect(fireEvent.keyDown(input, { key: "Enter", keyCode: 229 })).toBe(true);
+    expect(catalog.searchCatalog).not.toHaveBeenCalled();
+    expect(fireEvent.keyDown(input, { key: "Enter" })).toBe(false);
+    await screen.findByRole("heading", { name: celeste.name, level: 2 });
+    expect(catalog.searchCatalog).toHaveBeenCalledTimes(1);
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    await screen.findByRole("heading", { name: "Recommended games", exact: true });
+    expect(catalog.searchCatalog).toHaveBeenCalledTimes(1);
+  });
+
   it("does not resend an identical pending search", async () => {
     const pending = deferred<SearchResponse>();
     vi.mocked(catalog.searchCatalog).mockReturnValue(pending.promise);

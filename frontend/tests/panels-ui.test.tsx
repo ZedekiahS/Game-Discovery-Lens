@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../src/App";
 import * as catalog from "../src/services/catalog";
@@ -46,6 +46,7 @@ async function signIn(expected = profile) {
 
 beforeEach(() => {
   vi.resetAllMocks();
+  vi.spyOn(window, "scrollTo").mockImplementation(() => {});
   window.localStorage.clear();
   window.history.replaceState(null, "", "/?mode=api#player");
   vi.mocked(users.loginUser).mockResolvedValue(session);
@@ -66,9 +67,180 @@ beforeEach(() => {
       developerOpportunity: { ...panel, title: "Developer Copilot" } };
   });
 });
-afterEach(() => { cleanup(); window.history.replaceState(null, "", "/"); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); window.history.replaceState(null, "", "/"); });
 
 describe("account, collection and save panel wiring", () => {
+  it("protects unsaved preferences on explicit logout and discards them only after confirmation", async () => {
+    render(<App />);
+    await signIn();
+    await act(async () => { window.location.hash = "#player/profile"; });
+    const preferred = await screen.findByRole("combobox", { name: "More of this" });
+    fireEvent.change(preferred, { target: { value: "Platformer" } });
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+    fireEvent.click(screen.getByRole("button", { name: "Sign Out" }));
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(users.getStoredAuthToken()).toBe(session.accessToken);
+    expect(screen.getByRole("button", { name: "Remove Platformer from preferred types" })).toBeTruthy();
+    expect(playerLibrary.savePreferences).not.toHaveBeenCalled();
+    confirm.mockReturnValue(true);
+    fireEvent.click(screen.getByRole("button", { name: "Sign Out" }));
+    expect(users.getStoredAuthToken()).toBeNull();
+    expect(screen.queryByRole("button", { name: "Remove Platformer from preferred types" })).toBeNull();
+  });
+
+  it("focuses sign-in from Save and resumes the intended game after a failed login and a different personalized feed", async () => {
+    vi.mocked(users.loginUser).mockRejectedValueOnce(new Error("Invalid user id or password"));
+    let loadPreferences!: (value: { preferredTags: string[]; avoidedTags: string[] }) => void;
+    vi.mocked(playerLibrary.getPreferences).mockReturnValue(new Promise((resolve) => { loadPreferences = resolve; }));
+    render(<App />);
+    fireEvent.click(await screen.findByRole("button", { name: /^Celeste / }));
+    await screen.findByRole("heading", { name: "Celeste", level: 2 });
+    fireEvent.click(screen.getByRole("button", { name: "Sign in to save" }));
+    expect(document.activeElement).toBe(screen.getByLabelText("User ID or email"));
+    fireEvent.change(screen.getByLabelText("User ID or email"), { target: { value: profile.email } });
+    fireEvent.change(screen.getByLabelText("Account password"), { target: { value: "test-password" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
+    await screen.findByRole("alert");
+    fireEvent.click(screen.getByRole("button", { name: "Sign In" }));
+    await screen.findByText(profile.displayName);
+    expect(screen.queryByText("Choose Collection")).toBeNull();
+    await act(async () => { loadPreferences({ preferredTags: ["FPS"], avoidedTags: ["Platformer"] }); });
+    await screen.findByRole("button", { name: "Default Shortlist Save" });
+    expect(screen.getByRole("heading", { name: "Celeste", level: 2 })).toBeTruthy();
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Default Shortlist Save" }));
+    expect(catalog.saveGame).not.toHaveBeenCalled();
+    fireEvent.keyDown(document.activeElement!, { key: "Escape" });
+    expect(screen.queryByText("Choose Collection")).toBeNull();
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Save", exact: true }));
+  });
+
+  it("cancels the requested save when sign-in is dismissed", async () => {
+    render(<App />);
+    fireEvent.click(await screen.findByRole("button", { name: "Sign in to save" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel", exact: true }));
+    await signIn();
+    expect(screen.queryByText("Choose Collection")).toBeNull();
+    expect(catalog.saveGame).not.toHaveBeenCalled();
+  });
+
+  it("keeps the requested save when a new player switches from sign-in to registration", async () => {
+    vi.mocked(users.registerUser).mockResolvedValue(session);
+    render(<App />);
+    fireEvent.click(await screen.findByRole("button", { name: "Sign in to save" }));
+    fireEvent.click(screen.getByRole("button", { name: "Create Account" }));
+    expect(document.activeElement).toBe(screen.getByLabelText("Register email"));
+    fireEvent.change(screen.getByLabelText("Register email"), { target: { value: profile.email } });
+    fireEvent.change(screen.getByLabelText("Register display name"), { target: { value: profile.displayName } });
+    fireEvent.change(screen.getByLabelText("Register password"), { target: { value: "test-password" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create", exact: true }));
+    await screen.findByRole("button", { name: "Default Shortlist Save" });
+    expect(users.registerUser).toHaveBeenCalledOnce();
+    expect(catalog.saveGame).not.toHaveBeenCalled();
+  });
+
+  it("keeps password requirements visible and explains invalid registration fields in either language", async () => {
+    vi.mocked(users.registerUser).mockResolvedValue(session);
+    render(<App />);
+    fireEvent.click(await screen.findByRole("button", { name: "Create Account" }));
+    expect(screen.getByText("At least 8 characters.")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Create", exact: true }));
+    expect(screen.getByText("Enter a valid email address.")).toBeTruthy();
+    expect(screen.getByText("Enter a display name.")).toBeTruthy();
+    expect(screen.getByText("Use at least 8 characters.")).toBeTruthy();
+    expect(document.activeElement).toBe(screen.getByLabelText("Register email"));
+    expect(users.registerUser).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "中文" }));
+    expect(screen.getByText("请输入有效的邮箱地址。")).toBeTruthy();
+    expect(screen.getByText("至少 8 个字符。")).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("注册邮箱"), { target: { value: " a@example.test " } });
+    fireEvent.change(screen.getByLabelText("注册昵称"), { target: { value: " Account A " } });
+    fireEvent.change(screen.getByLabelText("注册密码"), { target: { value: "short" } });
+    fireEvent.click(screen.getByRole("button", { name: "创建", exact: true }));
+    expect(document.activeElement).toBe(screen.getByLabelText("注册密码"));
+    expect(users.registerUser).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText("注册密码"), { target: { value: "test-password" } });
+    expect(screen.getByLabelText("注册密码").getAttribute("aria-invalid")).toBe("false");
+    fireEvent.click(screen.getByRole("button", { name: "创建", exact: true }));
+    await screen.findByText(profile.displayName);
+    expect(users.registerUser).toHaveBeenCalledWith("a@example.test", "Account A", "test-password");
+  });
+
+  it("shows local save/remove progress and success, while keeping collection drafts when dismissing the picker", async () => {
+    let finishSave!: (value: Awaited<ReturnType<typeof catalog.saveGame>>) => void;
+    let finishRemove!: () => void;
+    vi.mocked(catalog.saveGame).mockReturnValue(new Promise((resolve) => { finishSave = resolve; }));
+    vi.mocked(catalog.removeSavedGame).mockReturnValue(new Promise((resolve) => { finishRemove = resolve; }));
+    const { container } = render(<App />);
+    await signIn();
+    fireEvent.click(screen.getByRole("button", { name: "Save", exact: true }));
+    fireEvent.click(screen.getByRole("button", { name: "Default Shortlist Save" }));
+    const pending = screen.getByRole("button", { name: "Default Shortlist Saving…" });
+    expect(pending.hasAttribute("disabled")).toBe(true);
+    expect(container.querySelector(".save-feedback")?.textContent).toBe("Saving…");
+    fireEvent.click(pending);
+    expect(catalog.saveGame).toHaveBeenCalledTimes(1);
+    const selected = vi.mocked(catalog.saveGame).mock.calls[0][0];
+    await act(async () => { finishSave({ id: 10, userId: profile.id, collectionId: 1, gameId: selected.id, game: selected, createdAt: "2026-01-01" }); });
+    expect(container.querySelector(".save-feedback")?.textContent).toBe("Saved to Default Shortlist");
+    fireEvent.click(screen.getByRole("button", { name: "Default Shortlist Remove" }));
+    expect(container.querySelector(".save-feedback")?.textContent).toBe("Removing…");
+    await act(async () => { finishRemove(); });
+    expect(container.querySelector(".save-feedback")?.textContent).toBe("Removed from Default Shortlist");
+    fireEvent.click(screen.getByRole("button", { name: "New Collection" }));
+    const draft = screen.getByLabelText("New collection name");
+    fireEvent.change(draft, { target: { value: "Weekend picks" } });
+    fireEvent.keyDown(draft, { key: "Escape" });
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Save", exact: true }));
+    fireEvent.click(screen.getByRole("button", { name: "Save", exact: true }));
+    expect((screen.getByLabelText("New collection name") as HTMLInputElement).value).toBe("Weekend picks");
+    const outside = screen.getByRole("button", { name: "English" });
+    outside.focus();
+    fireEvent.pointerDown(outside);
+    expect(screen.queryByText("Choose Collection")).toBeNull();
+    expect(document.activeElement).toBe(outside);
+  });
+
+  it("does not report success for an uncertain collection write, and keeps recovery accessible after dismissal", async () => {
+    vi.mocked(catalog.saveGame).mockRejectedValue(new Error("Connection lost"));
+    const { container } = render(<App />);
+    await signIn();
+    fireEvent.click(screen.getByRole("button", { name: "Save", exact: true }));
+    fireEvent.click(screen.getByRole("button", { name: "Default Shortlist Save" }));
+    const picker = within(container.querySelector(".save-picker") as HTMLElement);
+    await picker.findByRole("button", { name: "Reload collections" });
+    expect(container.querySelector(".save-feedback")?.textContent).toBe("");
+    expect(screen.queryByRole("button", { name: "Saved (1)" })).toBeNull();
+    fireEvent.keyDown(picker.getByRole("button", { name: "Reload collections" }), { key: "Escape" });
+    fireEvent.click(screen.getByRole("button", { name: "Save", exact: true }));
+    expect(picker.getByRole("button", { name: "Reload collections" })).toBeTruthy();
+    fireEvent.click(picker.getByRole("button", { name: "Reload collections" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Save", exact: true }).hasAttribute("disabled")).toBe(false));
+    fireEvent.click(screen.getByRole("button", { name: "Save", exact: true }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Default Shortlist Save" }).hasAttribute("disabled")).toBe(false));
+    expect(catalog.saveGame).toHaveBeenCalledTimes(1);
+  });
+
+  it("reports create-and-save completion only after the game has also been saved", async () => {
+    const created = { ...defaultCollection, id: 2, name: "Weekend picks" };
+    vi.mocked(catalog.createCollection).mockResolvedValue(created);
+    let finishSave!: (value: Awaited<ReturnType<typeof catalog.saveGame>>) => void;
+    vi.mocked(catalog.saveGame).mockReturnValue(new Promise((resolve) => { finishSave = resolve; }));
+    const { container } = render(<App />);
+    await signIn();
+    fireEvent.click(screen.getByRole("button", { name: "Save", exact: true }));
+    fireEvent.click(screen.getByRole("button", { name: "New Collection" }));
+    fireEvent.change(screen.getByLabelText("New collection name"), { target: { value: " Weekend picks " } });
+    fireEvent.click(screen.getByRole("button", { name: "Create & Save" }));
+    await waitFor(() => expect(catalog.saveGame).toHaveBeenCalledTimes(1));
+    expect(container.querySelector(".save-feedback")?.textContent).toBe("Creating & saving…");
+    expect(screen.getByLabelText("New collection name").hasAttribute("disabled")).toBe(true);
+    const selected = vi.mocked(catalog.saveGame).mock.calls[0][0];
+    await act(async () => { finishSave({ id: 10, userId: profile.id, collectionId: 2, gameId: selected.id, game: selected, createdAt: "2026-01-01" }); });
+    expect(container.querySelector(".save-feedback")?.textContent).toBe("Saved to Weekend picks");
+    expect(screen.queryByLabelText("New collection name")).toBeNull();
+    expect(screen.getByRole("button", { name: "Weekend picks Remove" })).toBeTruthy();
+  });
+
   it("replaces personalized recommendations when signing out and signing in as another account", async () => {
     vi.mocked(playerLibrary.getPreferences).mockImplementation(async (id) => ({ preferredTags: [id === profile.id ? "Platformer" : "FPS"], avoidedTags: [] }));
     const { container } = render(<App />);

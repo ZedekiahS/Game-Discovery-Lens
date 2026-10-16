@@ -9,6 +9,10 @@ export function registerNavigationGuard(guard: () => boolean) {
   return () => { navigationGuards.delete(guard); };
 }
 
+export function confirmPageExit() {
+  return [...navigationGuards].every((guard) => guard());
+}
+
 function currentPage(): AppPage | null {
   const hash = window.location.hash;
   return hash === "#player" ? "player" : hash === "#developer" ? "developer"
@@ -19,7 +23,7 @@ function subscribe(onChange: () => void) {
   let acceptedHash = window.location.hash;
   function navigate() {
     if (window.location.hash === acceptedHash) return;
-    if ([...navigationGuards].some((guard) => !guard())) {
+    if (!confirmPageExit()) {
       window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${acceptedHash}`);
       return;
     }

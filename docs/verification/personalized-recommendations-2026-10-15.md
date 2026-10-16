@@ -125,4 +125,16 @@ Interaction findings below are from source inspection and existing component tes
 | Clear/delete collection | Named confirmation, consequences, initial Cancel focus, Escape cancellation | Existing component coverage checks this path; retain this pattern. |
 | Search and general buttons | Search pending text, repeated-query suppression, hover/pressed/focus states | Search uses a textarea without an Enter-submit handler. Consider Enter to search and Shift+Enter for a newline, preserving IME composition. The collection picker also lacks an Escape/outside-click dismissal path. |
 
-These interaction improvements remain proposed work; the Node upgrade does not implement them. Prefer nearby, specific state feedback and actionable errors; keep destructive or unsaved-change confirmations for actions that actually need them.
+The Node upgrade itself did not implement these interaction changes. They are addressed in the follow-up below.
+
+## Interaction feedback and continuity — 2026-10-16
+
+Explicit sign-out now uses the same unsaved-change guard as page navigation. Cancelling keeps the signed-in account and preference draft intact; accepting discards the draft and signs out. Automatic session expiry retains its existing privacy behavior.
+
+The signed-out save action opens and focuses the account form. Players can sign in or switch to registration without losing the selected game. After authentication and account data loading, that game remains selected even if personalized recommendations change, and the collection picker opens. Saving still requires a deliberate collection choice. Cancelling authentication or leaving discovery clears the request.
+
+Collection actions show local progress and announce confirmed success, including the collection name, in both languages. Repeated writes remain blocked; uncertain writes retain read-before-retry recovery and never show success. Escape closes the picker and restores focus without closing its containing game-record dialog. Clicking outside closes it without moving focus; a new-collection draft survives dismissal. Registration now keeps password requirements visible and associates actionable validation messages with the affected fields. Enter searches, Shift+Enter permits a newline, and IME confirmation is ignored by the search shortcut.
+
+Component coverage exercises draft cancellation/acceptance on logout, failed sign-in followed by save resumption, registration and cancellation paths, changed recommendation feeds, bilingual validation, pending save/remove/create-and-save feedback, uncertain-write recovery, dismissal and keyboard behavior. The browser suite adds a fourth real-API scenario at both desktop and mobile sizes. It holds an actual server response to check pending feedback and verifies picker dismissal inside the native record dialog. No successful API result is replaced with fabricated data.
+
+Validation uses the Node.js 24 default runtime. Local TypeScript/Vite build and dependency audit pass with **zero vulnerabilities**. Browser journey results are recorded by the GitHub Actions run for the implementation commit. No new manual Computer Use review is claimed: local preview observation remains restricted by the browser access policy.
