@@ -22,7 +22,7 @@ function LanguageProbe() {
 }
 
 describe("language switching in the actual application", () => {
-  it("keeps selection, custom query and open drafts, and saves the same collection across languages and remounts", async () => {
+  it("keeps selection, custom query and collection drafts, and saves the same collection across languages and remounts", async () => {
     const getCatalog = vi.spyOn(catalog, "getCatalog");
     const getInsights = vi.spyOn(catalog, "getGameInsights");
     const originalCollectionInsights = catalog.getShortlistInsights;
@@ -49,6 +49,9 @@ describe("language switching in the actual application", () => {
     expect(document.documentElement.lang).toBe("zh-CN");
     expect(window.localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe("zh");
     expect((screen.getByLabelText("搜索游戏") as HTMLTextAreaElement).value).toBe("Hades under 24.99");
+    // The language switch is outside the picker: dismissal must keep its unsaved draft.
+    expect(screen.queryByLabelText("新收藏夹名称")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "收藏", exact: true }));
     expect((screen.getByLabelText("新收藏夹名称") as HTMLInputElement).value).toBe("周末 Co-op");
     expect(screen.getByRole("heading", { name: "Celeste", level: 2 })).toBeTruthy();
     expect(getCatalog).toHaveBeenCalledTimes(catalogCalls);
