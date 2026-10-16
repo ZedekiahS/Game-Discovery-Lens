@@ -88,4 +88,23 @@ Final local results:
 
 Reproduce with `npm test`, `npm run build`, and `npm run test:e2e` from `frontend/`; the browser command requires `GDL_E2E_DATABASE_URL` as described in the frontend README. Backend checks use `python -m unittest discover -s backend/tests -t backend` with `GDL_TEST_DATABASE_URL` pointing to a test database. AI was disabled for this verification; paid-provider availability was not tested.
 
-A dependency audit reported zero production dependency findings and eight development dependency findings (two moderate, four high, two critical). Playwright was not among the reported affected packages. Dependency remediation remains separate work; no forced major-version changes were applied during this verification task.
+The initial dependency audit reported zero production dependency findings and eight development dependency findings (two moderate, four high, two critical). Playwright was not among the reported affected packages. These findings were subsequently addressed in the follow-up below.
+
+## Development dependency remediation — 2026-10-16
+
+The eight findings were traced to the Vitest test runner and the Babel/Vite build dependency chains. Vitest was upgraded from 3.2.7 to the first patched 4.x release, 4.1.11. Its [security advisory](https://github.com/advisories/GHSA-82fw-gwwq-j7x9) states that 3.x will not receive the mocker fix. The new runner also removes Tinypool from this project's dependency tree, eliminating its [affected worker dependency](https://github.com/advisories/GHSA-85c8-ppgw-ccpr). The remaining packages were updated within their parents' existing semver ranges.
+
+| Audited package | Previous version | Resolved version |
+| --- | --- | --- |
+| vitest | 3.2.7 | 4.1.11 |
+| @vitest/mocker | 3.2.7 | 4.1.11 |
+| tinypool | 1.1.1 | Removed from the dependency tree |
+| [baseline-browser-mapping](https://github.com/advisories/GHSA-w5vr-8v7q-w6rv) | 2.10.34 | 2.11.29 |
+| [browserslist](https://github.com/advisories/GHSA-c83g-rgw3-j3cx) | 4.28.2 | 4.29.3 |
+| [nanoid](https://github.com/advisories/GHSA-2v37-7h3g-55p8) | 3.3.12 | 3.3.20 |
+| [postcss](https://github.com/advisories/GHSA-fxqj-rqcc-2cmp) | 8.5.15 | 8.5.30 |
+| [source-map-js](https://github.com/advisories/GHSA-68fv-2mgg-jv7q) | 1.2.1 | 1.2.2 |
+
+React, Vite, Playwright, application source, and existing test assertions are unchanged. The [Vitest 4 migration guidance](https://v4.vitest.dev/guide/migration.html) was checked against the existing configuration and mocking usage. No advisory exclusions, dependency overrides, or forced downgrade were introduced. npm 11 generated the updated lockfile after the local npm 10 installer hit an internal peer-resolution error; a subsequent clean `npm ci` with npm 10.9.2 succeeded. Local checks use Node.js 24.19.0, which satisfies Vitest's supported engines; CI retains Node.js 20. The machine's default Node.js 23 was not used to run the upgraded suite.
+
+After the clean installation, `npm audit --json` reported **zero vulnerabilities across production and development dependencies**. The original **197 frontend tests across 22 files** and **93 backend tests**, including PostgreSQL integration tests, passed. TypeScript and the production build also passed. All **6 desktop/mobile real-API browser journeys** passed with retries disabled, covering account isolation, persisted records and preferences, recommendations, lost-response recovery, and cancellation controls. GitHub Actions now runs `npm audit --audit-level=low` alongside the existing frontend checks, including development dependencies.

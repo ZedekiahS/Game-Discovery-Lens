@@ -84,11 +84,12 @@ External AI text and changed or unrecognized catalog content remain verbatim, wi
 ## Verify
 
 ```powershell
+npm audit --audit-level=low
 npm test
 npm run build
 ```
 
-Tests exercise data-mode separation, API error handling, account/collection state behavior, and search response ordering. Parser tests consume the same [search contract fixtures](../tests/fixtures/search-contract.json) as the backend, checking both intents and result IDs. The production build checks TypeScript and bundles the application. GitHub Actions runs both commands.
+Tests exercise data-mode separation, API error handling, account/collection state behavior, and search response ordering. Parser tests consume the same [search contract fixtures](../tests/fixtures/search-contract.json) as the backend, checking both intents and result IDs. The production build checks TypeScript and bundles the application. GitHub Actions runs the audit (including development dependencies), tests, and build. Use Node.js 20 as in CI, or Node.js 22/24; Vitest 4 does not support Node.js 23.
 
 
 ## Browser tests with the real API
