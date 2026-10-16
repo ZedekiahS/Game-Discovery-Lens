@@ -53,7 +53,7 @@ These screenshots use six manually entered validation records, not a real player
 
 ## Run the Demo
 
-Use Node.js 20, matching CI. From the repository root:
+Use Node.js 24 LTS, matching `.nvmrc` and CI. From the repository root:
 
 ```powershell
 cd frontend
