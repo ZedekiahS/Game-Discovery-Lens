@@ -65,7 +65,7 @@ function WorkspaceSession({ view, page }: { view: WorkspaceView; page: AppPage }
   const collections = useCollections(discovery.catalog, sessionUserId, account.revision, view === "player" ? "player" : "research");
   const library = usePlayerLibrary(view === "player" ? sessionUserId : null, account.revision);
   const [recordGameId, setRecordGameId] = useState<number | null>(null);
-  const [browseSelection, setBrowseSelection] = useState<{ id: number | null; feed: RecommendationFeed; scope: string } | null>(null);
+  const [browseSelection, setBrowseSelection] = useState<{ id: number | null; feed: RecommendationFeed; scope: string; records: typeof library.records; preferences: typeof library.preferences } | null>(null);
   const sessionKey = `${sessionUserId ?? "anonymous"}:${account.revision}`;
   const recommendationsLoading = view === "player" && (account.status === "checking"
     || !!sessionUserId && (library.loading || collections.loading));
@@ -77,7 +77,7 @@ function WorkspaceSession({ view, page }: { view: WorkspaceView; page: AppPage }
         collections.collections, collections.savedGamesByCollection, recommendationsLoading, recommendationsError]);
   const browseGames = recommendationsLoading ? [] : recommendations.items.map((item) => item.game);
   const browseSelectedId = !recommendationsLoading && browseSelection?.scope === sessionKey
-    && (browseSelection.feed === recommendations || browseGames.some((game) => game.id === browseSelection.id))
+    && (browseSelection.feed === recommendations || (browseSelection.records === library.records && browseSelection.preferences === library.preferences) || browseGames.some((game) => game.id === browseSelection.id))
     ? browseSelection.id : browseGames[0]?.id ?? null;
   const playerDiscovery = {
     ...discovery, resetBrowse: () => { setBrowseSelection(null); discovery.resetBrowse(); },
@@ -85,7 +85,7 @@ function WorkspaceSession({ view, page }: { view: WorkspaceView; page: AppPage }
   const visibleDiscovery = view !== "player" ? discovery : discovery.isBrowsing ? {
     ...playerDiscovery, filteredGames: browseGames, selectedId: browseSelectedId,
     selectedPreview: discovery.catalog.find((game) => game.id === browseSelectedId),
-    selectGame: (id: number | null) => setBrowseSelection({ id, feed: recommendations, scope: sessionKey }),
+    selectGame: (id: number | null) => setBrowseSelection({ id, feed: recommendations, scope: sessionKey, records: library.records, preferences: library.preferences }),
   } : playerDiscovery;
 
   return <>
@@ -114,6 +114,7 @@ function WorkspaceSession({ view, page }: { view: WorkspaceView; page: AppPage }
           state={collections}
           sessionUserId={sessionUserId}
           game={game}
+          onOpen={() => visibleDiscovery.selectGame(game.id)}
         />{view === "player" && <button type="button" className="small-button" onClick={() => { setRecordGameId(game.id); window.location.hash = "#player/library"; }}>{t("Track this game", "记录这款游戏")}</button>}</>}
         collectionPanel={<aside className="sidebar" aria-label={t("Your account and collections", "你的账号与收藏")}>
           {DATA_MODE === "api" && <AccountPanel account={account} />}

@@ -57,7 +57,7 @@ describe("collection persistence and request ownership", () => {
     expect(result.current.error).toBe("");
   });
 
-  it("reports save failure without adding a game and allows retry", async () => {
+  it("blocks more writes after an uncertain save until a successful reload", async () => {
     vi.mocked(catalog.saveGame)
       .mockRejectedValueOnce(new Error("Storage unavailable"))
       .mockResolvedValueOnce(savedA);
@@ -71,6 +71,19 @@ describe("collection persistence and request ownership", () => {
     expect(result.current.error).toContain("Storage unavailable");
     expect(result.current.busy).toBe(false);
 
+    await act(async () => { saved = await result.current.save(games[0], collectionA); });
+    expect(saved).toBe(false);
+    expect(catalog.saveGame).toHaveBeenCalledTimes(1);
+    await act(async () => { await result.current.clear(collectionA.id); await result.current.create("Duplicate"); });
+    expect(catalog.clearSavedGames).not.toHaveBeenCalled();
+    expect(catalog.createCollection).not.toHaveBeenCalled();
+    vi.mocked(catalog.getCollections).mockRejectedValueOnce(new Error("Still offline"));
+    act(() => result.current.retry());
+    await waitFor(() => expect(result.current.error).toBe("Still offline"));
+    await act(async () => { saved = await result.current.save(games[0], collectionA); });
+    expect(saved).toBe(false);
+    act(() => result.current.retry());
+    await waitFor(() => expect(result.current.error).toBe(""));
     await act(async () => { saved = await result.current.save(games[0], collectionA); });
     expect(saved).toBe(true);
     expect(result.current.savedGamesByCollection[collectionA.id]).toEqual([savedA]);

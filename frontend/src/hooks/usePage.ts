@@ -3,6 +3,12 @@ import { useSyncExternalStore } from "react";
 export type WorkspaceView = "player" | "developer";
 export type AppPage = WorkspaceView | "library" | "profile";
 
+const navigationGuards = new Set<() => boolean>();
+export function registerNavigationGuard(guard: () => boolean) {
+  navigationGuards.add(guard);
+  return () => { navigationGuards.delete(guard); };
+}
+
 function currentPage(): AppPage | null {
   const hash = window.location.hash;
   return hash === "#player" ? "player" : hash === "#developer" ? "developer"
@@ -10,11 +16,21 @@ function currentPage(): AppPage | null {
 }
 
 function subscribe(onChange: () => void) {
-  window.addEventListener("hashchange", onChange);
-  window.addEventListener("popstate", onChange);
+  let acceptedHash = window.location.hash;
+  function navigate() {
+    if (window.location.hash === acceptedHash) return;
+    if ([...navigationGuards].some((guard) => !guard())) {
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${acceptedHash}`);
+      return;
+    }
+    acceptedHash = window.location.hash;
+    onChange();
+  }
+  window.addEventListener("hashchange", navigate);
+  window.addEventListener("popstate", navigate);
   return () => {
-    window.removeEventListener("hashchange", onChange);
-    window.removeEventListener("popstate", onChange);
+    window.removeEventListener("hashchange", navigate);
+    window.removeEventListener("popstate", navigate);
   };
 }
 

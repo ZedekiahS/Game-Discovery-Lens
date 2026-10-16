@@ -13,7 +13,7 @@ const sortLabels = { name: "Name", price: "Price", rating: "Rating", review_coun
 export function SearchControls({ discovery, onReturnToBrowse }: { discovery: ReturnType<typeof useDiscovery>; onReturnToBrowse: () => void }) {
   const { language, t, money, tag } = useI18n();
   const { query, setQuery, intent, tags, priceCeiling, catalog, catalogLoading, view,
-    searchSource, searchError, searchLoading, runSearch, updateIntent, isBrowsing } = discovery;
+    searchError, searchLoading, runSearch, updateIntent, isBrowsing } = discovery;
   const isDeveloper = view === "developer";
   const primaryExamples = isDeveloper ? ["Dev lens", "FPS rank", "Story picks"] : ["Celeste", "Story picks", "Survival deal"];
   const displayQuery = localizeExampleQuery(query, language);
@@ -145,15 +145,7 @@ export function SearchControls({ discovery, onReturnToBrowse }: { discovery: Ret
             </div>}
           </div>
         </details>
-        {!isBrowsing && <details className="search-diagnostics">
-          <summary>{t("How this search works", "搜索如何解析")}</summary>
-          <p>{searchSource === "deepseek"
-            ? t("DeepSeek interpreted this search. The catalog applies the title and conditions below.", "这次搜索由 DeepSeek 解析，游戏目录按下方名称与条件筛选。")
-            : searchSource === "mock"
-              ? t("Demo rules interpreted this search against the sample catalog. No AI request was made.", "这次搜索使用演示规则解析，并查询示例游戏目录，没有调用 AI。")
-              : t("Rules interpreted this search against the API catalog. No AI-generated interpretation was used.", "这次搜索使用规则引擎解析，并查询 API 游戏目录，没有使用 AI 解析结果。")}</p>
-          <pre className="intent-box">{JSON.stringify(intent, null, 2)}</pre>
-        </details>}
+
       </div>
     </div>
   </section>;

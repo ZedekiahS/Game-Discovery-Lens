@@ -1,4 +1,5 @@
 const chineseErrors: Record<string, string> = {
+  "The request timed out. Reload to check the latest state before trying again.": "等待响应超时，请重新加载以确认最新状态后再试。",
   "Your game records could not be loaded.": "游戏记录加载失败，请检查网络或浏览器存储后重试。",
   "Your changes could not be confirmed. Reload your library before trying again.": "无法确认更改是否已保存，请重新加载游戏库后再试。",
   "Your preferences could not be saved. Choose up to 12 tags per group without overlap.": "偏好保存失败，每组最多选择 12 个类型，且不能重复。",

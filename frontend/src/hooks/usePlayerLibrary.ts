@@ -17,11 +17,11 @@ export function usePlayerLibrary(userId: string | null, revision: number) {
   useEffect(() => {
     const request = ++generation.current;
     pending.current = null;
-    setState({ ...initial(scope), loading: userId !== null });
+    setState((previous) => ({ ...(previous.scope === scope ? previous : initial(scope)), loading: userId !== null }));
     const current = () => generation.current === request && currentScope.current === scope;
     if (userId) void Promise.all([playerLibrary.getRecords(userId), playerLibrary.getPreferences(userId)])
       .then(([records, preferences]) => { if (current()) setState({ ...initial(scope), records, preferences, loaded: true, loading: false }); })
-      .catch(() => { if (current()) setState({ ...initial(scope), loading: false, error: "Your game records could not be loaded." }); });
+      .catch(() => { if (current()) setState((previous) => ({ ...previous, loading: false, error: "Your game records could not be loaded." })); });
     return () => { ++generation.current; };
   }, [scope, userId, reload]);
 

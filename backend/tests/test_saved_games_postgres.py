@@ -99,6 +99,17 @@ class SavedGamesPostgresFixture(unittest.TestCase):
         return response.json()
 
 class SavedGamesPostgresTests(SavedGamesPostgresFixture):
+    def test_new_registration_has_personal_default_without_reclassifying_existing_lists(self) -> None:
+        response = self.client.get("/api/collections", headers=self.headers(self.a))
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(len(response.json()), 1)
+        self.assertEqual(response.json()[0]["purpose"], "player")
+        collection_id = response.json()[0]["id"]
+        with self.session_factory.begin() as db:
+            db.get(Collection, collection_id).purpose = "unspecified"
+        existing = self.client.get("/api/collections", headers=self.headers(self.a))
+        self.assertEqual(existing.json()[0]["purpose"], "unspecified")
+
     def test_login_save_and_reload_in_new_session_with_idempotent_retry(self) -> None:
         login = self.client.post("/api/auth/login", json={"userId": "a@example.test", "password": "test-password"})
         self.assertEqual(login.status_code, 200, login.text)
@@ -159,7 +170,7 @@ class SavedGamesPostgresTests(SavedGamesPostgresFixture):
                 self.assertEqual(response.status_code, 422, response.text)
         with self.session_factory() as db:
             self.assertEqual(db.scalar(select(func.count()).select_from(SavedGame)), 0)
-            self.assertEqual(db.scalar(select(func.count()).select_from(Collection)), 1)
+            self.assertEqual(db.scalar(select(func.count()).select_from(Collection)), 3)
             self.assertEqual(db.get(Collection, collection["id"]).name, "B list")
 
     def test_legacy_query_owner_cannot_read_or_delete_another_accounts_data(self) -> None:
@@ -194,7 +205,7 @@ class SavedGamesPostgresTests(SavedGamesPostgresFixture):
         self.assertIn(response.status_code, (404, 405), response.text)
         with self.session_factory() as db:
             self.assertEqual(db.scalar(select(func.count()).select_from(User)), 2)
-            self.assertEqual(db.scalar(select(func.count()).select_from(Collection)), 1)
+            self.assertEqual(db.scalar(select(func.count()).select_from(Collection)), 2)
             self.assertEqual(db.scalar(select(func.count()).select_from(SavedGame)), 1)
 
     def test_inactive_and_expired_account_sessions_cannot_save(self) -> None:
@@ -207,4 +218,4 @@ class SavedGamesPostgresTests(SavedGamesPostgresFixture):
         self.assertEqual(response.status_code, 401, response.text)
         with self.session_factory() as db:
             self.assertEqual(db.scalar(select(func.count()).select_from(SavedGame)), 0)
-            self.assertEqual(db.scalar(select(func.count()).select_from(Collection)), 0)
+            self.assertEqual(db.scalar(select(func.count()).select_from(Collection)), 2)

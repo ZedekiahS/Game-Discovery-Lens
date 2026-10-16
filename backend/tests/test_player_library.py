@@ -91,11 +91,11 @@ class PlayerLibraryPostgresTests(SavedGamesPostgresFixture):
     def test_collection_purpose_is_explicit_and_can_change_without_losing_saves(self):
         a = self.headers(self.a)
         collection = self.client.get("/api/collections", headers=a).json()[0]
-        self.assertEqual(collection["purpose"], "unspecified")
+        self.assertEqual(collection["purpose"], "player")
         self.save(self.a, 1, collection["id"])
-        response = self.client.patch(f"/api/collections/{collection['id']}", headers=a, json={"name": collection["name"], "purpose": "player"})
+        response = self.client.patch(f"/api/collections/{collection['id']}", headers=a, json={"name": collection["name"], "purpose": "research"})
         self.assertEqual(response.status_code, 200, response.text)
-        self.assertEqual(response.json()["purpose"], "player")
+        self.assertEqual(response.json()["purpose"], "research")
         self.assertEqual(len(self.client.get("/api/saved-games", headers=a).json()), 1)
         research = self.client.post("/api/collections", headers=a, json={"name": "References", "purpose": "research"})
         self.assertEqual(research.json()["purpose"], "research")

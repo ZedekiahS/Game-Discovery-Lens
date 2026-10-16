@@ -27,6 +27,13 @@ h1, h2, h3, p { margin: 0; }
 svg { flex-shrink: 0; }
 ::selection { color: var(--on-accent); background: var(--accent); }
 :where(button, a, input, select, textarea, summary):focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.confirm-dialog { width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 28px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); color: var(--ink); box-shadow: 0 24px 90px #0009; }
+.confirm-dialog::backdrop { background: #050913c9; backdrop-filter: blur(5px); }
+.confirm-dialog h2 { font-size: 22px; line-height: 1.4; margin-bottom: 16px; }
+.confirm-dialog p { color: var(--muted); line-height: 1.65; margin-bottom: 14px; overflow-wrap: anywhere; }
+.confirm-dialog .record-actions { margin-top: 24px; justify-content: flex-end; gap: 12px; }
+.confirm-dialog button { min-height: 44px; }
+.confirm-dialog button.danger { color: var(--red); border-color: var(--red); background: color-mix(in srgb, var(--red) 10%, var(--panel)); }
 
 /* Shell and identity */
 .app-shell { max-width: 1440px; min-height: 100vh; margin-inline: auto; }
@@ -68,7 +75,7 @@ html[lang="zh-CN"] .tag-row span { line-height: 1.5; }
 .search-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
 .search-label-row { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
 .search-label-row label { font-weight: 600; font-size: 13px; }
-#search-hint, .search-diagnostics > p { color: var(--muted); font-size: 12px; line-height: 1.5; }
+#search-hint { color: var(--muted); font-size: 12px; line-height: 1.5; }
 textarea, .text-input, select { min-width: 0; border: 1px solid #455166; border-radius: 7px; padding: 11px 12px; background: #0e1520; color: var(--ink); }
 textarea { width: 100%; min-height: 48px; resize: vertical; line-height: 1.5; }
 .search-form textarea { height: 48px; }
@@ -102,7 +109,6 @@ summary svg { margin-right: 6px; vertical-align: middle; }
 .check-row { display: flex; align-items: center; gap: 8px; min-height: 44px; color: var(--muted); font-size: 13px; }
 .check-row input { width: 18px; height: 18px; }
 input[type="range"], input[type="checkbox"] { accent-color: var(--accent); }
-.intent-box { margin: 10px 0 16px; padding: 16px; border-radius: 6px; color: var(--cyan); background: #0e1520; font-size: 12px; overflow-x: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
 .search-panel > .error-notice { margin-top: 12px; }
 
 /* Game-specific artwork and an unclipped save menu. */
@@ -292,7 +298,7 @@ input[type="range"], input[type="checkbox"] { accent-color: var(--accent); }
   .feature-summary { font-size: 13px; }
   .feature-stats { gap: 16px; }
   .feature-stats .save-picker { width: 100%; margin-left: 0; }
-  .save-menu { left: 0; width: 100%; }
+  .save-menu { position: static; width: 100%; margin-top: 10px; }
   .insight-stack { grid-template-columns: minmax(0, 1fr); }
   .game-card { grid-template-columns: 80px minmax(0, 1fr) auto; gap: 9px; padding: 9px; }
   .result-artwork { height: 80px; }

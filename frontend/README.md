@@ -89,3 +89,21 @@ npm run build
 ```
 
 Tests exercise data-mode separation, API error handling, account/collection state behavior, and search response ordering. Parser tests consume the same [search contract fixtures](../tests/fixtures/search-contract.json) as the backend, checking both intents and result IDs. The production build checks TypeScript and bundles the application. GitHub Actions runs both commands.
+
+
+## Browser tests with the real API
+
+Install the backend development dependencies first. Start a local PostgreSQL test instance, then run from `frontend/`:
+
+```powershell
+npm ci
+npx playwright install chromium
+$env:GDL_E2E_DATABASE_URL='postgresql+psycopg://gdl_test:gdl_test@127.0.0.1:5432/gdl_test'
+npm run test:e2e
+```
+
+The runner starts Vite on `127.0.0.1:4191` and FastAPI on `127.0.0.1:8011`; these ports must be free. It uses `backend/.venv` when present, otherwise `python` from PATH (`GDL_E2E_PYTHON` can provide an explicit interpreter). The API wrapper requires the test database variable, creates a random schema, runs the real Alembic migrations, and seeds the 80-game catalog. It does not seed user activity, share the application schema, or call a paid AI provider. Accounts are registered through the browser with unique `example.test` addresses.
+
+The desktop and narrow mobile projects exercise the complete account/library/profile/recommendation flow, cross-account isolation, response-loss recovery, and unsaved-draft/confirmation controls. Successful API responses are not mocked. The response-loss case lets the real database commit, then interrupts only the browser response; a reload must reconcile without another write.
+
+GitHub Actions runs the same tests against PostgreSQL and retains traces/screenshots only for failures. Local generated reports and traces are ignored by Git. The runner uses Playwright's [web server lifecycle](https://playwright.dev/docs/test-webserver) and [CI installation](https://playwright.dev/docs/ci-intro). The API wrapper removes its schema on graceful shutdown; a forced termination (including Windows process-tree shutdown) can leave that isolated schema in the test database. Use a disposable test database, never a production database.

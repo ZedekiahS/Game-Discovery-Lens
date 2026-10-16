@@ -78,3 +78,29 @@ describe("unreadable demo storage", () => {
     assertUnchanged();
   });
 });
+
+
+describe("personal defaults without reclassifying old collections", () => {
+  it("persists the personal purpose across the first save and reload", async () => {
+    const catalog = await import("../src/services/catalog");
+    expect((await catalog.getCollections(userId))[0].purpose).toBe("player");
+    await catalog.saveGame(games[0], games, userId, 1);
+    vi.resetModules();
+    const reloaded = await import("../src/services/catalog");
+    expect((await reloaded.getCollections(userId))[0].purpose).toBe("player");
+    expect(await reloaded.getSavedGames(games, userId, 1)).toHaveLength(1);
+  });
+  it.each(["game-discovery-lens", "arcadeiq"])("leaves %s saved-game-only history unclassified", async (brand) => {
+    window.localStorage.setItem(`${brand}.demo.savedCollectionGameIds.${userId}`, JSON.stringify({ 1: [games[0].id] }));
+    const catalog = await import("../src/services/catalog");
+    expect((await catalog.getCollections(userId))[0].purpose).toBeUndefined();
+    expect(await catalog.getSavedGames(games, userId, 1)).toHaveLength(1);
+  });
+  it("does not overwrite a stored research or unclassified default", async () => {
+    const catalog = await import("../src/services/catalog");
+    for (const purpose of [undefined, "research"]) {
+      window.localStorage.setItem(collectionKey, JSON.stringify([{ ...collection, id: 1, name: "Default Shortlist", purpose }]));
+      expect((await catalog.getCollections(userId))[0].purpose).toBe(purpose);
+    }
+  });
+});

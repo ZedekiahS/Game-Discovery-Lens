@@ -5,6 +5,7 @@ import { useI18n } from "../i18n";
 import { hasOriginalInsightContent, localizeCollectionInsights } from "../i18n/content";
 import { ErrorNotice, Metric } from "./ui";
 import type { CollectionPurpose } from "../types";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 const DEFAULT_COLLECTION_NAME = "Default Shortlist";
 
@@ -21,7 +22,8 @@ export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGam
   const { language, t, money, number, tag, collectionName } = useI18n();
   const { collections, activeCollectionId, savedGamesByCollection, shortlistInsights } = state;
   const collectionDisabled = sessionUserId === null || state.loading || state.busy
-    || (collections.length === 0 && Boolean(state.error));
+    || Boolean(state.error);
+  const [confirmation, setConfirmation] = useState<"clear" | "delete" | null>(null);
   const [isCreatingCollection, setIsCreatingCollection] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
   const [isEditingCollection, setIsEditingCollection] = useState(false);
@@ -37,7 +39,7 @@ export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGam
   const isDefaultCollection = selectedCollection?.name === DEFAULT_COLLECTION_NAME;
 
   async function clearShortlist() {
-    if (activeCollectionId !== null) await state.clear(activeCollectionId);
+    if (activeCollectionId !== null && await state.clear(activeCollectionId)) setConfirmation(null);
   }
   async function addCollection(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -48,6 +50,7 @@ export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGam
     }
   }
   function selectCollection(collectionId: number) {
+    setConfirmation(null);
     state.setActiveCollectionId(collectionId);
     setIsEditingCollection(false);
     setEditingCollectionName("");
@@ -69,6 +72,7 @@ export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGam
   async function removeCollection() {
     if (!selectedCollection || isDefaultCollection) return;
     if (await state.deleteCollection(selectedCollection.id)) {
+      setConfirmation(null);
       setIsEditingCollection(false);
       setEditingCollectionName("");
     }
@@ -88,7 +92,7 @@ export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGam
               <button
                 className="icon-button danger"
                 type="button"
-                onClick={() => void clearShortlist()}
+                onClick={() => setConfirmation("clear")}
                 title={t("Clear shortlist", "清空收藏")}
                 aria-label={t("Clear shortlist", "清空收藏")}
                 disabled={collectionDisabled}
@@ -139,7 +143,7 @@ export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGam
           <button
             className="icon-button danger"
             type="button"
-            onClick={() => void removeCollection()}
+            onClick={() => setConfirmation("delete")}
             title={t("Delete collection", "删除收藏夹")}
             aria-label={t("Delete collection", "删除收藏夹")}
             disabled={collectionDisabled || !selectedCollection || isDefaultCollection}
@@ -198,7 +202,18 @@ export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGam
         </div>
       </section>
 
-      {state.insightsError && <ErrorNotice message={state.insightsError} onRetry={state.retry} retryLabel={t("Retry collection intelligence", "重新获取收藏洞察")} disabled={state.busy} />}
+      {confirmation && selectedCollection && <ConfirmDialog
+        title={confirmation === "clear" ? t("Clear this collection?", "清空这个收藏夹？") : t("Delete this collection?", "删除这个收藏夹？")}
+        confirmLabel={confirmation === "clear" ? t("Clear collection", "确认清空") : t("Delete permanently", "确认删除")}
+        onConfirm={() => void (confirmation === "clear" ? clearShortlist() : removeCollection())}
+        onCancel={() => setConfirmation(null)} busy={state.busy} disabled={collectionDisabled}>
+        <p>{confirmation === "clear"
+          ? t(`Remove ${savedGames.length === 1 ? "the saved game" : `all ${savedGames.length} saved games`} from “${collectionName(selectedCollection.name)}”?`, `从“${collectionName(selectedCollection.name)}”中移除全部 ${savedGames.length} 款收藏游戏？`)
+          : t(`Delete “${collectionName(selectedCollection.name)}” and its ${savedGames.length} saved ${savedGames.length === 1 ? "game" : "games"}?`, `删除“${collectionName(selectedCollection.name)}”及其中的 ${savedGames.length} 款收藏游戏？`)}</p>
+        <p>{t("This cannot be undone. Your play records, notes and other collections will stay.", "此操作无法撤销。游玩记录、笔记和其他收藏夹会保留。")}</p>
+        {state.error && <ErrorNotice message={state.error} onRetry={() => { setConfirmation(null); state.retry(); }} retryLabel={t("Reload collections", "重新加载收藏夹")} disabled={state.busy} />}
+      </ConfirmDialog>}
+      {state.insightsError && !hideInsights && <ErrorNotice message={state.insightsError} onRetry={state.retry} retryLabel={t("Retry collection intelligence", "重新获取收藏洞察")} disabled={state.busy} />}
       {!hideInsights && savedGames.length > 0 && shortlistInsights && localizedInsights && (
         <details className="tool-panel shortlist-insight-panel collection-insight-disclosure">
           <summary>
@@ -206,8 +221,7 @@ export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGam
             <span>{t("Collection insights", "收藏洞察")}</span>
           </summary>
           <p className="supporting-note">
-            {t("Source:", "来源：")} {shortlistInsights.source === "deepseek" ? "DeepSeek" : shortlistInsights.source === "mock" ? t("Demo rules", "演示规则") : t("Rules", "规则引擎")} · {t("Catalog estimates.", "游戏目录估算。")}
-            {" "}{shortlistInsights.source === "mock" ? t("Summary based on sample catalog metadata.", "摘要基于示例游戏目录元数据。") : t("Summary based on catalog metadata.", "摘要基于游戏目录元数据。")}
+            {t("Based on the games in this collection.", "依据此收藏夹中的游戏整理。")}
           </p>
           <div className="shortlist-insight-metrics">
             <Metric label={t("Avg Price", "平均价格")} value={money(shortlistInsights.averagePrice)} />

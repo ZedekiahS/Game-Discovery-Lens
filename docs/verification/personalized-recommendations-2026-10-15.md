@@ -49,3 +49,43 @@ npm run build
 - [Mobile recommendations](../screenshots/personalized-recommendations-mobile.png)
 
 The screenshots use synthetic validation preferences; the application does not seed these into a new account. Ranking quality still needs independent scenarios or user feedback. These checks establish consistent, explainable behavior and privacy boundaries, not measured relevance, click-through, or retention.
+
+## Reliability and customer-interface follow-up
+
+The follow-up adds collection clear/delete confirmation, unsaved record/preference protection, a 30-second HTTP deadline, and a reload requirement after an uncertain collection write. Drafts remain mounted through a record/preference reload. Search controls no longer expose raw intent JSON or internal source diagnostics, and collection insights no longer display rules-engine or implementation-next-step copy.
+
+New registrations and fresh browser profiles now receive a personal default collection. Existing research and unspecified collections, including legacy saved-only browser storage, are preserved. A regression surfaced when saving the selected recommendation immediately changed the personalized feed: its detail panel jumped to another game. The save picker now pins the inspected game, while confirmed play-record or preference changes still invalidate an excluded selection.
+
+Final local validation on 2026-10-15:
+
+- Frontend: **197/197 tests across 22 files passed**, using `node ./node_modules/vitest/vitest.mjs run --maxWorkers=2`.
+- Backend: **93/93 tests passed**, including PostgreSQL integration cases against a temporary PostgreSQL 18 instance and isolated schemas. AI was disabled; no paid provider requests were made.
+- TypeScript and Vite production build: **passed**.
+- Added coverage checks stalled responses and bodies, request cancellation, no automatic write replay, blocked mutations until a successful reload, failed reloads, confirmation cancel/focus restoration, independent notes/play records after collection removal, unsaved drafts, and preservation of legacy collection purposes.
+- Browser review used the in-app browser at `127.0.0.1:4190/?mode=demo`, with storage separate from the existing preview origin. A fresh personal default was visible, saving Ready or Not updated recommendations without changing its details, and the profile counted the saved game as personal evidence. Cancelling collection clear retained that save. These were locally entered validation actions, not production activity.
+- The Chinese confirmation was inspected at a 375 × 812 viewport: text and actions fit, the destructive action is visually distinct, and Cancel receives initial focus. See the [mobile confirmation screenshot](../screenshots/collection-confirmation-mobile-zh.png).
+- The browser displayed the unsaved-note confirmation, but its control connection then timed out; dismissal and the remaining English desktop browser checks were not confirmed in this pass. Automated component tests cover discard cancellation and bilingual behavior. No new browser-to-live-API end-to-end claim is made.
+
+Account settings, external login providers, and server-side token revocation remain outside this iteration.
+
+## Real API and browser completion — 2026-10-16
+
+The previously interrupted manual checks are now complete. Computer Use drove the in-app browser against the real FastAPI service and an isolated temporary PostgreSQL database. It registered a synthetic account, signed in, saved Ready or Not, entered a Played/Like record and a note, chose a Puzzle preference, and checked the resulting recommendations in Chinese and English. Refresh retained the collection, note, preference, and recommendation order. Logout hid private records; signing back in restored them.
+
+The manual review also cancelled collection clearing with Escape and checked focus restoration. It dismissed the unsaved-note prompt both when closing the record editor and when using browser Back; the draft and library location remained intact. The temporary draft was then restored to its saved value, the account signed out, and the browser tab closed. See the [English real-API journey screenshot](../screenshots/api-journey-en.png). All entered account and activity data were synthetic test data in the isolated database.
+
+Repeatable Playwright coverage now runs the real browser, migrations, API, and PostgreSQL together. Three scenarios run at both 1440 × 1000 and 375 × 812: the complete account/library/profile/recommendation journey with second-account isolation, a committed write whose response is lost, and draft/destructive-action cancellation. The lost-response case commits through the actual API before aborting the response, then asserts reconciliation with exactly one write. No successful API response is substituted by a fixture.
+
+The mobile run exposed an actual layout regression: the open collection picker covered the next game-record action. On narrow screens the picker now expands in normal document flow, preserving access to the next action. Both viewport projects passed after this fix.
+
+Final local results:
+
+- Frontend unit/component tests: **197/197 passed across 22 files**.
+- Backend tests: **93/93 passed**, including real PostgreSQL integration cases.
+- Desktop/mobile browser journeys: **6/6 passed** in a single run after the mobile fix, with retries disabled.
+- TypeScript and Vite production build: **passed** after the final CSS change.
+- GitHub Actions now has a separate Browser and Real API job with PostgreSQL 16 and failure traces/screenshots. Local database checks used PostgreSQL 18; the browser project is Chromium-based and does not claim Safari or physical-device coverage.
+
+Reproduce with `npm test`, `npm run build`, and `npm run test:e2e` from `frontend/`; the browser command requires `GDL_E2E_DATABASE_URL` as described in the frontend README. Backend checks use `python -m unittest discover -s backend/tests -t backend` with `GDL_TEST_DATABASE_URL` pointing to a test database. AI was disabled for this verification; paid-provider availability was not tested.
+
+A dependency audit reported zero production dependency findings and eight development dependency findings (two moderate, four high, two critical). Playwright was not among the reported affected packages. Dependency remediation remains separate work; no forced major-version changes were applied during this verification task.

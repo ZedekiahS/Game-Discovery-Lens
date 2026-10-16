@@ -148,17 +148,14 @@ describe("search results and selection", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Celeste" }));
     await screen.findByRole("heading", { level: 2, name: celeste.name });
-    const diagnostics = screen.getByText("How this search works", { selector: "summary" });
+    expect(screen.queryByText("How this search works", { selector: "summary" })).toBeNull();
+    expect(document.querySelector("pre.intent-box")).toBeNull();
     expect(catalog.searchCatalog).toHaveBeenCalledWith("Celeste", expect.any(Array), games);
     expect(screen.getByRole("list", { name: "Current search filters" }).textContent).toContain("Title: celeste");
     expect(filters.closest("details")?.open).toBe(false);
-    expect(diagnostics.closest("details")?.open).toBe(false);
 
     fireEvent.click(filters);
     expect(filters.closest("details")?.open).toBe(true);
     expect(screen.getByRole("slider")).toBeTruthy();
-    fireEvent.click(diagnostics);
-    expect(diagnostics.closest("details")?.open).toBe(true);
-    expect(screen.getByText(/"titleQuery": "celeste"/, { selector: "pre" })).toBeTruthy();
   });
 });

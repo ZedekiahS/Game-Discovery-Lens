@@ -38,7 +38,7 @@ Screenshots show the fixed-data demo. The dark gaming interface includes locally
 
 ### Personal library and gaming taste / 游戏库与玩家画像
 
-Players can record **Want to play / Playing / Played**, mark **Like / Not for me**, and keep a short personal note. Collection membership remains independent of those records. Existing collections are preserved and start with an unspecified purpose; players can classify them as personal interests or research references.
+Players can record **Want to play / Playing / Played**, mark **Like / Not for me**, and keep a short personal note. Collection membership remains independent of those records. New accounts and fresh browser profiles receive a personal default collection, so their first save can inform recommendations. Existing collections retain their recorded purpose, including unspecified; players can classify them as personal interests or research references.
 
 The taste profile separates games of interest from games marked Playing or Played. Each type expands to show the games behind its count. A game saved to multiple personal collections counts once, research collections are excluded, and an explicit dislike overrides collection-based interest. Players can edit preferred and avoided types. These are manually recorded preferences and game counts, not imported Steam playtime or AI-inferred personality scores.
 
@@ -88,11 +88,11 @@ The frontend defaults to `http://localhost:8000/api`. To change it, copy `fronte
 
 - **Account ownership:** collection, saved-game, play-record, and preference routes derive the owner from a signed bearer token. Missing or expired sessions are rejected, and another account's data is hidden.
 - **Explainable personal data:** the profile uses distinct games and explicit preferences, with inspectable evidence and separate interest/play-history counts. Migration `0005_player_library` adds storage without reclassifying or deleting old collections.
-- **Persistence and recovery:** loading, mutations, retries, and account changes have explicit states. Failed requests do not change storage modes or report a successful save.
+- **Persistence and recovery:** API requests have a 30-second deadline and never automatically retry writes. An uncertain save locks further writes until a successful reload. Collection clear/delete actions require confirmation; unsaved game notes and preference edits are protected when closing or navigating away. Reloading a failed save preserves its draft.
 - **Concurrent requests:** an older search, game insight, or account response cannot replace a newer selection or session.
 - **Search consistency:** literal title search combines with price, tag, and review filters. Frontend rules and PostgreSQL search tests share `tests/fixtures/search-contract.json`.
 - **Clear module boundaries:** page composition, discovery, selected-game details, account/collection state, and API/demo adapters have separate responsibilities.
-- **Reproducible verification:** unit and UI tests, isolated PostgreSQL integration tests, TypeScript/build checks, and a GitHub Actions workflow accompany the implementation.
+- **Reproducible verification:** unit and UI tests, isolated PostgreSQL integration tests, TypeScript/build checks, and desktop/mobile browser journeys run in GitHub Actions. The browser suite registers accounts through the UI and exercises the real API, including recovery after a committed save loses its response. See [browser test setup](frontend/README.md#browser-tests-with-the-real-api).
 
 ## AI Behavior and Boundaries
 

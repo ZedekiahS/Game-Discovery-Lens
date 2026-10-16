@@ -98,7 +98,7 @@ function buildMockInsights(game: Game): GameInsights {
       bullets: [
         `Market signal: ${primaryTag} demand is visible in the local catalog.`,
         `Price signal: ${game.price <= 25 ? "accessible" : "premium"} positioning.`,
-        "Next step: connect this panel to real ownership, purchase, and review tables.",
+        "Compare this game's genres with the other games in your collection.",
       ],
     },
     playerRecommendation: {
@@ -155,7 +155,15 @@ function buildDefaultCollection(userId: string): GameCollection {
 function getLocalCollections(userId: string): GameCollection[] {
   const defaultCollection = buildDefaultCollection(userId);
   const rawValue = readBrandedStorage(COLLECTION_STORAGE_KEY, LEGACY_COLLECTION_STORAGE_KEY, userId);
-  if (rawValue === null) return [defaultCollection];
+  if (rawValue === null) {
+    // Persist the fresh default before the first save so its purpose survives reload.
+    // Older saved-game-only storage remains unclassified until its owner chooses.
+    if (readBrandedStorage(SAVED_COLLECTION_STORAGE_KEY, LEGACY_SAVED_COLLECTION_STORAGE_KEY, userId) === null) {
+      defaultCollection.purpose = "player";
+      window.localStorage.setItem(getUserStorageKey(COLLECTION_STORAGE_KEY, userId), JSON.stringify([defaultCollection]));
+    }
+    return [defaultCollection];
+  }
   const parsed = JSON.parse(rawValue);
   if (!Array.isArray(parsed)) throw new Error("Saved demo collections are not a valid list.");
   const collections = parsed.filter(isGameCollection);

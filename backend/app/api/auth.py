@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.config import Settings, get_settings
 from app.db.database import get_db
-from app.db.models import User
+from app.db.models import Collection, User
 from app.schemas import AuthLoginRequest, AuthRegisterRequest, AuthSessionOut, UserOut
 from app.services.auth import create_access_token, hash_password, verify_access_token, verify_password
 
@@ -65,6 +65,8 @@ def register(
         is_active=True,
     )
     db.add(user)
+    # Only new registrations get a personal default; legacy collections keep their purpose.
+    db.add(Collection(user_id=user.id, name="Default Shortlist", purpose="player"))
     db.commit()
     db.refresh(user)
 

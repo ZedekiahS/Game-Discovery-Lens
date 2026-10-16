@@ -26,6 +26,7 @@ export function useCollections(catalog: Game[], userId: string | null, sessionRe
   currentScope.current = scope;
   const generation = useRef(0);
   const mutation = useRef<symbol | null>(null);
+  const needsReload = useRef(false);
   const [reload, setReload] = useState(0);
   const [state, setState] = useState(() => emptyState(scope));
   // Hide previous-account data immediately, before the new effect can run.
@@ -35,6 +36,7 @@ export function useCollections(catalog: Game[], userId: string | null, sessionRe
   useEffect(() => {
     const request = ++generation.current;
     mutation.current = null;
+    needsReload.current = true;
     const current = () => currentScope.current === scope && generation.current === request;
     setState({ ...emptyState(scope), loading: userId !== null });
     if (userId === null) return;
@@ -48,9 +50,11 @@ export function useCollections(catalog: Game[], userId: string | null, sessionRe
         ] as const));
         if (!current()) return;
         setState({
+          // Only a successful read reconciles an uncertain write.
           ...emptyState(scope), loadedCatalog: catalog, collections, savedGamesByCollection: Object.fromEntries(entries),
           activeCollectionId: collections[0]?.id ?? null,
         });
+        needsReload.current = false;
       } catch (error) {
         if (current()) setState({ ...emptyState(scope), loadedCatalog: catalog, error: message(error, "Unable to load collections.") });
       }
@@ -65,7 +69,7 @@ export function useCollections(catalog: Game[], userId: string | null, sessionRe
     const collectionId = visible.activeCollectionId;
     // Wait for compound create-and-save operations to settle before deriving insights.
     // Invalidate at the data change itself, not with a synchronous write in this effect.
-    if (userId === null || collectionId === null || loading || visible.busy) return;
+    if (userId === null || collectionId === null || loading || visible.busy || visible.error) return;
     catalogService.getShortlistInsights(visible.savedGamesByCollection[collectionId] ?? [], userId, collectionId)
       .then((insights) => {
         if (!cancelled && currentScope.current === scope && generation.current === request) {
@@ -77,13 +81,13 @@ export function useCollections(catalog: Game[], userId: string | null, sessionRe
         }
       });
     return () => { cancelled = true; };
-  }, [scope, userId, loading, visible.busy, visible.activeCollectionId, visible.savedGamesByCollection]);
+  }, [scope, userId, loading, visible.busy, visible.error, visible.activeCollectionId, visible.savedGamesByCollection]);
 
   async function change<T>(
     action: (current: () => boolean) => Promise<T | null>,
     apply: (previous: CollectionState, result: T) => CollectionState,
   ): Promise<T | null> {
-    if (userId === null || loading || mutation.current !== null || state.scope !== scope) return null;
+    if (userId === null || loading || needsReload.current || visible.error || mutation.current !== null || state.scope !== scope) return null;
     const request = generation.current;
     const operation = Symbol();
     mutation.current = operation;
@@ -96,6 +100,7 @@ export function useCollections(catalog: Game[], userId: string | null, sessionRe
       return result;
     } catch (error) {
       if (current()) {
+        needsReload.current = true;
         setState((previous) => ({
           ...previous, error: `The change could not be confirmed. ${message(error, "Check your connection.")} Reload collections before retrying.`,
         }));
@@ -183,7 +188,7 @@ export function useCollections(catalog: Game[], userId: string | null, sessionRe
     ),
     setActiveCollectionId: (id: number) => setState((previous) => previous.scope === scope && previous.activeCollectionId !== id
       ? { ...previous, activeCollectionId: id, shortlistInsights: null, insightsError: "" } : previous),
-    retry: () => { if (mutation.current === null) setReload((value) => value + 1); },
+    retry: () => { if (mutation.current === null) { needsReload.current = true; setReload((value) => value + 1); } },
   };
 }
 

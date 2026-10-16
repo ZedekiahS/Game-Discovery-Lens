@@ -10,13 +10,14 @@ interface SaveGameMenuProps {
   state: ReturnType<typeof useCollections>;
   sessionUserId: string | null;
   game: Game;
+  onOpen?: () => void;
 }
 
-export function SaveGameMenu({ state, sessionUserId, game }: SaveGameMenuProps) {
+export function SaveGameMenu({ state, sessionUserId, game, onOpen }: SaveGameMenuProps) {
   const { t, collectionName } = useI18n();
   const { collections, savedGamesByCollection } = state;
   const collectionDisabled = sessionUserId === null || state.loading || state.busy
-    || (collections.length === 0 && Boolean(state.error));
+    || Boolean(state.error);
   const [isSaveMenuOpen, setIsSaveMenuOpen] = useState(false);
   const [isCreatingSaveCollection, setIsCreatingSaveCollection] = useState(false);
   const [saveCollectionName, setSaveCollectionName] = useState("");
@@ -47,7 +48,7 @@ export function SaveGameMenu({ state, sessionUserId, game }: SaveGameMenuProps) 
       <button
         className={`save-button ${selectedIsSaved ? "active" : ""}`}
         type="button"
-        onClick={() => setIsSaveMenuOpen((current) => !current)}
+        onClick={() => { if (!isSaveMenuOpen) onOpen?.(); setIsSaveMenuOpen((current) => !current); }}
         title={selectedIsSaved ? t("Manage saved collections", "管理收藏位置") : t("Choose a collection", "选择收藏夹")}
         aria-expanded={isSaveMenuOpen}
         disabled={collectionDisabled}

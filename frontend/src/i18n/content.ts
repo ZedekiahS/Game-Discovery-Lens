@@ -85,7 +85,8 @@ export function localizeGameInsights(game: Game, insights: GameInsights, languag
         [`Market signal: ${primary} demand is visible in the local catalog.`, `市场信号：本地游戏库中可见对${primaryZh}的需求。`],
         [`Market signal: ${primary} demand is already visible in this seeded catalog.`, `市场信号：预置游戏库中已可见对${primaryZh}的需求。`],
         [`Price signal: ${pricePosition} positioning.`, `价格信号：${priceLabels[pricePosition]}定位。`],
-        ["Next step: connect this panel to real ownership, purchase, and review tables.", "下一步：连接真实的持有、购买与评价数据表。"]],
+        ["Next step: connect this panel to real ownership, purchase, and review tables.", "下一步：连接真实的持有、购买与评价数据表。"],
+        ["Compare this game's genres with the other games in your collection.", "比较这款游戏与收藏夹中其他作品的类型与风格。"]],
     ),
     playerRecommendation: translatePanel(
       insights.playerRecommendation,

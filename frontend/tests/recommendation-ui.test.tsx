@@ -72,7 +72,9 @@ describe("player recommendations before search", () => {
     fireEvent.click(screen.getByRole("button", { name: "Default Shortlist Save" }));
     await screen.findByRole("button", { name: "Saved (1)", exact: true });
     expect(save).toHaveBeenCalledWith(expect.objectContaining({ name: "Hollow Knight" }), expect.any(Array), "demo-user", 1);
-    expect(screen.getByRole("heading", { name: "Recommended games", exact: true })).toBeTruthy();
+    expect(screen.getByRole("heading", { level: 2, name: "Hollow Knight" })).toBeTruthy();
+    expect(cardTitles(container)).not.toContain("Hollow Knight");
+    expect(screen.getByRole("heading", { name: "For you", exact: true })).toBeTruthy();
     expect(search).not.toHaveBeenCalled();
   });
 

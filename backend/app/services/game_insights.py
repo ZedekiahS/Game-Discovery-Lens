@@ -63,7 +63,7 @@ def build_game_insights(game: InsightGame) -> GameInsights:
             "bullets": [
                 f"Market signal: {primary_tag} demand is already visible in this seeded catalog.",
                 f"Price signal: {price_label(game)} positioning.",
-                "Next step: connect this panel to real ownership, purchase, and review tables.",
+                "Compare this game's genres with the other games in your collection.",
             ],
         },
         "player_recommendation": {
