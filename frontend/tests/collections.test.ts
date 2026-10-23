@@ -47,6 +47,19 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 describe("collection persistence and request ownership", () => {
+  it("loads all folders in one read and skips insights while the panel is hidden", async () => {
+    const other = { ...collectionA, id: 12, name: "Another list" };
+    vi.mocked(catalog.getCollections).mockResolvedValue([collectionA, other]);
+    vi.mocked(catalog.getSavedGames).mockResolvedValue([savedA, { ...savedA, id: 102, collectionId: 12 }]);
+    const { result, rerender } = renderHook(({ visible }) => useCollections(games, collectionA.userId, 0, "player", visible), { initialProps: { visible: false } });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(catalog.getSavedGames).toHaveBeenCalledTimes(1);
+    expect(catalog.getSavedGames).toHaveBeenCalledWith(games, collectionA.userId, "all");
+    expect(result.current.savedGamesByCollection[12]).toHaveLength(1);
+    expect(catalog.getShortlistInsights).not.toHaveBeenCalled();
+    rerender({ visible: true });
+    await waitFor(() => expect(catalog.getShortlistInsights).toHaveBeenCalledTimes(1));
+  });
   it("restores saved games returned by the account API on a fresh mount", async () => {
     vi.mocked(catalog.getSavedGames).mockResolvedValue([savedA]);
     const { result } = renderHook(() => useCollections(games, collectionA.userId));

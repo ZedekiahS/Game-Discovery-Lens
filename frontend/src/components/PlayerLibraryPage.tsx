@@ -11,6 +11,7 @@ import { CollectionsPanel } from "./CollectionsPanel";
 import { SaveGameMenu } from "./SaveGameMenu";
 import { ErrorNotice } from "./ui";
 import { useUnsavedChanges } from "../hooks/useUnsavedChanges";
+import { createLibraryView, sortLibraryGames, type LibrarySort, type LibraryViewMemory } from "../lib/libraryView";
 
 export interface PlayerPageProps {
   catalog: Game[];
@@ -36,25 +37,44 @@ export function PlayerPageStatus({ catalogLoading, catalogError, retryCatalog, l
 export const playerPageReady = (p: PlayerPageProps) => !!p.userId && !p.catalogLoading && !p.catalogError
   && p.library.loaded && !p.collections.loading && !p.collections.error;
 
-export function PlayerLibraryPage(props: PlayerPageProps & { startGameId: number | null }) {
+export function PlayerLibraryPage(props: PlayerPageProps & { startGameId: number | null; memory?: LibraryViewMemory }) {
   const { catalog, library, collections, userId, startGameId } = props;
   const { t, tag, collectionName } = useI18n();
-  const [query, setQuery] = useState("");
-  const [shelf, setShelf] = useState("all");
-  const [collectionFilter, setCollectionFilter] = useState("");
-  const [adding, setAdding] = useState(false);
+  const [view, setView] = useState(props.memory?.view ?? createLibraryView());
+  const { query, shelf, collectionFilter, adding, sort } = view;
+  const setQuery = (query: string) => setView((v) => ({ ...v, query }));
+  const setShelf = (shelf: string) => setView((v) => ({ ...v, shelf }));
+  const setCollectionFilter = (collectionFilter: string) => setView((v) => ({ ...v, collectionFilter }));
+  const setAdding = (adding: boolean) => setView((v) => ({ ...v, adding }));
+  const enteredForRecord = useRef(startGameId !== null);
+  useEffect(() => { if (props.memory) props.memory.view = view; }, [view, props.memory]);
   const [selectedId, setSelectedId] = useState<number | null>(startGameId);
   const [notice, setNotice] = useState<"saved" | "removed" | null>(null);
   const records = useMemo(() => new Map(library.records.map((r) => [r.gameId, r])), [library.records]);
   const savedIds = new Set(Object.values(collections.savedGamesByCollection).flat().map((r) => r.gameId));
   const libraryIds = new Set([...records.keys(), ...savedIds]);
   const inCollection = collectionFilter ? new Set((collections.savedGamesByCollection[Number(collectionFilter)] ?? []).map((r) => r.gameId)) : null;
-  const games = catalog.filter((g) => (adding || libraryIds.has(g.id))
+  const games = sortLibraryGames(catalog.filter((g) => (adding || libraryIds.has(g.id))
     && (!inCollection || inCollection.has(g.id))
     && (shelf === "all" || (shelf === "liked" ? records.get(g.id)?.affinity === "like" : records.get(g.id)?.status === shelf))
-    && `${g.name} ${g.tags.map(tag).join(" ")}`.toLowerCase().includes(query.trim().toLowerCase()));
+    && `${g.name} ${g.tags.map(tag).join(" ")}`.toLowerCase().includes(query.trim().toLowerCase())), sort, library.records, Object.values(collections.savedGamesByCollection).flat());
   const selectedGame = catalog.find((g) => g.id === selectedId);
   const ready = playerPageReady(props);
+  useEffect(() => {
+    if (!ready || !props.memory) return;
+    const memory = props.memory;
+    let restored = false;
+    const frame = window.requestAnimationFrame(() => {
+      if (!enteredForRecord.current) {
+        document.querySelector<HTMLButtonElement>(`[data-library-game="${memory.gameId}"]`)?.focus({ preventScroll: true });
+        window.scrollTo(0, memory.scrollY);
+      } else window.scrollTo(0, 0);
+      restored = true;
+    });
+    const rememberScroll = () => { if (restored) memory.scrollY = window.scrollY; };
+    window.addEventListener("scroll", rememberScroll, { passive: true });
+    return () => { window.cancelAnimationFrame(frame); window.removeEventListener("scroll", rememberScroll); };
+  }, [ready, props.memory]);
 
   return <main className="workspace player-page">
     <header className="player-page-heading">
@@ -74,12 +94,15 @@ export function PlayerLibraryPage(props: PlayerPageProps & { startGameId: number
           <div className="library-tools">
             <label className="library-search"><Search size={17} aria-hidden="true" /><span className="sr-only">{t("Find a game", "查找游戏")}</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("Search titles or genres", "搜索游戏名或类型")} /></label>
             <label className="field"><span>{t("Show collection", "筛选收藏夹")}</span><select value={collectionFilter} onChange={(e) => setCollectionFilter(e.target.value)}><option value="">{t("All collections", "全部收藏夹")}</option>{collections.collections.map((c) => <option key={c.id} value={c.id}>{collectionName(c.name)}</option>)}</select></label>
+            <label className="field"><span>{t("Sort games", "游戏排序")}</span><select value={sort} onChange={(e) => setView((v) => ({ ...v, sort: e.target.value as LibrarySort }))}>
+              <option value="updated">{t("Recently updated", "最近更新")}</option><option value="collected">{t("Recently collected", "最近收藏")}</option><option value="name">{t("Game name", "游戏名称")}</option>
+            </select></label>
           </div>
           <div className="library-results-heading"><h3>{adding ? t("Find your next game", "把下一款游戏收入囊中") : t("Your shelf", "你的游戏架")}</h3><span>{t(`${games.length} ${games.length === 1 ? "game" : "games"}`, `${games.length} 款游戏`)}</span></div>
           {notice && <p className="library-notice" role="status"><Check size={15} aria-hidden="true" />{notice === "saved" ? t("Game record saved.", "游戏记录已保存。") : t("Game record removed.", "游戏记录已移除。")}</p>}
           <div className="library-grid">{games.map((game) => {
             const record = records.get(game.id);
-            return <button className="library-game" key={game.id} onClick={() => { setSelectedId(game.id); setNotice(null); }}>
+            return <button className="library-game" data-library-game={game.id} key={game.id} onClick={() => { if (props.memory) props.memory.gameId = game.id; setSelectedId(game.id); setNotice(null); }}>
               <GameArtwork name={game.name} className="library-cover" />
               <div className="library-game-copy"><h3>{game.name}</h3><p>{game.tags.slice(0, 2).map(tag).join(" · ")}</p>
                 <div className="library-game-labels"><span>{record?.status ? statusLabel(record.status, t) : savedIds.has(game.id) ? t("Collected", "已收藏") : t("Add a record", "添加记录")}</span>{record?.affinity === "like" && <Heart size={15} aria-label={t("Liked", "喜欢")} />}{record?.affinity === "dislike" && <span>{t("Not for me", "不合口味")}</span>}</div>

@@ -14,9 +14,10 @@ import { ResearchOverview } from "./ResearchOverview";
 import type { RecommendationFeed, RecommendationReason } from "../lib/recommendations";
 import "./audience-workspace.css";
 
-export function GameWorkspace({ discovery, renderSaveMenu, collectionPanel, recommendations, recommendationsLoading, recommendationsError, retryRecommendations }: {
+export function GameWorkspace({ discovery, renderSaveMenu, renderQuickActions, collectionPanel, recommendations, recommendationsLoading, recommendationsError, retryRecommendations }: {
   discovery: ReturnType<typeof useDiscovery>;
   renderSaveMenu: (game: Game) => ReactNode;
+  renderQuickActions?: (game: Game) => ReactNode;
   collectionPanel: ReactNode;
   recommendations: RecommendationFeed;
   recommendationsLoading: boolean;
@@ -107,6 +108,7 @@ export function GameWorkspace({ discovery, renderSaveMenu, collectionPanel, reco
               <Stat icon={<CircleDollarSign size={15} aria-hidden="true" />} label={t("Price", "价格")} value={money(selectedGame.price)} />
               {renderSaveMenu(selectedGame)}
             </div>
+            {renderQuickActions?.(selectedGame)}
           </div>
         </section>
       )}

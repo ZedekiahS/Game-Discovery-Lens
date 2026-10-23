@@ -7,6 +7,7 @@ const DEFAULT_COLLECTION_ID = 1;
 const DEFAULT_COLLECTION_NAME = "Default Shortlist";
 const COLLECTION_STORAGE_KEY = "game-discovery-lens.demo.collections";
 const SAVED_COLLECTION_STORAGE_KEY = "game-discovery-lens.demo.savedCollectionGameIds";
+const SAVED_TIME_STORAGE_KEY = "game-discovery-lens.demo.savedGameTimes";
 const LEGACY_COLLECTION_STORAGE_KEY = "arcadeiq.demo.collections";
 const LEGACY_SAVED_COLLECTION_STORAGE_KEY = "arcadeiq.demo.savedCollectionGameIds";
 
@@ -32,6 +33,7 @@ export const demoCatalog: CatalogService = {
   },
 
   async getSavedGames(catalog, userId, collectionId) {
+    if (collectionId === "all") return getLocalCollections(userId).flatMap((c) => getLocalSavedGames(catalog, userId, c.id));
     return getLocalSavedGames(catalog, userId, collectionId);
   },
 
@@ -124,20 +126,21 @@ function getCollectionId(collectionId?: number) {
 }
 
 function getLocalSavedGames(catalog: Game[], userId: string, collectionId?: number): SavedGame[] {
+  const times = readLocalSavedTimes(userId);
   return readLocalSavedIds(userId, collectionId)
     .map((gameId) => catalog.find((game) => game.id === gameId) ?? games.find((game) => game.id === gameId))
     .filter((game): game is Game => Boolean(game))
-    .map((game) => buildMockSavedGame(game, catalog, userId, getCollectionId(collectionId)));
+    .map((game) => buildMockSavedGame(game, catalog, userId, getCollectionId(collectionId), times[`${getCollectionId(collectionId)}:${game.id}`] ?? ""));
 }
 
-function buildMockSavedGame(game: Game, catalog: Game[], userId: string, collectionId: number): SavedGame {
+function buildMockSavedGame(game: Game, catalog: Game[], userId: string, collectionId: number, createdAt = readLocalSavedTimes(userId)[`${collectionId}:${game.id}`] ?? ""): SavedGame {
   const existingIndex = catalog.findIndex((candidate) => candidate.id === game.id);
   return {
     id: collectionId * 1000 + (existingIndex >= 0 ? existingIndex + 1 : game.id),
     userId,
     collectionId,
     gameId: game.id,
-    createdAt: new Date().toISOString(),
+    createdAt,
     game,
   };
 }
@@ -257,8 +260,26 @@ function readLocalSavedIds(userId: string, collectionId?: number): number[] {
 
 function writeLocalSavedIds(userId: string, collectionId: number | undefined, gameIds: number[]) {
   const savedMap = readLocalSavedMap(userId);
-  savedMap[getCollectionId(collectionId).toString()] = [...new Set(gameIds)];
+  const id = getCollectionId(collectionId).toString();
+  const previous = new Set(savedMap[id] ?? []);
+  const times = readLocalSavedTimes(userId);
+  for (const gameId of gameIds) if (!previous.has(gameId)) times[`${id}:${gameId}`] = new Date().toISOString();
+  for (const gameId of previous) if (!gameIds.includes(gameId)) delete times[`${id}:${gameId}`];
+  // Metadata is written first; a failed membership write remains an uncertain operation, never a fake success.
+  window.localStorage.setItem(getUserStorageKey(SAVED_TIME_STORAGE_KEY, userId), JSON.stringify(times));
+  savedMap[id] = [...new Set(gameIds)];
   window.localStorage.setItem(getUserStorageKey(SAVED_COLLECTION_STORAGE_KEY, userId), JSON.stringify(savedMap));
+}
+
+function readLocalSavedTimes(userId: string): Record<string, string> {
+  const raw = window.localStorage.getItem(getUserStorageKey(SAVED_TIME_STORAGE_KEY, userId));
+  if (raw === null) return {}; // Older saves have unknown dates and sort after dated saves.
+  const times = JSON.parse(raw);
+  if (!times || typeof times !== "object" || Array.isArray(times)
+    || Object.values(times).some((value) => typeof value !== "string" || !Number.isFinite(Date.parse(value)))) {
+    throw new Error("Your collection dates could not be loaded.");
+  }
+  return times;
 }
 
 function readLocalSavedMap(userId: string): Record<string, number[]> {

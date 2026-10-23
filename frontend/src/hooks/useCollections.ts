@@ -20,7 +20,7 @@ const emptyState = (scope: string): CollectionState => ({
   shortlistInsights: null, insightsError: "", loading: false, busy: false, error: "",
 });
 
-export function useCollections(catalog: Game[], userId: string | null, sessionRevision = 0, purpose?: CollectionPurpose) {
+export function useCollections(catalog: Game[], userId: string | null, sessionRevision = 0, purpose?: CollectionPurpose, insightsEnabled = true) {
   const scope = `${userId ?? "anonymous"}:${sessionRevision}`;
   const currentScope = useRef(scope);
   currentScope.current = scope;
@@ -45,9 +45,8 @@ export function useCollections(catalog: Game[], userId: string | null, sessionRe
       try {
         const collections = await catalogService.getCollections(userId!);
         if (!current()) return;
-        const entries = await Promise.all(collections.map(async (collection) => [
-          collection.id, await catalogService.getSavedGames(catalog, userId!, collection.id),
-        ] as const));
+        const saved = await catalogService.getSavedGames(catalog, userId!, "all");
+        const entries = collections.map((collection) => [collection.id, saved.filter((item) => item.collectionId === collection.id)]);
         if (!current()) return;
         setState({
           // Only a successful read reconciles an uncertain write.
@@ -69,7 +68,7 @@ export function useCollections(catalog: Game[], userId: string | null, sessionRe
     const collectionId = visible.activeCollectionId;
     // Wait for compound create-and-save operations to settle before deriving insights.
     // Invalidate at the data change itself, not with a synchronous write in this effect.
-    if (userId === null || collectionId === null || loading || visible.busy || visible.error) return;
+    if (!insightsEnabled || userId === null || collectionId === null || loading || visible.busy || visible.error) return;
     catalogService.getShortlistInsights(visible.savedGamesByCollection[collectionId] ?? [], userId, collectionId)
       .then((insights) => {
         if (!cancelled && currentScope.current === scope && generation.current === request) {
@@ -81,7 +80,7 @@ export function useCollections(catalog: Game[], userId: string | null, sessionRe
         }
       });
     return () => { cancelled = true; };
-  }, [scope, userId, loading, visible.busy, visible.error, visible.activeCollectionId, visible.savedGamesByCollection]);
+  }, [scope, userId, loading, visible.busy, visible.error, visible.activeCollectionId, visible.savedGamesByCollection, insightsEnabled]);
 
   async function change<T>(
     action: (current: () => boolean) => Promise<T | null>,

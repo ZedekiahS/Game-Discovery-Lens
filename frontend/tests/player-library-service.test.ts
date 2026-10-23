@@ -4,6 +4,26 @@ beforeEach(() => { vi.resetModules(); window.localStorage.clear(); window.histor
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 const draft = { status: "played" as const, affinity: "like" as const, notes: "Personal note" };
 describe("player library persistence adapters", () => {
+  it("patches only the selected preference, retaining the latest note and other fields", async () => {
+    vi.stubEnv("VITE_DATA_MODE", "demo");
+    const { playerLibrary } = await import("../src/services/playerLibrary");
+    await playerLibrary.saveRecord("a", 2, { ...draft, status: "playing" });
+    await playerLibrary.updateRecord("a", 2, { affinity: "dislike" });
+    expect(await playerLibrary.getRecords("a")).toMatchObject([{ notes: draft.notes, status: "playing", affinity: "dislike" }]);
+    await playerLibrary.updateRecord("a", 2, { status: null });
+    expect(await playerLibrary.getRecords("a")).toMatchObject([{ notes: draft.notes, status: null, affinity: "dislike" }]);
+    expect(await playerLibrary.getRecords("b")).toEqual([]);
+  });
+  it("sends minimal authenticated PATCH requests and reports failed writes", async () => {
+    vi.stubEnv("VITE_DATA_MODE", "api");
+    const { setStoredAuthToken } = await import("../src/services/users");
+    setStoredAuthToken("a-token");
+    const { playerLibrary } = await import("../src/services/playerLibrary");
+    const request = vi.fn().mockResolvedValue(new Response('{"detail":"Unavailable"}', { status: 503 }));
+    vi.stubGlobal("fetch", request);
+    await expect(playerLibrary.updateRecord("forged-b", 2, { affinity: "like" })).rejects.toMatchObject({ status: 503 });
+    expect(request.mock.calls[0][1]).toMatchObject({ method: "PATCH", headers: { Authorization: "Bearer a-token" }, body: '{"affinity":"like"}' });
+  });
   it("keeps local accounts separate, persists edits, and leaves corrupt records untouched", async () => {
     vi.stubEnv("VITE_DATA_MODE", "demo");
     const { playerLibrary } = await import("../src/services/playerLibrary");

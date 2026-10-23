@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { PlayerGameInput, PlayerGameRecord, PlayerPreferences } from "../types";
+import type { PlayerGameInput, PlayerGameRecord, PlayerGameUpdate, PlayerPreferences } from "../types";
 import { emptyPreferences, playerLibrary } from "../services/playerLibrary";
 
 const initial = (scope: string) => ({ scope, records: [] as PlayerGameRecord[], preferences: emptyPreferences(), loaded: false, loading: true, busy: false, error: "" });
@@ -49,6 +49,8 @@ export function usePlayerLibrary(userId: string | null, revision: number) {
     ...visible,
     loading: userId !== null && visible.loading,
     saveRecord: (id: number, input: PlayerGameInput) => change(() => playerLibrary.saveRecord(userId!, id, input),
+      (s, record) => ({ ...s, records: [...s.records.filter((r) => r.gameId !== id), record] })),
+    updateRecord: (id: number, input: PlayerGameUpdate) => change(() => playerLibrary.updateRecord(userId!, id, input),
       (s, record) => ({ ...s, records: [...s.records.filter((r) => r.gameId !== id), record] })),
     removeRecord: (id: number) => change(() => playerLibrary.removeRecord(userId!, id),
       (s) => ({ ...s, records: s.records.filter((r) => r.gameId !== id) })),

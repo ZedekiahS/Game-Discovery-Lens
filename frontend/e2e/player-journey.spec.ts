@@ -2,6 +2,75 @@ import { test, expect, type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 
 const password = "Browser-test-only-2026";
+
+test("quick preferences preserve notes and reuse game reads across navigation", async ({ page }) => {
+  const reads: string[] = [];
+  const patches: unknown[] = [];
+  page.on("request", request => {
+    if (request.method() === "GET") reads.push(new URL(request.url()).pathname + new URL(request.url()).search);
+    if (request.method() === "PATCH" && request.url().includes("/me/games/")) patches.push(request.postDataJSON());
+  });
+  await register(page);
+  await page.getByRole("button", { name: "Track this game", exact: true }).click();
+  const editor = page.getByRole("dialog");
+  await editor.getByRole("combobox", { name: "Play status", exact: true }).selectOption("want_to_play");
+  await editor.getByRole("textbox", { name: "Personal note", exact: true }).fill("Keep this note through quick preference changes.");
+  await editor.getByRole("button", { name: "Save record", exact: true }).click();
+  await expect(editor).not.toBeVisible();
+  await page.getByRole("link", { name: "Discover", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Ready or Not", level: 2 })).toBeVisible();
+  const like = page.getByRole("button", { name: "Like", exact: true });
+  await like.click();
+  await expect(like).toHaveAttribute("aria-pressed", "true");
+  const want = page.getByRole("button", { name: "Want to play", exact: true });
+  await want.click();
+  await expect(want).toHaveAttribute("aria-pressed", "false");
+  await want.click();
+  await expect(want).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Not for me", exact: true }).click();
+  await expect(page.getByText("Preference saved", { exact: true })).toBeVisible();
+  await expect(like).toHaveAttribute("aria-pressed", "false");
+  await expect(page.getByRole("heading", { name: "Ready or Not", level: 2 })).toBeVisible();
+  await page.getByRole("button", { name: "Track this game", exact: true }).click();
+  await expect(editor.getByRole("textbox", { name: "Personal note", exact: true })).toHaveValue("Keep this note through quick preference changes.");
+  await expect(editor.getByRole("combobox", { name: "Play status", exact: true })).toHaveValue("want_to_play");
+  await expect(editor.getByRole("radio", { name: "Not for me", exact: true })).toBeChecked();
+  expect(patches).toEqual([{ affinity: "like" }, { status: null }, { status: "want_to_play" }, { affinity: "dislike" }]);
+  expect(reads.filter(p => p === "/api/saved-games?allCollections=true")).toHaveLength(1);
+  const gameReads = reads.filter(p => /^\/api\/games\/\d+(\/insights)?$/.test(p));
+  expect(gameReads.length).toBeGreaterThanOrEqual(2);
+  expect(new Set(gameReads).size).toBe(gameReads.length);
+});
+
+test("library preserves filters, ordering and long-list position on browser Back", async ({ page }) => {
+  await register(page);
+  await page.getByRole("button", { name: "Want to play", exact: true }).click();
+  await expect(page.getByText("Preference saved", { exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "My games", exact: true }).click();
+  await page.getByRole("textbox", { name: "Find a game", exact: true }).fill("Ready");
+  await page.getByRole("combobox", { name: "Sort games", exact: true }).selectOption("name");
+  await page.getByRole("button", { name: /^Want to play1$/ }).click();
+  await page.getByRole("link", { name: "My taste", exact: true }).click();
+  await page.goBack();
+  await expect(page.getByRole("textbox", { name: "Find a game", exact: true })).toHaveValue("Ready");
+  await expect(page.getByRole("combobox", { name: "Sort games", exact: true })).toHaveValue("name");
+  await expect(page.getByRole("button", { name: /^Want to play1$/ })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Add games", exact: true }).click();
+  await expect(page.locator(".library-game")).toHaveCount(80);
+  const titles = await page.locator(".library-game h3").allTextContents();
+  expect(titles).toEqual([...titles].sort((a, b) => a.localeCompare(b, "en")));
+  const footer = page.getByRole("link", { name: "Explore your gaming taste Your interests, backed by your games", exact: true });
+  await footer.scrollIntoViewIfNeeded();
+  const position = await page.evaluate(() => window.scrollY);
+  await footer.click();
+  await page.goBack();
+  await expect(page.locator(".library-game")).toHaveCount(80);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeCloseTo(position, -1);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.getByRole("button", { name: "Sign Out", exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "Find a game", exact: true })).toHaveCount(0);
+});
 async function register(page: Page, name = "River") {
   const email = `journey-${randomUUID()}@example.test`;
   await page.goto("/?mode=api");

@@ -3,8 +3,22 @@ import { requestApi } from "../http";
 import { requireAuthHeaders } from "../users";
 import type { CatalogService } from "./contract";
 
+// Only public game resources are cached. Account data continues to be loaded per session.
+const gameReads = new Map<string, { expires: number; request: Promise<unknown> }>();
+function readGame<T>(path: string, refresh = false): Promise<T> {
+  const cached = gameReads.get(path);
+  if (!refresh && cached && cached.expires > Date.now()) return cached.request as Promise<T>;
+  const request = requestApi<T>(path).catch((error) => {
+    if (gameReads.get(path)?.request === request) gameReads.delete(path);
+    throw error;
+  });
+  gameReads.set(path, { request, expires: Date.now() + 60_000 });
+  return request;
+}
+
 export const apiCatalog: CatalogService = {
   async getCatalog() {
+    gameReads.clear();
     return requestApi<Game[]>("/games");
   },
 
@@ -36,7 +50,7 @@ export const apiCatalog: CatalogService = {
   },
 
   async getSavedGames(_catalog, _userId, collectionId) {
-    return requestApi<SavedGame[]>(`/saved-games${buildCollectionQuery(collectionId)}`, {
+    return requestApi<SavedGame[]>(`/saved-games${collectionId === "all" ? "?allCollections=true" : buildCollectionQuery(collectionId)}`, {
       headers: requireAuthHeaders(),
     });
   },
@@ -69,12 +83,12 @@ export const apiCatalog: CatalogService = {
     });
   },
 
-  async getGameDetail(gameId) {
-    return requestApi<Game>(`/games/${gameId}`);
+  async getGameDetail(gameId, _catalog, refresh) {
+    return readGame<Game>(`/games/${gameId}`, refresh);
   },
 
-  async getGameInsights(game) {
-    return requestApi<GameInsights>(`/games/${game.id}/insights`);
+  async getGameInsights(game, refresh) {
+    return readGame<GameInsights>(`/games/${game.id}/insights`, refresh);
   },
 
   async searchCatalog(query) {

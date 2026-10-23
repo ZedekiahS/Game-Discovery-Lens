@@ -90,6 +90,7 @@ export interface PlayerGameRecord extends PlayerGameInput {
   gameId: number;
   updatedAt: string;
 }
+export type PlayerGameUpdate = Partial<Pick<PlayerGameInput, "status" | "affinity">>;
 export interface PlayerPreferences {
   preferredTags: string[];
   avoidedTags: string[];

@@ -7,10 +7,11 @@ import { formatRoleLabel } from "../services/users";
 
 type AuthField = "identifier" | "email" | "displayName" | "password";
 
-export function AccountPanel({ account, loginRequest = 0, onCancelSignIn }: {
+export function AccountPanel({ account, loginRequest = 0, onCancelSignIn, compact = false }: {
   account: ReturnType<typeof useAccount>;
   loginRequest?: number;
   onCancelSignIn?: () => void;
+  compact?: boolean;
 }) {
   const { t, error } = useI18n();
   const [authMode, setAuthMode] = useState<"login" | "register" | null>(null);
@@ -86,6 +87,13 @@ export function AccountPanel({ account, loginRequest = 0, onCancelSignIn }: {
     if (!confirmPageExit()) return;
     account.logout(); resetAuthForm(); onCancelSignIn?.();
   }
+
+  if (compact && account.user && account.status === "authenticated" && !account.error) return (
+    <section className="account-inline" aria-label={t("Account", "账号")}>
+      <UserRound size={16} aria-hidden="true" /><span className="session-id">{account.user.displayName}</span>
+      <button className="ghost-button" type="button" onClick={logoutAccount}><LogOut size={13} aria-hidden="true" />{t("Sign Out", "退出登录")}</button>
+    </section>
+  );
 
   return (
     <section className="tool-panel session-panel">

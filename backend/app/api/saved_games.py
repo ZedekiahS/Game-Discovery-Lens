@@ -110,10 +110,18 @@ def delete_collection(
 @router.get("/saved-games", response_model=list[SavedGameOut])
 def list_saved_games(
     collection_id: int | None = Query(default=None, alias="collectionId"),
+    all_collections: bool = Query(default=False, alias="allCollections"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> list[SavedGame]:
     user_id = current_user.id
+    if all_collections:
+        if collection_id is not None:
+            raise HTTPException(400, "Choose a collection or all collections")
+        return list(db.scalars(select(SavedGame).join(Collection)
+            .options(joinedload(SavedGame.game))
+            .where(Collection.user_id == user_id, SavedGame.user_id == user_id)
+            .order_by(SavedGame.created_at.desc(), SavedGame.id.desc())))
     collection = get_collection_for_request(db, user_id, collection_id)
     return get_saved_games_for_collection(db, collection.id)
 

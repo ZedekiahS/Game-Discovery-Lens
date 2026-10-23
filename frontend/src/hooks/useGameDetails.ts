@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getGameDetail, getGameInsights } from "../services/catalog";
 import type { Game, GameInsights } from "../types";
 
@@ -10,9 +10,12 @@ export function useGameDetails(selectedId: number | null, catalog: Game[], previ
   const [insightsError, setInsightsError] = useState("");
   const [detailLoading, setDetailLoading] = useState(false);
   const [revision, setRevision] = useState(0);
+  const refreshRequested = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
+    const refresh = refreshRequested.current;
+    refreshRequested.current = false;
     setSelectedDetail(null);
     setInsights(null);
     setDetailError("");
@@ -23,7 +26,7 @@ export function useGameDetails(selectedId: number | null, catalog: Game[], previ
     async function load() {
       let game: Game | null;
       try {
-        game = await getGameDetail(selectedId!, catalog);
+        game = refresh ? await getGameDetail(selectedId!, catalog, true) : await getGameDetail(selectedId!, catalog);
         if (cancelled) return;
         setSelectedDetail(game);
         if (!game) {
@@ -39,7 +42,7 @@ export function useGameDetails(selectedId: number | null, catalog: Game[], previ
         return;
       }
       try {
-        const result = await getGameInsights(game);
+        const result = refresh ? await getGameInsights(game, true) : await getGameInsights(game);
         if (!cancelled) setInsights(result);
       } catch (error) {
         if (!cancelled) setInsightsError(message(error, "Unable to load game intelligence."));
@@ -55,7 +58,7 @@ export function useGameDetails(selectedId: number | null, catalog: Game[], previ
   const visibleInsights = insights?.gameId === selectedGame?.id ? insights : null;
   return {
     selectedGame, visibleInsights, detailError, insightsError, detailLoading,
-    retryDetails: () => setRevision((value) => value + 1),
+    retryDetails: () => { refreshRequested.current = true; setRevision((value) => value + 1); },
   };
 }
 

@@ -1,4 +1,4 @@
-import type { PlayerGameInput, PlayerGameRecord, PlayerPreferences } from "../types";
+import type { PlayerGameInput, PlayerGameRecord, PlayerGameUpdate, PlayerPreferences } from "../types";
 import { DATA_MODE } from "./runtime";
 import { requestApi } from "./http";
 import { requireAuthHeaders } from "./users";
@@ -7,6 +7,7 @@ export const emptyPreferences = (): PlayerPreferences => ({ preferredTags: [], a
 interface PlayerLibraryService {
   getRecords(userId: string): Promise<PlayerGameRecord[]>;
   saveRecord(userId: string, gameId: number, input: PlayerGameInput): Promise<PlayerGameRecord>;
+  updateRecord(userId: string, gameId: number, input: PlayerGameUpdate): Promise<PlayerGameRecord>;
   removeRecord(userId: string, gameId: number): Promise<void>;
   getPreferences(userId: string): Promise<PlayerPreferences>;
   savePreferences(userId: string, input: PlayerPreferences): Promise<PlayerPreferences>;
@@ -39,6 +40,13 @@ const demo: PlayerLibraryService = {
     window.localStorage.setItem(key(userId, "games"), JSON.stringify([...rows.filter((r) => r.gameId !== gameId), row]));
     return row;
   },
+  async updateRecord(userId, gameId, input) {
+    const rows = readRecords(userId);
+    const previous = rows.find((r) => r.gameId === gameId);
+    const row = { status: null, affinity: "neutral" as const, notes: "", ...previous, ...input, gameId, updatedAt: new Date().toISOString() };
+    window.localStorage.setItem(key(userId, "games"), JSON.stringify([...rows.filter((r) => r.gameId !== gameId), row]));
+    return row;
+  },
   async removeRecord(userId, gameId) {
     const rows = readRecords(userId);
     window.localStorage.setItem(key(userId, "games"), JSON.stringify(rows.filter((r) => r.gameId !== gameId)));
@@ -60,6 +68,9 @@ const api: PlayerLibraryService = {
   getRecords: () => requestApi("/me/games", { headers: requireAuthHeaders() }),
   saveRecord: (_userId, id, input) => requestApi(`/me/games/${id}`, {
     method: "PUT", headers: requireAuthHeaders({ "Content-Type": "application/json" }), body: JSON.stringify(input),
+  }),
+  updateRecord: (_userId, id, input) => requestApi(`/me/games/${id}`, {
+    method: "PATCH", headers: requireAuthHeaders({ "Content-Type": "application/json" }), body: JSON.stringify(input),
   }),
   removeRecord: (_userId, id) => requestApi(`/me/games/${id}`, { method: "DELETE", headers: requireAuthHeaders() }),
   getPreferences: () => requestApi("/me/preferences", { headers: requireAuthHeaders() }),

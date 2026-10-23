@@ -29,6 +29,18 @@ class GameRecordOut(GameRecordInput):
     updated_at: datetime = Field(alias="updatedAt")
 
 
+class GameQuickUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    status: Literal["want_to_play", "playing", "played"] | None = None
+    affinity: Literal["neutral", "like", "dislike"] = "neutral"
+
+    @model_validator(mode="after")
+    def require_change(self):
+        if not self.model_fields_set:
+            raise ValueError("Choose a status or preference to update")
+        return self
+
+
 class PreferencesInput(BaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="forbid", from_attributes=True)
     preferred_tags: list[str] = Field(default_factory=list, max_length=12, alias="preferredTags")
@@ -68,6 +80,20 @@ def remove_record(game_id: int, user: User = Depends(get_current_user), db: Sess
     db.execute(delete(PlayerGame).where(PlayerGame.user_id == user.id, PlayerGame.game_id == game_id))
     db.commit()
     return Response(status_code=204)
+
+
+@router.patch("/games/{game_id}", response_model=GameRecordOut)
+def update_game_preference(game_id: int, request: GameQuickUpdate, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if db.get(Game, game_id) is None:
+        raise HTTPException(404, "Game not found")
+    changes = request.model_dump(exclude_unset=True)
+    # Update only the chosen fields, including when another tab has changed the note.
+    stmt = insert(PlayerGame).values(user_id=user.id, game_id=game_id, **changes)
+    db.execute(stmt.on_conflict_do_update(
+        index_elements=[PlayerGame.user_id, PlayerGame.game_id], set_={**changes, "updated_at": func.now()},
+    ))
+    db.commit()
+    return db.get(PlayerGame, (user.id, game_id))
 
 
 @router.get("/preferences", response_model=PreferencesInput)

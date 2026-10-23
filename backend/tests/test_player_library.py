@@ -18,6 +18,7 @@ class PlayerLibraryAuthTests(unittest.TestCase):
             for method, path, body in [
                 ("GET", "/me/games", None), ("PUT", "/me/games/1", {"status": "played"}),
                 ("DELETE", "/me/games/1", None), ("GET", "/me/preferences", None),
+                ("PATCH", "/me/games/1", {"affinity": "like"}),
                 ("PUT", "/me/preferences", {"preferredTags": []}),
             ]:
                 with self.subTest(path=path, method=method):
@@ -25,6 +26,28 @@ class PlayerLibraryAuthTests(unittest.TestCase):
 
 
 class PlayerLibraryPostgresTests(SavedGamesPostgresFixture):
+    def test_quick_changes_preserve_other_fields_and_account_ownership(self):
+        a = self.headers(self.a)
+        self.client.put("/api/me/games/1", headers=a, json={"status": "playing", "notes": "Keep this note"})
+        response = self.client.patch("/api/me/games/1", headers=a, json={"affinity": "like"})
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual((response.json()["status"], response.json()["notes"]), ("playing", "Keep this note"))
+        self.client.patch("/api/me/games/1", headers=a, json={"status": None})
+        rows = self.client.get("/api/me/games", headers=a).json()
+        self.assertEqual(len(rows), 1)
+        self.assertEqual((rows[0]["status"], rows[0]["affinity"], rows[0]["notes"]), (None, "like", "Keep this note"))
+        response = self.client.patch(f"/api/me/games/1?userId={self.a['user']['id']}", headers=self.headers(self.b), json={"status": "want_to_play"})
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(response.json()["notes"], "")
+        self.assertEqual(self.client.get("/api/me/games", headers=a).json(), rows)
+
+    def test_quick_changes_reject_unknown_fields_empty_payloads_and_missing_games(self):
+        for body in [{}, {"affinity": None}, {"notes": "Overwrite"}, {"status": "finished"}, {"userId": self.b["user"]["id"]}]:
+            response = self.client.patch("/api/me/games/1", headers=self.headers(self.a), json=body)
+            self.assertEqual(response.status_code, 422, response.text)
+        self.assertEqual(self.client.patch("/api/me/games/9999", headers=self.headers(self.a), json={"affinity": "like"}).status_code, 404)
+        self.assertEqual(self.client.get("/api/me/games", headers=self.headers(self.a)).json(), [])
+
     def test_migration_preserves_existing_collections_and_records_start_empty(self):
         schema = f"gdl_migration_{uuid4().hex}"
         with self.admin_engine.begin() as connection:

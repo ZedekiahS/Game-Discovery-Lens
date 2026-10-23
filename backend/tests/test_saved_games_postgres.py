@@ -99,6 +99,19 @@ class SavedGamesPostgresFixture(unittest.TestCase):
         return response.json()
 
 class SavedGamesPostgresTests(SavedGamesPostgresFixture):
+    def test_bulk_read_preserves_memberships_and_cannot_read_another_account(self):
+        a = self.headers(self.a)
+        first = self.save(self.a, 1)
+        folder = self.client.post("/api/collections", headers=a, json={"name": "Second"}).json()
+        second = self.save(self.a, 1, folder["id"])
+        self.save(self.b, 2)
+        response = self.client.get(f"/api/saved-games?allCollections=true&userId={self.b['user']['id']}", headers=a)
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual({row["id"] for row in response.json()}, {first["id"], second["id"]})
+        self.assertEqual(len(self.client.get("/api/saved-games", headers=a).json()), 1)
+        self.assertEqual(self.client.get("/api/saved-games?allCollections=true").status_code, 401)
+        self.assertEqual(self.client.get(f"/api/saved-games?allCollections=true&collectionId={folder['id']}", headers=a).status_code, 400)
+
     def test_new_registration_has_personal_default_without_reclassifying_existing_lists(self) -> None:
         response = self.client.get("/api/collections", headers=self.headers(self.a))
         self.assertEqual(response.status_code, 200, response.text)

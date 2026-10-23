@@ -308,7 +308,7 @@ describe("account, collection and save panel wiring", () => {
     expect(users.loginUser).toHaveBeenCalledWith("a@example.test", "test-password");
     expect(users.getStoredAuthToken()).toBe(session.accessToken);
     expect(catalog.getCollections).toHaveBeenCalledWith(profile.id);
-    expect(catalog.getSavedGames).toHaveBeenCalledWith(games, profile.id, defaultCollection.id);
+    expect(catalog.getSavedGames).toHaveBeenCalledWith(games, profile.id, "all");
     expect(screen.queryByLabelText("Account password")).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "Sign Out" }));

@@ -16,6 +16,22 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); window.localStorage.clear(); });
 
 describe("library to profile journey", () => {
+  it("restores filters, ordering and search when returning from the profile", async () => {
+    await playerLibrary.saveRecord("demo-user", 2, { status: "want_to_play", affinity: "like", notes: "Keep me" });
+    render(<App />);
+    const search = await screen.findByLabelText("Find a game");
+    fireEvent.change(search, { target: { value: "Celeste" } });
+    fireEvent.change(screen.getByLabelText("Sort games"), { target: { value: "name" } });
+    fireEvent.click(screen.getByRole("button", { name: /^Liked/ }));
+    fireEvent.change(screen.getByLabelText("Show collection"), { target: { value: "1" } });
+    fireEvent.click(screen.getByRole("link", { name: "My taste", exact: true }));
+    await screen.findByRole("heading", { name: "My gaming taste" });
+    fireEvent.click(screen.getByRole("link", { name: "My games", exact: true }));
+    expect((await screen.findByLabelText("Find a game") as HTMLInputElement).value).toBe("Celeste");
+    expect((screen.getByLabelText("Sort games") as HTMLSelectElement).value).toBe("name");
+    expect((screen.getByLabelText("Show collection") as HTMLSelectElement).value).toBe("1");
+    expect(screen.getByRole("button", { name: /^Liked/ }).getAttribute("aria-pressed")).toBe("true");
+  });
   it("saves a bilingual record, restores it after remount, and uses it as profile evidence", async () => {
     const first = render(<App />);
     const add = await screen.findByRole("button", { name: "Add games" });

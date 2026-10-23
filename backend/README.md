@@ -39,18 +39,22 @@ POST /api/collections
 PATCH /api/collections/{collectionId}
 DELETE /api/collections/{collectionId}
 GET /api/saved-games
+GET /api/saved-games?allCollections=true
 GET /api/saved-games/insights
 POST /api/saved-games
 DELETE /api/saved-games
 DELETE /api/saved-games/{gameId}
 GET /api/me/games
 PUT /api/me/games/{gameId}
+PATCH /api/me/games/{gameId}
 DELETE /api/me/games/{gameId}
 GET /api/me/preferences
 PUT /api/me/preferences
 ```
 
 All collection and saved-game endpoints, including `/api/saved-games/insights`, require an active account's bearer token. Missing, invalid, expired, or inactive-account tokens return `401`. Ownership always comes from that token. Requests targeting another account's collection return `404`.
+
+`allCollections=true` returns every owned collection membership in one read, preserving games present in multiple folders; it cannot be combined with `collectionId`. Game-record PATCH accepts one or both of `affinity` and `status`, preserving unspecified fields and notes. An explicit `status: null` clears the play status. Empty or unknown fields are rejected. PUT remains the full game-record editor operation.
 
 Saved-game endpoints accept an optional `collectionId` query/body field. When omitted, the API uses the authenticated user's `Default Shortlist` collection. Saving the same game to the same collection again returns the existing saved item.
 
