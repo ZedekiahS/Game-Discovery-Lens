@@ -1,3 +1,4 @@
+import { useAccountDraft } from "../hooks/useAccountDraft";
 import { Bookmark, BookmarkCheck, Check, LoaderCircle, Plus } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { useCollections } from "../hooks/useCollections";
@@ -26,7 +27,7 @@ export function SaveGameMenu({ state, sessionUserId, game, onOpen, onSignIn, res
   const collectionDisabled = sessionUserId === null || state.loading || state.busy || !!pending || Boolean(state.error);
   const [isSaveMenuOpen, setIsSaveMenuOpen] = useState(false);
   const [isCreatingSaveCollection, setIsCreatingSaveCollection] = useState(false);
-  const [saveCollectionName, setSaveCollectionName] = useState("");
+  const [saveCollectionName, setSaveCollectionName] = useAccountDraft(sessionUserId, `save:new:${game.id}`, "");
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -151,7 +152,7 @@ export function SaveGameMenu({ state, sessionUserId, game, onOpen, onSignIn, res
           </div>
           {isCreatingSaveCollection ? (
             <form className="save-menu-create" onSubmit={(event) => void createCollectionAndSave(event)}>
-              <input
+              <input maxLength={120}
                 className="text-input"
                 autoFocus
                 aria-label={t("New collection name", "新收藏夹名称")}

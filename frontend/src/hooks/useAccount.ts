@@ -5,6 +5,8 @@ import { ApiError } from "../services/http";
 import {
   clearStoredAuthToken, getAuthenticatedUser, getStoredAuthToken,
   loginUser, registerUser, setStoredAuthToken,
+  storedSessionVersion, verifySession, invalidateSession, getVerifiedSession, isCurrentSession,
+  SESSION_CHANGED, SESSION_EXPIRED,
 } from "../services/users";
 
 type AccountStatus = "anonymous" | "checking" | "authenticated" | "error" | "expired";
@@ -26,19 +28,27 @@ export function useAccount() {
   async function retry() {
     const revision = ++sequence.current;
     authentication.current = null;
+    invalidateSession();
     setState({ status: "checking", user: null, error: "", revision });
+    let token: string | null = null;
+    let version: string | null = null;
     try {
-      const token = DATA_MODE === "api" ? getStoredAuthToken() : null;
+      token = DATA_MODE === "api" ? getStoredAuthToken() : null;
+      version = storedSessionVersion();
       if (!token) {
         setState({ status: "anonymous", user: null, error: "", revision });
         return;
       }
       const user = await getAuthenticatedUser(token);
       if (sequence.current === revision) {
+        if (!verifySession(user, token, version)) { void retry(); return; }
         setState({ status: "authenticated", user, error: "", revision });
       }
     } catch (error) {
       if (sequence.current !== revision) return;
+      try {
+        if (getStoredAuthToken() !== token || storedSessionVersion() !== version) { void retry(); return; }
+      } catch { /* Report inaccessible storage without removing another session. */ }
       const expired = error instanceof ApiError && (error.status === 401 || error.status === 403);
       let expiredMessage = "Your session has expired. Sign in again or sign out.";
       if (expired) {
@@ -59,23 +69,57 @@ export function useAccount() {
 
   useEffect(() => {
     void retry();
-    return () => { ++sequence.current; authentication.current = null; };
+    const changed = () => { void retry(); };
+    const synchronize = () => {
+      if (DATA_MODE !== "api") return;
+      const current = getVerifiedSession();
+      if (current && !isCurrentSession(current)) void retry();
+    };
+    const storage = (event: StorageEvent) => {
+      if (event.key === null || event.key.includes(".authToken")) void retry();
+    };
+    const expired = () => {
+      const revision = ++sequence.current;
+      authentication.current = null;
+      invalidateSession();
+      try { clearStoredAuthToken(); } catch { /* Recovery stays available if storage is blocked. */ }
+      setState({ status: "expired", user: null, revision, error: "Your session has expired. Sign in again to continue. Unsaved drafts stay with their original account in this tab." });
+    };
+    window.addEventListener("storage", storage);
+    window.addEventListener("focus", synchronize);
+    window.addEventListener(SESSION_CHANGED, changed);
+    window.addEventListener(SESSION_EXPIRED, expired);
+    return () => {
+      ++sequence.current; authentication.current = null; invalidateSession();
+      window.removeEventListener("storage", storage);
+      window.removeEventListener("focus", synchronize);
+      window.removeEventListener(SESSION_CHANGED, changed);
+      window.removeEventListener(SESSION_EXPIRED, expired);
+    };
   }, []);
 
   async function authenticate(request: () => Promise<AuthSession>): Promise<boolean> {
     if (authentication.current !== null) return false;
     const revision = ++sequence.current;
     authentication.current = revision;
+    invalidateSession();
     setState({ status: "checking", user: null, error: "", revision });
+    let startingVersion: string | null = null;
     try {
+      startingVersion = storedSessionVersion();
       const session = await request();
       if (sequence.current !== revision) return false;
+      if (storedSessionVersion() !== startingVersion) { void retry(); return false; }
       // Commit credentials only while this login is still the current operation.
       setStoredAuthToken(session.accessToken);
+      if (!verifySession(session.user, session.accessToken, storedSessionVersion())) { void retry(); return false; }
       setState({ status: "authenticated", user: session.user, error: "", revision });
       return true;
     } catch (error) {
       if (sequence.current !== revision) return false;
+      try {
+        if (storedSessionVersion() !== startingVersion) { void retry(); return false; }
+      } catch { /* Preserve storage errors for the existing sign-in recovery path. */ }
       setState({
         status: "anonymous", user: null, revision,
         error: error instanceof Error ? error.message : "Sign-in failed. Please retry.",
@@ -87,8 +131,11 @@ export function useAccount() {
   }
 
   function logout() {
+    const current = getVerifiedSession();
+    if (current && !isCurrentSession(current)) { void retry(); return; }
     const revision = ++sequence.current;
     authentication.current = null;
+    invalidateSession();
     try {
       clearStoredAuthToken();
       setState({ status: "anonymous", user: null, error: "", revision });

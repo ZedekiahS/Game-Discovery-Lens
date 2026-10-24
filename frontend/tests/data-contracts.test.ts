@@ -1,3 +1,4 @@
+import { verifiedAccount } from "./session-fixture";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { games } from "../src/data/games";
 
@@ -24,7 +25,7 @@ function jsonResponse(body: unknown, status = 200) {
 
 async function authenticatedCatalog() {
   const users = await import("../src/services/users");
-  users.setStoredAuthToken("account-a-token");
+  await verifiedAccount();
   return import("../src/services/catalog");
 }
 
@@ -64,14 +65,16 @@ describe("API collection contract", () => {
     const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(jsonResponse([])));
     vi.stubGlobal("fetch", fetchMock);
 
-    await catalog.getCollections("another-account");
-    await catalog.getSavedGames(games, "another-account", 7);
-    await catalog.saveGame(games[0], games, "another-account", 7);
-    await catalog.createCollection("Wishlist", "another-account");
-    await catalog.updateCollection(7, "Later", "another-account");
-    await catalog.removeSavedGame(games[0].id, "another-account", 7);
-    await catalog.clearSavedGames("another-account", 7);
-    await catalog.deleteCollection(7, "another-account");
+    await expect(catalog.getCollections("another-account")).rejects.toMatchObject({ status: 409 });
+    expect(fetchMock).not.toHaveBeenCalled();
+    await catalog.getCollections("account-a");
+    await catalog.getSavedGames(games, "account-a", 7);
+    await catalog.saveGame(games[0], games, "account-a", 7);
+    await catalog.createCollection("Wishlist", "account-a");
+    await catalog.updateCollection(7, "Later", "account-a");
+    await catalog.removeSavedGame(games[0].id, "account-a", 7);
+    await catalog.clearSavedGames("account-a", 7);
+    await catalog.deleteCollection(7, "account-a");
 
     for (const [url, init] of fetchMock.mock.calls as [string, RequestInit][]) {
       expect(url).not.toContain("userId");

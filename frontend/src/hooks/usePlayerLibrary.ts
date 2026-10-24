@@ -1,3 +1,4 @@
+import { getVerifiedSession, checkSession, isCurrentSession } from "../services/users";
 import { useEffect, useRef, useState } from "react";
 import type { PlayerGameInput, PlayerGameRecord, PlayerGameUpdate, PlayerPreferences } from "../types";
 import { emptyPreferences, playerLibrary } from "../services/playerLibrary";
@@ -5,6 +6,7 @@ import { emptyPreferences, playerLibrary } from "../services/playerLibrary";
 const initial = (scope: string) => ({ scope, records: [] as PlayerGameRecord[], preferences: emptyPreferences(), loaded: false, loading: true, busy: false, error: "" });
 
 export function usePlayerLibrary(userId: string | null, revision: number) {
+  const session = getVerifiedSession();
   const scope = `${userId ?? "anonymous"}:${revision}`;
   const currentScope = useRef(scope);
   currentScope.current = scope;
@@ -27,10 +29,11 @@ export function usePlayerLibrary(userId: string | null, revision: number) {
 
   async function change<T>(action: () => Promise<T>, apply: (previous: typeof state, result: T) => typeof state): Promise<boolean> {
     if (!userId || visible.loading || visible.error || state.scope !== scope || pending.current) return false;
+    if (!checkSession(session)) return false;
     const operation = Symbol();
     pending.current = operation;
     const request = generation.current;
-    const current = () => currentScope.current === scope && generation.current === request;
+    const current = () => currentScope.current === scope && generation.current === request && isCurrentSession(session);
     setState((s) => ({ ...s, busy: true, error: "" }));
     try {
       const result = await action();

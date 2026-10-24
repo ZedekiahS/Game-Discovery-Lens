@@ -87,7 +87,7 @@ def fixture_database(database_url: str, games: list[dict]):
         engine = create_engine(url, connect_args={"options": f"-csearch_path={schema}"})
         Game.__table__.create(engine)
         with Session(engine) as db:
-            db.add_all(Game(**GameOut.model_validate(game).model_dump()) for game in games)
+            db.add_all(Game(**GameOut.model_validate(game).model_dump(exclude={"content_source", "metrics_kind"})) for game in games)
             db.commit()
         yield engine
     finally:

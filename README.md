@@ -92,6 +92,8 @@ The frontend defaults to `http://localhost:8000/api`. To change it, copy `fronte
 - **Explainable personal data:** the profile uses distinct games and explicit preferences, with inspectable evidence and separate interest/play-history counts. Migration `0005_player_library` adds storage without reclassifying or deleting old collections.
 - **Persistence and recovery:** API requests have a 30-second deadline and never automatically retry writes. An uncertain save locks further writes until a successful reload. Collection clear/delete actions require confirmation; unsaved game notes and preference edits are protected when closing or navigating away. Reloading a failed save preserves its draft.
 - **Concurrent requests:** an older search, game insight, or account response cannot replace a newer selection or session.
+- **Session boundaries:** verified identity, token and session version travel together. Private requests check the session before sending and after receiving; cross-tab account changes invalidate the old view. Unsaved notes/preferences and collection-name drafts stay in the original account's memory in that tab and can be recovered after sign-in. Reloading or closing the tab ends that temporary recovery; uncertain writes are never replayed automatically.
+- **Source boundaries:** game details expose the catalog's gameplay source and check date. Synthetic prices, ratings, review counts, ownership and revenue are marked in both demo and seeded API mode; gameplay sources do not verify those metrics. Missing provenance stays unknown.
 - **Search consistency:** literal title search combines with price, tag, and review filters. Frontend rules and PostgreSQL search tests share `tests/fixtures/search-contract.json`.
 - **Clear module boundaries:** page composition, discovery, selected-game details, account/collection state, and API/demo adapters have separate responsibilities.
 - **Reproducible verification:** unit and UI tests, isolated PostgreSQL integration tests, TypeScript/build checks, and desktop/mobile browser journeys run in GitHub Actions. The browser suite registers accounts through the UI and exercises the real API, including recovery after a committed save loses its response. See [browser test setup](frontend/README.md#browser-tests-with-the-real-api).
@@ -131,6 +133,7 @@ Each database suite creates and removes only its own UUID-named schema. Existing
 
 Verification records separate the executed checks from their limitations:
 
+- [Session, input, concurrency and data-trust boundaries; Computer Use and performance evidence](docs/verification/boundaries-trust-2026-10-24.md)
 - [Personalized recommendations, account transitions, and bilingual evidence](docs/verification/personalized-recommendations-2026-10-15.md)
 - [Personal library, evidence-based profile, catalog corrections, and migration](docs/verification/player-library-2026-10-08.md)
 - [80-game catalog expansion and artwork provenance](docs/verification/catalog-expansion-2026-09-16.md)

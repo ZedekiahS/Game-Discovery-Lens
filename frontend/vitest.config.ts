@@ -6,5 +6,7 @@ export default mergeConfig(viteConfig, defineConfig({
     environment: "jsdom",
     include: ["tests/**/*.test.{ts,tsx}"],
     clearMocks: true,
+    // JSDOM journeys are CPU-heavy; bound concurrency rather than relaxing assertions/timeouts.
+    maxWorkers: 2,
   },
 }));

@@ -1,3 +1,4 @@
+import { getVerifiedSession, checkSession, isCurrentSession } from "../services/users";
 import { useEffect, useRef, useState } from "react";
 import type { CollectionPurpose, Game, GameCollection, SavedGame, ShortlistInsights } from "../types";
 import * as catalogService from "../services/catalog";
@@ -21,6 +22,7 @@ const emptyState = (scope: string): CollectionState => ({
 });
 
 export function useCollections(catalog: Game[], userId: string | null, sessionRevision = 0, purpose?: CollectionPurpose, insightsEnabled = true) {
+  const session = getVerifiedSession();
   const scope = `${userId ?? "anonymous"}:${sessionRevision}`;
   const currentScope = useRef(scope);
   currentScope.current = scope;
@@ -37,7 +39,7 @@ export function useCollections(catalog: Game[], userId: string | null, sessionRe
     const request = ++generation.current;
     mutation.current = null;
     needsReload.current = true;
-    const current = () => currentScope.current === scope && generation.current === request;
+    const current = () => currentScope.current === scope && generation.current === request && isCurrentSession(session);
     setState({ ...emptyState(scope), loading: userId !== null });
     if (userId === null) return;
 
@@ -87,10 +89,11 @@ export function useCollections(catalog: Game[], userId: string | null, sessionRe
     apply: (previous: CollectionState, result: T) => CollectionState,
   ): Promise<T | null> {
     if (userId === null || loading || needsReload.current || visible.error || mutation.current !== null || state.scope !== scope) return null;
+    if (!checkSession(session)) return null;
     const request = generation.current;
     const operation = Symbol();
     mutation.current = operation;
-    const current = () => currentScope.current === scope && generation.current === request;
+    const current = () => currentScope.current === scope && generation.current === request && isCurrentSession(session);
     setState((previous) => ({ ...previous, busy: true, error: "" }));
     try {
       const result = await action(current);

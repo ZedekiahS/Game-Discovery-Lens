@@ -4,6 +4,7 @@ import re
 
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.config import Settings, get_settings
@@ -67,7 +68,13 @@ def register(
     db.add(user)
     # Only new registrations get a personal default; legacy collections keep their purpose.
     db.add(Collection(user_id=user.id, name="Default Shortlist", purpose="player"))
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as error:
+        db.rollback()
+        if getattr(error.orig, "sqlstate", None) != "23505":
+            raise
+        raise HTTPException(409, "Email or account name is already registered. Sign in or choose another display name.") from None
     db.refresh(user)
 
     access_token = create_access_token(user.id, settings.auth_secret, settings.auth_token_ttl_seconds)

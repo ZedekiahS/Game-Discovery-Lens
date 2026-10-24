@@ -44,33 +44,14 @@ describe("bilingual catalog content", () => {
     }
   });
 
-  it("recognizes backend rules wording for free games and preserves server-formatted quantities", () => {
+  it("recognizes backend rules wording without fabricating review evidence", async () => {
     const game = games.find((candidate) => candidate.name === "Aimlabs")!;
-    // Representative response from backend/app/services/game_insights.py.
-    const insights: GameInsights = {
-      gameId: game.id,
-      signal: "Watch",
-      source: "rules",
-      reviewIntelligence: {
-        title: "Review Intelligence", caption: "Rules preview",
-        body: "Aimlabs is showing steady review sentiment. The strongest positioning comes from FPS identity and Shooter and Multiplayer demand.",
-        bullets: ["Common praise: FPS identity and clear audience fit.", "Review volume: 455 player reviews available for summarization.", "Recommendation: surface to players who prefer Shooter and Multiplayer."],
-      },
-      developerOpportunity: {
-        title: "Developer Copilot", caption: "Revenue lens",
-        body: "State Space Labs can use this title as a watch catalog signal with 15.4K owners and $12.4K visible revenue.",
-        bullets: ["Market signal: FPS demand is already visible in this seeded catalog.", "Price signal: free-to-play positioning.", "Next step: connect this panel to real ownership, purchase, and review tables."],
-      },
-      playerRecommendation: {
-        title: "Player Recommendation", caption: "Discovery lens",
-        body: "This is a good match for players who want FPS and Shooter and Multiplayer with a free-to-play price point.",
-        bullets: ["Signal: Watch based on rating and review volume.", "Price: Free.", "Bundle opportunity: pair with adjacent fps games."],
-      },
-    };
+    // API and demo rules share these evidence-limited templates.
+    const insights: GameInsights = { ...await demoCatalog.getGameInsights(game), source: "rules" };
     const localized = localizeGameInsights(game, insights, "zh");
     expect(localized.source).toBe("rules");
     expect(localized.signal).toBe("Watch");
-    expect(localized.playerRecommendation.body).toContain("免费");
+    expect(localized.playerRecommendation.body).toContain("玩法");
     for (const key of panelKeys) {
       expect(hasOriginalInsightContent(insights[key], localized[key], "zh"), key).toBe(false);
       expect(numerals(localized[key])).toEqual(numerals(insights[key]));
@@ -113,7 +94,7 @@ describe("bilingual catalog content", () => {
     const { strategy: originalStrategy, ...originalFacts } = insights;
     const { strategy, ...localizedFacts } = localized;
     expect(localizedFacts).toEqual(originalFacts);
-    expect(strategy.body).toContain(customGame.name);
+    expect(strategy.body).toContain("不能据此确认市场需求");
     expect(hasOriginalInsightContent(originalStrategy, strategy, "zh")).toBe(false);
     expect(numerals(strategy)).toEqual(numerals(originalStrategy));
     expect(localizeCollectionInsights(insights, savedGames, "en")).toBe(insights);

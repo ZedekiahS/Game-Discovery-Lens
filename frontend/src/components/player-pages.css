@@ -114,3 +114,8 @@
   .library-shelves button { padding: 10px 12px; } .library-shelves button span { padding-left: 8px; }
 }
 @media (prefers-reduced-motion: reduce) { .library-game { transition: none; } .library-game:hover { transform: none; } }
+
+.game-provenance { margin-top: 1rem; font-size: .85rem; line-height: 1.6; max-width: 70ch; }
+.game-provenance summary { cursor: pointer; }
+.game-provenance p { margin: .6rem 0; }
+.game-provenance a { color: inherit; text-decoration: underline; }

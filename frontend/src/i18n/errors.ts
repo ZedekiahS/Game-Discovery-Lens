@@ -1,4 +1,8 @@
 const chineseErrors: Record<string, string> = {
+  "Your session has expired. Sign in again to continue. Unsaved drafts stay with their original account in this tab.": "登录已过期，请重新登录。未保存草稿会留在当前标签页，仅原账号可恢复。",
+  "Your account changed. Check the current account before trying again.": "登录账号已变化，请确认当前账号后重新操作。",
+  "Email or account name is already registered. Sign in or choose another display name.": "邮箱或账号名称已被注册，请登录或更换昵称。",
+
   "The request timed out. Reload to check the latest state before trying again.": "等待响应超时，请重新加载以确认最新状态后再试。",
   "Your game records could not be loaded.": "游戏记录加载失败，请检查网络或浏览器存储后重试。",
   "Your changes could not be confirmed. Reload your library before trying again.": "无法确认更改是否已保存，请重新加载游戏库后再试。",
@@ -46,6 +50,11 @@ const chineseErrors: Record<string, string> = {
 export function translateError(message: string, language: "en" | "zh"): string {
   if (language === "en" || !message) return message;
   if (chineseErrors[message]) return chineseErrors[message];
+  const length = /^(query|name|description|email|displayName|password): String should have at (most|least) (\d+) characters$/.exec(message);
+  if (length) {
+    const fields: Record<string, string> = { query: "搜索内容", name: "收藏夹名称", description: "描述", email: "邮箱", displayName: "昵称", password: "密码" };
+    return `${fields[length[1]]}${length[2] === "most" ? "最多" : "至少"} ${length[3]} 个字符。`;
+  }
   const mutation = /^The change could not be confirmed\. ([\s\S]+) Reload collections before retrying\.$/.exec(message);
   if (mutation) return `无法确认更改是否成功。${translateError(mutation[1], language)} 重试前请先重新加载收藏夹。`;
   const api = /^API request failed \((\d+)\)\.$/.exec(message);

@@ -1,0 +1,324 @@
+{
+  "node": "v24.22.0",
+  "platform": "win32",
+  "cpu": "Intel(R) Core(TM) i7-10750H CPU @ 2.60GHz",
+  "browser": "Chromium (installed Playwright)",
+  "network": "loopback, no throttling",
+  "catalog": 80,
+  "build": "npm run build; vite preview; API rules only",
+  "timing": "wall clock action to observed UI; first screen includes networkidle 500ms; not Web Vitals",
+  "rows": [
+    {
+      "viewport": "1440x1000",
+      "sample": 0,
+      "task": "first screen",
+      "cache": "new browser context; API/DB process warm",
+      "ms": 992,
+      "requests": [
+        "GET /api/games",
+        "GET /api/games/31",
+        "GET /api/games/31/insights"
+      ]
+    },
+    {
+      "viewport": "1440x1000",
+      "sample": 0,
+      "task": "search",
+      "cache": "catalog warm; Celeste detail cold",
+      "ms": 224,
+      "requests": [
+        "POST /api/search",
+        "GET /api/games/2",
+        "GET /api/games/2/insights"
+      ]
+    },
+    {
+      "viewport": "1440x1000",
+      "sample": 0,
+      "task": "save feedback",
+      "cache": "warm",
+      "ms": 95,
+      "requests": [
+        "PATCH /api/me/games/2"
+      ]
+    },
+    {
+      "viewport": "1440x1000",
+      "sample": 0,
+      "task": "detail return",
+      "cache": "public detail cache warm",
+      "ms": 66,
+      "requests": [
+        "GET /api/saved-games/insights?collectionId=3"
+      ]
+    },
+    {
+      "viewport": "1440x1000",
+      "sample": 0,
+      "task": "library return",
+      "cache": "account reads warm",
+      "ms": 62,
+      "requests": []
+    },
+    {
+      "viewport": "1440x1000",
+      "sample": 1,
+      "task": "first screen",
+      "cache": "new browser context; API/DB process warm",
+      "ms": 808,
+      "requests": [
+        "GET /api/games",
+        "GET /api/games/31",
+        "GET /api/games/31/insights"
+      ]
+    },
+    {
+      "viewport": "1440x1000",
+      "sample": 1,
+      "task": "search",
+      "cache": "catalog warm; Celeste detail cold",
+      "ms": 157,
+      "requests": [
+        "POST /api/search",
+        "GET /api/games/2"
+      ]
+    },
+    {
+      "viewport": "1440x1000",
+      "sample": 1,
+      "task": "save feedback",
+      "cache": "warm",
+      "ms": 101,
+      "requests": [
+        "GET /api/games/2/insights",
+        "PATCH /api/me/games/2"
+      ]
+    },
+    {
+      "viewport": "1440x1000",
+      "sample": 1,
+      "task": "detail return",
+      "cache": "public detail cache warm",
+      "ms": 72,
+      "requests": [
+        "GET /api/saved-games/insights?collectionId=4"
+      ]
+    },
+    {
+      "viewport": "1440x1000",
+      "sample": 1,
+      "task": "library return",
+      "cache": "account reads warm",
+      "ms": 63,
+      "requests": []
+    },
+    {
+      "viewport": "1440x1000",
+      "sample": 2,
+      "task": "first screen",
+      "cache": "new browser context; API/DB process warm",
+      "ms": 785,
+      "requests": [
+        "GET /api/games",
+        "GET /api/games/31",
+        "GET /api/games/31/insights"
+      ]
+    },
+    {
+      "viewport": "1440x1000",
+      "sample": 2,
+      "task": "search",
+      "cache": "catalog warm; Celeste detail cold",
+      "ms": 172,
+      "requests": [
+        "POST /api/search",
+        "GET /api/games/2"
+      ]
+    },
+    {
+      "viewport": "1440x1000",
+      "sample": 2,
+      "task": "save feedback",
+      "cache": "warm",
+      "ms": 99,
+      "requests": [
+        "GET /api/games/2/insights",
+        "PATCH /api/me/games/2"
+      ]
+    },
+    {
+      "viewport": "1440x1000",
+      "sample": 2,
+      "task": "detail return",
+      "cache": "public detail cache warm",
+      "ms": 68,
+      "requests": [
+        "GET /api/saved-games/insights?collectionId=5"
+      ]
+    },
+    {
+      "viewport": "1440x1000",
+      "sample": 2,
+      "task": "library return",
+      "cache": "account reads warm",
+      "ms": 68,
+      "requests": []
+    },
+    {
+      "viewport": "375x812",
+      "sample": 0,
+      "task": "first screen",
+      "cache": "new browser context; API/DB process warm",
+      "ms": 722,
+      "requests": [
+        "GET /api/games",
+        "GET /api/games/31",
+        "GET /api/games/31/insights"
+      ]
+    },
+    {
+      "viewport": "375x812",
+      "sample": 0,
+      "task": "search",
+      "cache": "catalog warm; Celeste detail cold",
+      "ms": 134,
+      "requests": [
+        "POST /api/search",
+        "GET /api/games/2"
+      ]
+    },
+    {
+      "viewport": "375x812",
+      "sample": 0,
+      "task": "save feedback",
+      "cache": "warm",
+      "ms": 87,
+      "requests": [
+        "GET /api/games/2/insights",
+        "PATCH /api/me/games/2"
+      ]
+    },
+    {
+      "viewport": "375x812",
+      "sample": 0,
+      "task": "detail return",
+      "cache": "public detail cache warm",
+      "ms": 74,
+      "requests": [
+        "GET /api/saved-games/insights?collectionId=6"
+      ]
+    },
+    {
+      "viewport": "375x812",
+      "sample": 0,
+      "task": "library return",
+      "cache": "account reads warm",
+      "ms": 53,
+      "requests": []
+    },
+    {
+      "viewport": "375x812",
+      "sample": 1,
+      "task": "first screen",
+      "cache": "new browser context; API/DB process warm",
+      "ms": 732,
+      "requests": [
+        "GET /api/games",
+        "GET /api/games/31",
+        "GET /api/games/31/insights"
+      ]
+    },
+    {
+      "viewport": "375x812",
+      "sample": 1,
+      "task": "search",
+      "cache": "catalog warm; Celeste detail cold",
+      "ms": 114,
+      "requests": [
+        "POST /api/search",
+        "GET /api/games/2"
+      ]
+    },
+    {
+      "viewport": "375x812",
+      "sample": 1,
+      "task": "save feedback",
+      "cache": "warm",
+      "ms": 89,
+      "requests": [
+        "GET /api/games/2/insights",
+        "PATCH /api/me/games/2"
+      ]
+    },
+    {
+      "viewport": "375x812",
+      "sample": 1,
+      "task": "detail return",
+      "cache": "public detail cache warm",
+      "ms": 50,
+      "requests": [
+        "GET /api/saved-games/insights?collectionId=7"
+      ]
+    },
+    {
+      "viewport": "375x812",
+      "sample": 1,
+      "task": "library return",
+      "cache": "account reads warm",
+      "ms": 46,
+      "requests": []
+    },
+    {
+      "viewport": "375x812",
+      "sample": 2,
+      "task": "first screen",
+      "cache": "new browser context; API/DB process warm",
+      "ms": 738,
+      "requests": [
+        "GET /api/games",
+        "GET /api/games/31",
+        "GET /api/games/31/insights"
+      ]
+    },
+    {
+      "viewport": "375x812",
+      "sample": 2,
+      "task": "search",
+      "cache": "catalog warm; Celeste detail cold",
+      "ms": 121,
+      "requests": [
+        "POST /api/search",
+        "GET /api/games/2"
+      ]
+    },
+    {
+      "viewport": "375x812",
+      "sample": 2,
+      "task": "save feedback",
+      "cache": "warm",
+      "ms": 83,
+      "requests": [
+        "GET /api/games/2/insights",
+        "PATCH /api/me/games/2"
+      ]
+    },
+    {
+      "viewport": "375x812",
+      "sample": 2,
+      "task": "detail return",
+      "cache": "public detail cache warm",
+      "ms": 49,
+      "requests": [
+        "GET /api/saved-games/insights?collectionId=8"
+      ]
+    },
+    {
+      "viewport": "375x812",
+      "sample": 2,
+      "task": "library return",
+      "cache": "account reads warm",
+      "ms": 47,
+      "requests": []
+    }
+  ]
+}

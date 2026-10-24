@@ -1,3 +1,4 @@
+import { ApiError } from "../http";
 import { games } from "../../data/games";
 import { filterGames, getSignal, parseSearchIntent } from "../../lib/search";
 import type { CollectionPurpose, Game, GameCollection, GameInsights, SavedGame, ShortlistInsights } from "../../types";
@@ -69,6 +70,7 @@ export const demoCatalog: CatalogService = {
   },
 
   async searchCatalog(query, availableTags, catalog) {
+    if (Array.from(query).length > 500) throw new ApiError(422, "query: String should have at most 500 characters");
     const intent = parseSearchIntent(query, availableTags, catalog.map((game) => game.name));
     return { intent, games: filterGames(catalog, intent), source: "mock" };
   },
@@ -81,37 +83,21 @@ function buildMockInsights(game: Game): GameInsights {
   const tagPhrase = secondaryTags.length > 0 ? secondaryTags.join(" and ") : primaryTag;
 
   return {
-    gameId: game.id,
-    signal,
+    gameId: game.id, signal,
     reviewIntelligence: {
-      title: "Review Intelligence",
-      caption: "Demo rules",
-      body: `${game.name} is showing ${game.rating >= 4.5 ? "very strong" : "steady"} review sentiment. The strongest positioning comes from ${primaryTag} identity and ${tagPhrase} demand.`,
-      bullets: [
-        `Common praise: ${primaryTag} identity and clear audience fit.`,
-        `Review volume: ${game.reviewCount} player reviews available for summarization.`,
-        `Recommendation: surface to players who prefer ${tagPhrase}.`,
-      ],
+      title: "Catalog evidence", caption: "Demo rules",
+      body: `${game.name} is tagged ${primaryTag}. No review text is available for analysis.`,
+      bullets: [`Editorial tags: ${tagPhrase}.`, "A review count is not a review corpus."],
     },
     developerOpportunity: {
-      title: "Developer Copilot",
-      caption: "Demo rules",
-      body: `${game.developer} can use this title as a ${signal.toLowerCase()} catalog signal with ${formatCompact(game.ownership)} owners and $${formatCompact(game.revenue)} visible revenue.`,
-      bullets: [
-        `Market signal: ${primaryTag} demand is visible in the local catalog.`,
-        `Price signal: ${game.price <= 25 ? "accessible" : "premium"} positioning.`,
-        "Compare this game's genres with the other games in your collection.",
-      ],
+      title: "Comparison reference", caption: "Demo rules",
+      body: `${game.developer}'s title is a comparison reference for ${primaryTag}, not evidence of market demand.`,
+      bullets: ["Compare this game's genres with the other games in your collection.", "Validate prices and audience metrics independently before making business decisions."],
     },
     playerRecommendation: {
-      title: "Player Recommendation",
-      caption: "Demo rules",
-      body: `This is a good match for players who want ${primaryTag} and ${tagPhrase} with a ${game.price <= 25 ? "friendly" : "premium"} price point.`,
-      bullets: [
-        `Signal: ${signal} based on rating and review volume.`,
-        `Price: ${game.price === 0 ? "Free" : `$${game.price.toFixed(2)}`}.`,
-        `Bundle opportunity: pair with adjacent ${primaryTag.toLowerCase()} games.`,
-      ],
+      title: "Player Recommendation", caption: "Discovery lens",
+      body: `Explore this title if you enjoy ${primaryTag} and ${tagPhrase}. Check the gameplay summary before choosing.`,
+      bullets: ["Basis: catalog tags.", "Check the store for current prices and availability."],
     },
     source: "mock",
   };
@@ -177,6 +163,9 @@ function getLocalCollections(userId: string): GameCollection[] {
 }
 
 function createLocalCollection(name: string, userId: string, purpose: CollectionPurpose = "unspecified"): GameCollection {
+  if (!name.trim()) throw new ApiError(400, "Collection name is required");
+  if (Array.from(name).length > 120) throw new ApiError(422, "name: String should have at most 120 characters");
+  name = name.trim();
   const collections = getLocalCollections(userId);
   const existing = collections.find((collection) => collection.name.toLowerCase() === name.toLowerCase());
   if (existing) return existing;
@@ -203,6 +192,7 @@ function updateLocalCollection(collectionId: number, name: string, userId: strin
     throw new Error("Default collection cannot be renamed");
   }
 
+  if (Array.from(name).length > 120) throw new ApiError(422, "name: String should have at most 120 characters");
   const normalizedName = name.trim();
   if (!normalizedName) {
     throw new Error("Collection name is required");
@@ -314,18 +304,18 @@ function buildMockShortlistInsights(savedGames: SavedGame[], userId: string): Sh
     return {
       userId,
       savedCount: 0,
-      averagePrice: 0,
-      averageRating: 0,
-      totalVisibleRevenue: 0,
+      averagePrice: null,
+      averageRating: null,
+      totalVisibleRevenue: null,
       topTags: [],
       strategy: {
         title: "Collection Intelligence",
         caption: "Demo rules",
-        body: "Save games to this collection to compare pricing, sentiment, and genre concentration.",
+        body: "Save games to this collection to compare gameplay and genre concentration.",
         bullets: [
           "Start with two or three games from different tags.",
           "Use collections to separate player wishlists from developer research.",
-          "Future AI summaries can use this endpoint as their context source.",
+          "Check each game’s source before drawing conclusions.",
         ],
       },
       source: "mock",
@@ -359,11 +349,11 @@ function buildMockShortlistInsights(savedGames: SavedGame[], userId: string): Sh
     strategy: {
       title: "Collection Intelligence",
       caption: "Demo rules",
-      body: `This collection leans ${averagePrice <= 25 ? "accessible" : "premium"} with ${tagPhrase} demand. ${strongestGame.name} is the strongest sentiment anchor at ${strongestGame.rating.toFixed(1)} rating.`,
+      body: `This collection groups ${tagPhrase}. Compare gameplay and tags; market demand has not been established.`,
       bullets: [
         `Saved games: ${savedCount}.`,
         `Average price: ${formatAveragePrice(averagePrice)}.`,
-        `Visible revenue represented: $${formatCompact(totalVisibleRevenue)}.`,
+        `Catalog revenue total: $${formatCompact(totalVisibleRevenue)}.`,
         `Top tags: ${tagPhrase}.`,
       ],
     },

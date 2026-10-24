@@ -61,6 +61,7 @@ export function SearchControls({ discovery, onReturnToBrowse }: { discovery: Ret
       </div>
       <textarea
         id="game-search"
+        maxLength={500}
         aria-label={isDeveloper ? t("Research the catalog", "搜索研究对象") : t("Search games", "搜索游戏")}
         aria-describedby="search-hint"
         value={displayQuery}

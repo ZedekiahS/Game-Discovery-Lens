@@ -1,3 +1,4 @@
+import { verifiedAccount } from "./session-fixture";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 beforeEach(() => { vi.resetModules(); window.localStorage.clear(); window.history.replaceState(null, "", "/"); });
@@ -17,11 +18,11 @@ describe("player library persistence adapters", () => {
   it("sends minimal authenticated PATCH requests and reports failed writes", async () => {
     vi.stubEnv("VITE_DATA_MODE", "api");
     const { setStoredAuthToken } = await import("../src/services/users");
-    setStoredAuthToken("a-token");
+    await verifiedAccount("a", "a-token");
     const { playerLibrary } = await import("../src/services/playerLibrary");
     const request = vi.fn().mockResolvedValue(new Response('{"detail":"Unavailable"}', { status: 503 }));
     vi.stubGlobal("fetch", request);
-    await expect(playerLibrary.updateRecord("forged-b", 2, { affinity: "like" })).rejects.toMatchObject({ status: 503 });
+    await expect(playerLibrary.updateRecord("a", 2, { affinity: "like" })).rejects.toMatchObject({ status: 503 });
     expect(request.mock.calls[0][1]).toMatchObject({ method: "PATCH", headers: { Authorization: "Bearer a-token" }, body: '{"affinity":"like"}' });
   });
   it("keeps local accounts separate, persists edits, and leaves corrupt records untouched", async () => {
@@ -38,12 +39,12 @@ describe("player library persistence adapters", () => {
   it("uses bearer ownership and never falls back to browser success after an API error", async () => {
     vi.stubEnv("VITE_DATA_MODE", "api");
     const users = await import("../src/services/users");
-    users.setStoredAuthToken("a-token");
+    await verifiedAccount("a", "a-token");
     const { playerLibrary } = await import("../src/services/playerLibrary");
     const request = vi.fn().mockResolvedValue(new Response(JSON.stringify({ detail: "Unavailable" }), { status: 503 }));
     vi.stubGlobal("fetch", request);
     const writes = vi.spyOn(Storage.prototype, "setItem");
-    await expect(playerLibrary.saveRecord("forged-b", 2, draft)).rejects.toMatchObject({ status: 503 });
+    await expect(playerLibrary.saveRecord("a", 2, draft)).rejects.toMatchObject({ status: 503 });
     const [url, init] = request.mock.calls[0];
     expect(url).toMatch(/\/me\/games\/2$/);
     expect(init.headers.Authorization).toBe("Bearer a-token");

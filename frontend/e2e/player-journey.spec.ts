@@ -169,7 +169,7 @@ test("reconciles a committed save whose response was lost without replaying the 
   await expect(editor.getByRole("alert")).toContainText("could not be confirmed");
   await expect(editor.getByRole("button", { name: "Save record", exact: true })).toBeDisabled();
   await expect(editor.getByRole("textbox", { name: "Personal note", exact: true })).toHaveValue("Keep this note after a lost response.");
-  await editor.getByRole("button", { name: "Retry", exact: true }).click();
+  await editor.getByRole("button", { name: "Reload library", exact: true }).click();
   await expect(editor.getByRole("alert")).toHaveCount(0);
   await expect(editor.getByRole("button", { name: "Save record", exact: true })).toBeEnabled();
   await editor.getByRole("button", { name: "Close game record", exact: true }).click();
@@ -210,7 +210,7 @@ test("protects unsaved drafts on close and browser Back, and cancels destructive
   await expect(confirmation).not.toBeVisible();
   await expect(clear).toBeFocused();
   await expect(page.locator(".library-game")).toHaveCount(1);
-  await expect(page.getByRole("button", { name: "Ready or Not $49.99", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Ready or Not $49.99 · Demo", exact: true })).toBeVisible();
   await page.getByRole("link", { name: "My taste", exact: true }).click();
   await page.getByRole("combobox", { name: "More of this", exact: true }).selectOption("Puzzle");
   await page.getByRole("link", { name: "Discover", exact: true }).click();

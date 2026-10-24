@@ -1,3 +1,4 @@
+import { discardAccountDraft } from "../src/hooks/useAccountDraft";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../src/App";
@@ -6,6 +7,8 @@ import { playerLibrary } from "../src/services/playerLibrary";
 
 vi.mock("../src/services/runtime", () => ({ DATA_MODE: "demo", API_BASE_URL: "http://localhost:8000/api" }));
 beforeEach(() => {
+  for (let id = 1; id <= 80; id++) discardAccountDraft("demo-user", `record:${id}`);
+  discardAccountDraft("demo-user", "preferences");
   window.localStorage.clear();
   window.localStorage.setItem(LANGUAGE_STORAGE_KEY, "en");
   window.history.replaceState(null, "", "/?mode=demo#player/library");
@@ -120,7 +123,7 @@ describe("protecting player changes", () => {
     await waitFor(() => expect(within(screen.getByRole("dialog")).getByRole("alert")).toBeTruthy());
     let resolve!: (rows: []) => void;
     vi.spyOn(playerLibrary, "getRecords").mockReturnValueOnce(new Promise((done) => { resolve = done; }));
-    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Retry" }));
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Reload library" }));
     expect((screen.getByLabelText("Personal note") as HTMLTextAreaElement).value).toBe("Keep my draft");
     expect(screen.getByRole("button", { name: "Save record" }).hasAttribute("disabled")).toBe(true);
     resolve([]);
@@ -140,6 +143,9 @@ describe("protecting player changes", () => {
     confirm.mockReturnValue(true);
     fireEvent.click(screen.getByRole("link", { name: "Discover", exact: true }));
     await screen.findByRole("heading", { name: "What will you play next?" });
+    fireEvent.click(screen.getByRole("link", { name: "My taste", exact: true }));
+    await screen.findByRole("heading", { name: "My gaming taste" });
+    expect(screen.queryByRole("button", { name: "Remove Puzzle from preferred types" })).toBeNull();
   });
 
   it("requires confirmation before clearing or deleting and preserves unrelated records", async () => {

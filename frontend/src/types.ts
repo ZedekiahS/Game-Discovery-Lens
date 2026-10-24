@@ -14,6 +14,8 @@ export interface Game {
   summary: string;
   revenue: number;
   ownership: number;
+  contentSource?: { url: string; checkedOn: string; scope: string } | null;
+  metricsKind?: "demo" | "unknown";
 }
 
 export interface SearchIntent {
@@ -108,9 +110,9 @@ export interface SavedGame {
 export interface ShortlistInsights {
   userId: string;
   savedCount: number;
-  averagePrice: number;
-  averageRating: number;
-  totalVisibleRevenue: number;
+  averagePrice: number | null;
+  averageRating: number | null;
+  totalVisibleRevenue: number | null;
   topTags: string[];
   strategy: InsightPanelContent;
   source: "rules" | "deepseek" | "mock";

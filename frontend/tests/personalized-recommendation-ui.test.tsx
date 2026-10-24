@@ -26,7 +26,7 @@ describe("profile-driven discovery", () => {
     const { container } = render(<App />);
     await screen.findByRole("heading", { name: "For you", exact: true });
     expect(titles(container)).not.toContain("Celeste");
-    fireEvent.click(screen.getByRole("button", { name: /^Celeste \$19.99$/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^Celeste \$19.99/ }));
     await screen.findByRole("heading", { name: "Celeste", level: 2 });
     expect(container.querySelector(".feature-reasons")).toBeNull();
     expect(container.querySelector(".feature-kicker")?.textContent).toContain("In focus");

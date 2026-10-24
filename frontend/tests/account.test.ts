@@ -4,6 +4,7 @@ import { useAccount } from "../src/hooks/useAccount";
 import { ApiError } from "../src/services/http";
 import * as users from "../src/services/users";
 import type { AuthSession, UserProfile } from "../src/types";
+import { playerLibrary } from "../src/services/playerLibrary";
 
 vi.mock("../src/services/runtime", () => ({ DATA_MODE: "api", API_BASE_URL: "http://localhost:8000/api" }));
 vi.mock("../src/services/users", async (importOriginal) => ({
@@ -37,6 +38,61 @@ afterEach(() => {
 });
 
 describe("account restoration and request ownership", () => {
+  it("invalidates the visible account on cross-tab storage changes", async () => {
+    users.setStoredAuthToken(session.accessToken);
+    vi.mocked(users.getAuthenticatedUser).mockResolvedValueOnce(profile).mockResolvedValueOnce({ ...profile, id: "account-b" });
+    const { result } = renderHook(() => useAccount());
+    await waitFor(() => expect(result.current.user?.id).toBe(profile.id));
+    act(() => {
+      users.setStoredAuthToken("token-b");
+      window.dispatchEvent(new StorageEvent("storage", { key: users.AUTH_SESSION_STORAGE_KEY }));
+    });
+    expect(result.current.user).toBeNull();
+    await waitFor(() => expect(result.current.user?.id).toBe("account-b"));
+  });
+
+  it("discards a delayed private response after a same-token new session version", async () => {
+    users.setStoredAuthToken(session.accessToken);
+    vi.mocked(users.getAuthenticatedUser).mockResolvedValue(profile);
+    const { result } = renderHook(() => useAccount());
+    await waitFor(() => expect(result.current.status).toBe("authenticated"));
+    const response = deferred<Response>();
+    vi.spyOn(globalThis, "fetch").mockReturnValue(response.promise);
+    const write = playerLibrary.updateRecord(profile.id, 1, { affinity: "like" });
+    users.setStoredAuthToken(session.accessToken);
+    await act(async () => {
+      response.resolve(new Response('{"gameId":1,"affinity":"like"}'));
+      await expect(write).rejects.toMatchObject({ status: 409 });
+    });
+  });
+
+  it.each([0, 503, 401])("handles a private request failure %i without replaying the write", async status => {
+    users.setStoredAuthToken(session.accessToken);
+    vi.mocked(users.getAuthenticatedUser).mockResolvedValue(profile);
+    const { result } = renderHook(() => useAccount());
+    await waitFor(() => expect(result.current.status).toBe("authenticated"));
+    const request = vi.spyOn(globalThis, "fetch");
+    if (status === 0) request.mockRejectedValue(new TypeError("Offline"));
+    else request.mockResolvedValue(new Response('{"detail":"Rejected"}', { status }));
+    await act(async () => { await expect(playerLibrary.saveRecord(profile.id, 1, { status: null, affinity: "like", notes: "Draft" })).rejects.toMatchObject({ status }); });
+    expect(request).toHaveBeenCalledTimes(1);
+    expect(result.current.status).toBe(status === 401 ? "expired" : "authenticated");
+    expect(users.getStoredAuthToken()).toBe(status === 401 ? null : session.accessToken);
+  });
+
+  it("blocks a stale account write even before a storage event is delivered", async () => {
+    users.setStoredAuthToken(session.accessToken);
+    vi.mocked(users.getAuthenticatedUser).mockResolvedValue(profile);
+    const { result } = renderHook(() => useAccount());
+    await waitFor(() => expect(result.current.status).toBe("authenticated"));
+    users.setStoredAuthToken("token-b");
+    const request = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response('{}'));
+    await act(async () => {
+      await expect(playerLibrary.updateRecord(profile.id, 1, { affinity: "like" })).rejects.toThrow();
+    });
+    expect(request).not.toHaveBeenCalled();
+  });
+
   it("restores the account from its saved token after a page reload", async () => {
     users.setStoredAuthToken(session.accessToken);
     const request = deferred<UserProfile>();
@@ -120,6 +176,21 @@ describe("account restoration and request ownership", () => {
     expect(result.current.status).toBe("anonymous");
     expect(result.current.user).toBeNull();
     expect(users.getStoredAuthToken()).toBeNull();
+  });
+
+  it("ignores a failed login after another tab changes session even before its storage event", async () => {
+    const request = deferred<AuthSession>();
+    const other = { ...profile, id: "account-b", displayName: "Account B" };
+    vi.mocked(users.loginUser).mockReturnValue(request.promise);
+    vi.mocked(users.getAuthenticatedUser).mockResolvedValue(other);
+    const { result } = renderHook(() => useAccount());
+    let login!: Promise<boolean>;
+    act(() => { login = result.current.login("account-a", "test-password"); });
+    users.setStoredAuthToken("token-b");
+    await act(async () => { request.reject(new ApiError(401, "Wrong password")); await login; });
+    await waitFor(() => expect(result.current.user?.id).toBe("account-b"));
+    expect(users.getStoredAuthToken()).toBe("token-b");
+    expect(result.current.error).toBe("");
   });
 
   it("ignores a second login click while the first request is pending", async () => {

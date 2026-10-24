@@ -1,7 +1,6 @@
 import type { PlayerGameInput, PlayerGameRecord, PlayerGameUpdate, PlayerPreferences } from "../types";
 import { DATA_MODE } from "./runtime";
-import { requestApi } from "./http";
-import { requireAuthHeaders } from "./users";
+import { requestAccount } from "./users";
 
 export const emptyPreferences = (): PlayerPreferences => ({ preferredTags: [], avoidedTags: [] });
 interface PlayerLibraryService {
@@ -65,17 +64,17 @@ const demo: PlayerLibraryService = {
   },
 };
 const api: PlayerLibraryService = {
-  getRecords: () => requestApi("/me/games", { headers: requireAuthHeaders() }),
-  saveRecord: (_userId, id, input) => requestApi(`/me/games/${id}`, {
-    method: "PUT", headers: requireAuthHeaders({ "Content-Type": "application/json" }), body: JSON.stringify(input),
+  getRecords: (userId) => requestAccount("/me/games", userId),
+  saveRecord: (userId, id, input) => requestAccount(`/me/games/${id}`, userId, {
+    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),
   }),
-  updateRecord: (_userId, id, input) => requestApi(`/me/games/${id}`, {
-    method: "PATCH", headers: requireAuthHeaders({ "Content-Type": "application/json" }), body: JSON.stringify(input),
+  updateRecord: (userId, id, input) => requestAccount(`/me/games/${id}`, userId, {
+    method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),
   }),
-  removeRecord: (_userId, id) => requestApi(`/me/games/${id}`, { method: "DELETE", headers: requireAuthHeaders() }),
-  getPreferences: () => requestApi("/me/preferences", { headers: requireAuthHeaders() }),
-  savePreferences: (_userId, input) => requestApi("/me/preferences", {
-    method: "PUT", headers: requireAuthHeaders({ "Content-Type": "application/json" }), body: JSON.stringify(input),
+  removeRecord: (userId, id) => requestAccount(`/me/games/${id}`, userId, { method: "DELETE" }),
+  getPreferences: (userId) => requestAccount("/me/preferences", userId),
+  savePreferences: (userId, input) => requestAccount("/me/preferences", userId, {
+    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),
   }),
 };
 export const playerLibrary = DATA_MODE === "api" ? api : demo;

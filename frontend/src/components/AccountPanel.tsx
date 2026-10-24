@@ -24,10 +24,10 @@ export function AccountPanel({ account, loginRequest = 0, onCancelSignIn, compac
   const fieldId = useId();
   const isLoggingIn = account.status === "checking";
   const validation = {
-    identifier: loginIdentifier.trim() ? "" : t("Enter your user ID or email.", "请输入用户 ID 或邮箱。"),
-    email: /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(registerEmail.trim()) ? "" : t("Enter a valid email address.", "请输入有效的邮箱地址。"),
-    displayName: registerDisplayName.trim() ? "" : t("Enter a display name.", "请输入昵称。"),
-    password: authMode === "register"
+    identifier: loginIdentifier.length > 255 ? t("Use at most 255 characters.", "最多 255 个字符。") : loginIdentifier.trim() ? "" : t("Enter your user ID or email.", "请输入用户 ID 或邮箱。"),
+    email: registerEmail.length > 255 ? t("Use at most 255 characters.", "最多 255 个字符。") : /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(registerEmail.trim()) ? "" : t("Enter a valid email address.", "请输入有效的邮箱地址。"),
+    displayName: registerDisplayName.length > 120 ? t("Use at most 120 characters.", "最多 120 个字符。") : registerDisplayName.trim() ? "" : t("Enter a display name.", "请输入昵称。"),
+    password: accountPassword.length > 128 ? t("Use at most 128 characters.", "最多 128 个字符。") : authMode === "register"
       ? Array.from(accountPassword).length >= 8 ? "" : t("Use at least 8 characters.", "密码至少需要 8 个字符。")
       : accountPassword ? "" : t("Enter your password.", "请输入密码。"),
   };
@@ -61,6 +61,7 @@ export function AccountPanel({ account, loginRequest = 0, onCancelSignIn, compac
     return {
       name: field,
       required: true,
+      maxLength: field === "displayName" ? 120 : field === "password" ? 128 : 255,
       "aria-invalid": !!(touched[field] && validation[field]),
       "aria-describedby": [
         touched[field] && validation[field] ? `${fieldId}-${field}-error` : "",

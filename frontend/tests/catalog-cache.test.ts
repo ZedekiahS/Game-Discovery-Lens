@@ -1,3 +1,4 @@
+import { verifiedAccount } from "./session-fixture";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { games } from "../src/data/games";
 
@@ -32,9 +33,9 @@ describe("public game request reuse", () => {
     await apiCatalog.getCatalog();
     await apiCatalog.getGameInsights(games[0]);
     expect(fetch).toHaveBeenCalledTimes(4);
-    setStoredAuthToken("first");
+    await verifiedAccount("first", "first");
     await apiCatalog.getSavedGames(games, "first", "all");
-    setStoredAuthToken("second");
+    await verifiedAccount("second", "second");
     await apiCatalog.getSavedGames(games, "second", "all");
     expect(fetch).toHaveBeenCalledTimes(6);
     expect(fetch.mock.calls[5][1].headers.Authorization).toBe("Bearer second");

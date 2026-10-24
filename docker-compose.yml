@@ -24,7 +24,20 @@ services:
     container_name: game-discovery-lens-backend
     environment:
       GDL_DATABASE_URL: postgresql+psycopg://${GDL_POSTGRES_USER:-gdl}:${GDL_POSTGRES_PASSWORD:-gdl_dev_password}@postgres:5432/${GDL_POSTGRES_DB:-gdl}
-      GDL_CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+      GDL_CORS_ORIGINS: ${GDL_CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+      GDL_ADMIN_USER_ID: ${GDL_ADMIN_USER_ID:-local-admin}
+      GDL_ADMIN_EMAIL: ${GDL_ADMIN_EMAIL:-admin@game-discovery-lens.local}
+      GDL_ADMIN_DISPLAY_NAME: ${GDL_ADMIN_DISPLAY_NAME:-Local Admin}
+      GDL_ADMIN_PASSWORD: ${GDL_ADMIN_PASSWORD:-change-this-local-admin-password}
+      GDL_AUTH_SECRET: ${GDL_AUTH_SECRET:-local-only-change-this-auth-secret}
+      GDL_AUTH_TOKEN_TTL_SECONDS: ${GDL_AUTH_TOKEN_TTL_SECONDS:-43200}
+      GDL_AI_ENABLED: ${GDL_AI_ENABLED:-false}
+      GDL_AI_PROVIDER: ${GDL_AI_PROVIDER:-rules}
+      GDL_AI_FALLBACK_TO_RULES: ${GDL_AI_FALLBACK_TO_RULES:-true}
+      GDL_AI_TIMEOUT_SECONDS: ${GDL_AI_TIMEOUT_SECONDS:-8}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-flash}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
     ports:
       - "8000:8000"
     depends_on:

@@ -26,9 +26,9 @@ class InsightPanel(TypedDict):
 class ShortlistInsights(TypedDict):
     user_id: str
     saved_count: int
-    average_price: float
-    average_rating: float
-    total_visible_revenue: int
+    average_price: float | None
+    average_rating: float | None
+    total_visible_revenue: int | None
     top_tags: list[str]
     strategy: InsightPanel
     source: str
@@ -42,18 +42,18 @@ def build_shortlist_insights(saved_games: list[SavedGameLike], user_id: str) -> 
         return {
             "user_id": user_id,
             "saved_count": 0,
-            "average_price": 0,
-            "average_rating": 0,
-            "total_visible_revenue": 0,
+            "average_price": None,
+            "average_rating": None,
+            "total_visible_revenue": None,
             "top_tags": [],
             "strategy": {
                 "title": "Collection Intelligence",
                 "caption": "Rules preview",
-                "body": "Save games to this collection to compare pricing, sentiment, and genre concentration.",
+                "body": "Save games to this collection to compare gameplay and genre concentration.",
                 "bullets": [
                     "Start with two or three games from different tags.",
                     "Use collections to separate player wishlists from developer research.",
-                    "Future AI summaries can use this endpoint as their context source.",
+                    "Check each game’s source before drawing conclusions.",
                 ],
             },
             "source": "rules",
@@ -63,8 +63,6 @@ def build_shortlist_insights(saved_games: list[SavedGameLike], user_id: str) -> 
     average_rating = sum(game.rating for game in games) / saved_count
     total_visible_revenue = sum(game.revenue for game in games)
     top_tags = [tag for tag, _ in Counter(tag for game in games for tag in game.tags).most_common(4)]
-    strongest_game = max(games, key=lambda game: game.rating)
-    price_position = "accessible" if average_price <= 25 else "premium"
     tag_phrase = ", ".join(top_tags[:3]) if top_tags else "mixed genres"
 
     return {
@@ -78,13 +76,12 @@ def build_shortlist_insights(saved_games: list[SavedGameLike], user_id: str) -> 
             "title": "Collection Intelligence",
             "caption": "Rules preview",
             "body": (
-                f"This collection leans {price_position} with {tag_phrase} demand. "
-                f"{strongest_game.name} is the strongest sentiment anchor at {strongest_game.rating:.1f} rating."
+                f"This collection groups {tag_phrase}. Compare gameplay and tags; market demand has not been established."
             ),
             "bullets": [
                 f"Saved games: {saved_count}.",
                 f"Average price: {format_money(average_price)}.",
-                f"Visible revenue represented: ${format_compact(total_visible_revenue)}.",
+                f"Catalog revenue total: ${format_compact(total_visible_revenue)}.",
                 f"Top tags: {tag_phrase}.",
             ],
         },

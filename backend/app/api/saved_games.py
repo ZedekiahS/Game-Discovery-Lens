@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy import delete, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
 from app.api.auth import get_current_user
@@ -50,7 +51,14 @@ def create_collection(
 
     collection = Collection(user_id=user_id, name=name, description=request.description.strip(), purpose=request.purpose)
     db.add(collection)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        existing = db.scalar(select(Collection).where(Collection.user_id == user_id, Collection.name == name))
+        if existing is None:
+            raise
+        return existing
     db.refresh(collection)
     return collection
 
@@ -86,7 +94,13 @@ def update_collection(
         collection.description = request.description.strip()
     if request.purpose is not None:
         collection.purpose = request.purpose
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as error:
+        db.rollback()
+        if getattr(error.orig, "sqlstate", None) != "23505":
+            raise
+        raise HTTPException(409, "Collection name already exists") from None
     db.refresh(collection)
     return collection
 
@@ -166,7 +180,14 @@ def save_game(
 
     saved = SavedGame(user_id=user_id, collection_id=collection.id, game_id=request.game_id)
     db.add(saved)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        existing = get_saved_game(db, collection.id, request.game_id)
+        if existing is None:
+            raise
+        return existing
 
     created = get_saved_game(db, collection.id, request.game_id)
     if created is None:
@@ -226,7 +247,14 @@ def get_or_create_default_collection(db: Session, user_id: str) -> Collection:
         description="Games saved for quick comparison.",
     )
     db.add(collection)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        existing = db.scalar(select(Collection).where(Collection.user_id == user_id, Collection.name == DEFAULT_COLLECTION_NAME))
+        if existing is None:
+            raise
+        return existing
     db.refresh(collection)
     return collection
 

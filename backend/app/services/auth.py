@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import binascii
 import hashlib
 import hmac
 import json
@@ -58,6 +59,8 @@ def create_access_token(user_id: str, secret: str, ttl_seconds: int) -> str:
 
 
 def verify_access_token(token: str, secret: str) -> str | None:
+    if not isinstance(token, str) or not token.isascii() or len(token) > 4096:
+        return None
     try:
         encoded_payload, signature = token.split(".", 1)
     except ValueError:
@@ -69,14 +72,14 @@ def verify_access_token(token: str, secret: str) -> str | None:
 
     try:
         payload = json.loads(decode_value(encoded_payload))
-    except (json.JSONDecodeError, UnicodeDecodeError):
+    except (ValueError, UnicodeDecodeError, binascii.Error):
         return None
 
-    if payload.get("alg") != TOKEN_ALGORITHM:
+    if not isinstance(payload, dict) or payload.get("alg") != TOKEN_ALGORITHM:
         return None
 
     expires_at = payload.get("exp")
-    if not isinstance(expires_at, int) or expires_at < int(time.time()):
+    if type(expires_at) is not int or expires_at <= int(time.time()):
         return None
 
     user_id = payload.get("sub")

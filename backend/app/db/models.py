@@ -25,6 +25,16 @@ class Game(Base):
     revenue: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     ownership: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
+    @property
+    def content_source(self):
+        from app.services.catalog_provenance import content_source
+        return content_source(self)
+
+    @property
+    def metrics_kind(self):
+        from app.services.catalog_provenance import metrics_kind
+        return metrics_kind(self)
+
 
 class User(Base):
     __tablename__ = "users"

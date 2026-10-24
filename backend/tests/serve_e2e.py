@@ -33,9 +33,20 @@ def main() -> None:
         from app.scripts.seed import seed_games
         with SessionLocal() as db:
             seed_games(db)
+        print(f"Isolated browser schema: {schema}", flush=True)
+        # Optional local acceptance clock: exercise real token expiry without waiting 12 hours.
+        control = os.getenv("GDL_E2E_CONTROL")
+        if control:
+            import time
+            from types import SimpleNamespace
+            from app.services import auth
+            def auth_time():
+                mode = Path(control).read_text(encoding="utf-8").strip() if Path(control).exists() else "online"
+                return time.time() + (86400 if mode == "expire" else 0)
+            auth.time = SimpleNamespace(time=auth_time)
         import uvicorn
         try:
-            uvicorn.run("app.main:app", host="127.0.0.1", port=8011)
+            uvicorn.run("app.main:app", host="127.0.0.1", port=int(os.getenv("GDL_E2E_PORT", "8011")))
         finally:
             engine.dispose()
     finally:

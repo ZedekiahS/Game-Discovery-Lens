@@ -11,7 +11,7 @@ class ShortlistInsightsTests(unittest.TestCase):
         insights = build_shortlist_insights([], "demo-user")
 
         self.assertEqual(insights["saved_count"], 0)
-        self.assertEqual(insights["average_price"], 0)
+        self.assertIsNone(insights["average_price"])
         self.assertEqual(insights["top_tags"], [])
         self.assertIn("Save games", insights["strategy"]["body"])
 

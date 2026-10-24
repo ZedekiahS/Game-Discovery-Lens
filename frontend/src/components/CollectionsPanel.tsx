@@ -1,3 +1,4 @@
+import { useAccountDraft } from "../hooks/useAccountDraft";
 import { Folder, LineChart, Pencil, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { useCollections } from "../hooks/useCollections";
@@ -25,9 +26,11 @@ export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGam
     || Boolean(state.error);
   const [confirmation, setConfirmation] = useState<"clear" | "delete" | null>(null);
   const [isCreatingCollection, setIsCreatingCollection] = useState(false);
-  const [newCollectionName, setNewCollectionName] = useState("");
+  const [newCollectionName, setNewCollectionName] = useAccountDraft(sessionUserId, "collection:new", "");
   const [isEditingCollection, setIsEditingCollection] = useState(false);
-  const [editingCollectionName, setEditingCollectionName] = useState("");
+  const [renameDraft, setRenameDraft] = useAccountDraft<{ id: number | null; name: string }>(sessionUserId, "collection:rename", { id: null, name: "" });
+  const editingCollectionName = renameDraft.name;
+  const setEditingCollectionName = (name: string) => setRenameDraft({ id: activeCollectionId, name });
   const savedGames = useMemo(() => activeCollectionId === null ? [] : savedGamesByCollection[activeCollectionId] ?? [], [activeCollectionId, savedGamesByCollection]);
   const localizedInsights = shortlistInsights ? localizeCollectionInsights(shortlistInsights, savedGames, language) : null;
   const showOriginalBody = Boolean(shortlistInsights && localizedInsights
@@ -59,7 +62,7 @@ export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGam
     if (!selectedCollection || isDefaultCollection) return;
     setIsCreatingCollection(false);
     setIsEditingCollection(true);
-    setEditingCollectionName(selectedCollection.name);
+    if (renameDraft.id !== selectedCollection.id || !renameDraft.name) setEditingCollectionName(selectedCollection.name);
   }
   async function renameCollection(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -158,7 +161,7 @@ export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGam
         </label>}
         {isCreatingCollection && (
           <form className="collection-create" onSubmit={(event) => void addCollection(event)}>
-            <input
+            <input maxLength={120}
               className="text-input"
               aria-label={t("Collection name", "收藏夹名称")}
               placeholder={t("Wishlist", "愿望单")}
@@ -173,7 +176,7 @@ export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGam
         )}
         {isEditingCollection && selectedCollection && (
           <form className="collection-edit" onSubmit={(event) => void renameCollection(event)}>
-            <input
+            <input maxLength={120}
               className="text-input"
               aria-label={t("Rename collection", "重命名收藏夹")}
               value={editingCollectionName}
@@ -195,7 +198,7 @@ export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGam
               onClick={() => onSelectGame(savedGame.gameId)}
             >
               <span>{savedGame.game.name}</span>
-              <strong>{money(savedGame.game.price)}</strong>
+              <strong>{money(savedGame.game.price)}<small> · {savedGame.game.metricsKind === "demo" ? t("Demo", "演示") : t("Unverified", "未核实")}</small></strong>
             </button>
           ))}
           {savedGames.length === 0 && !state.loading && !state.error && selectedCollection && <div className="empty-state compact">{t("No saved games in this collection.", "这个收藏夹还没有游戏。")}</div>}
@@ -221,11 +224,11 @@ export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGam
             <span>{t("Collection insights", "收藏洞察")}</span>
           </summary>
           <p className="supporting-note">
-            {t("Based on the games in this collection.", "依据此收藏夹中的游戏整理。")}
+            {savedGames.every(item => item.game.metricsKind === "demo") ? t("Demonstration metrics from this collection’s synthetic values.", "以下指标来自收藏游戏的合成演示值。") : t("These catalog metrics have unverified sources.", "以下目录指标的来源尚未核实。")}
           </p>
           <div className="shortlist-insight-metrics">
-            <Metric label={t("Avg Price", "平均价格")} value={money(shortlistInsights.averagePrice)} />
-            <Metric label={t("Avg Rating", "平均评分")} value={shortlistInsights.averageRating.toFixed(1)} />
+            <Metric label={t("Avg Price", "平均价格")} value={shortlistInsights.averagePrice === null ? "—" : money(shortlistInsights.averagePrice)} />
+            <Metric label={t("Avg Rating", "平均评分")} value={shortlistInsights.averageRating?.toFixed(1) ?? "—"} />
           </div>
           {showOriginalBody && <p className="supporting-note">{t("Original content", "原始内容")}</p>}
           <p className="shortlist-summary">{localizedInsights.strategy.body}</p>
@@ -236,7 +239,7 @@ export function CollectionsPanel({ state, sessionUserId, selectedId, onSelectGam
               ))}
             </div>
           )}
-          {view === "developer" && <p className="supporting-note">{t(`Estimated catalog revenue: $${number(shortlistInsights.totalVisibleRevenue)}`, `目录估算营收：${number(shortlistInsights.totalVisibleRevenue)} 美元`)}</p>}
+          {view === "developer" && <p className="supporting-note">{t(`Catalog revenue total: $${shortlistInsights.totalVisibleRevenue === null ? "—" : number(shortlistInsights.totalVisibleRevenue)}`, `目录营收合计：${shortlistInsights.totalVisibleRevenue === null ? "—" : number(shortlistInsights.totalVisibleRevenue)} 美元`)}</p>}
         </details>
       )}
     </>

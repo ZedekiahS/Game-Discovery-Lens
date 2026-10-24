@@ -5,6 +5,7 @@ import { useCollections } from "../src/hooks/useCollections";
 import * as catalog from "../src/services/catalog";
 import type { GameCollection, SavedGame, ShortlistInsights } from "../src/types";
 
+vi.mock("../src/services/runtime", () => ({ DATA_MODE: "demo", API_BASE_URL: "http://localhost:8000/api" }));
 vi.mock("../src/services/catalog", () => ({
   getCollections: vi.fn(), getSavedGames: vi.fn(), getShortlistInsights: vi.fn(),
   saveGame: vi.fn(), removeSavedGame: vi.fn(), clearSavedGames: vi.fn(),

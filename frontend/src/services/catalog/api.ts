@@ -1,6 +1,6 @@
 import type { Game, GameCollection, GameInsights, SavedGame, SearchResponse, ShortlistInsights } from "../../types";
 import { requestApi } from "../http";
-import { requireAuthHeaders } from "../users";
+import { requestAccount } from "../users";
 import type { CatalogService } from "./contract";
 
 // Only public game resources are cached. Account data continues to be loaded per session.
@@ -22,64 +22,64 @@ export const apiCatalog: CatalogService = {
     return requestApi<Game[]>("/games");
   },
 
-  async getCollections() {
-    return requestApi<GameCollection[]>("/collections", { headers: requireAuthHeaders() });
+  async getCollections(userId) {
+    return requestAccount<GameCollection[]>("/collections", userId, { headers: {} });
   },
 
-  async createCollection(name, _userId, purpose) {
-    return requestApi<GameCollection>("/collections", {
+  async createCollection(name, userId, purpose) {
+    return requestAccount<GameCollection>("/collections", userId, {
       method: "POST",
-      headers: buildJsonHeaders(),
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, purpose }),
     });
   },
 
-  async updateCollection(collectionId, name, _userId, purpose) {
-    return requestApi<GameCollection>(`/collections/${collectionId}`, {
+  async updateCollection(collectionId, name, userId, purpose) {
+    return requestAccount<GameCollection>(`/collections/${collectionId}`, userId, {
       method: "PATCH",
-      headers: buildJsonHeaders(),
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, purpose }),
     });
   },
 
-  async deleteCollection(collectionId) {
-    return requestApi<void>(`/collections/${collectionId}`, {
+  async deleteCollection(collectionId, userId) {
+    return requestAccount<void>(`/collections/${collectionId}`, userId, {
       method: "DELETE",
-      headers: requireAuthHeaders(),
+      headers: {},
     });
   },
 
-  async getSavedGames(_catalog, _userId, collectionId) {
-    return requestApi<SavedGame[]>(`/saved-games${collectionId === "all" ? "?allCollections=true" : buildCollectionQuery(collectionId)}`, {
-      headers: requireAuthHeaders(),
+  async getSavedGames(_catalog, userId, collectionId) {
+    return requestAccount<SavedGame[]>(`/saved-games${collectionId === "all" ? "?allCollections=true" : buildCollectionQuery(collectionId)}`, userId, {
+      headers: {},
     });
   },
 
-  async getShortlistInsights(_savedGames, _userId, collectionId) {
-    return requestApi<ShortlistInsights>(`/saved-games/insights${buildCollectionQuery(collectionId)}`, {
-      headers: requireAuthHeaders(),
+  async getShortlistInsights(_savedGames, userId, collectionId) {
+    return requestAccount<ShortlistInsights>(`/saved-games/insights${buildCollectionQuery(collectionId)}`, userId, {
+      headers: {},
     });
   },
 
-  async saveGame(game, _catalog, _userId, collectionId) {
-    return requestApi<SavedGame>("/saved-games", {
+  async saveGame(game, _catalog, userId, collectionId) {
+    return requestAccount<SavedGame>("/saved-games", userId, {
       method: "POST",
-      headers: buildJsonHeaders(),
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ gameId: game.id, collectionId }),
     });
   },
 
-  async removeSavedGame(gameId, _userId, collectionId) {
-    return requestApi<void>(`/saved-games/${gameId}${buildCollectionQuery(collectionId)}`, {
+  async removeSavedGame(gameId, userId, collectionId) {
+    return requestAccount<void>(`/saved-games/${gameId}${buildCollectionQuery(collectionId)}`, userId, {
       method: "DELETE",
-      headers: requireAuthHeaders(),
+      headers: {},
     });
   },
 
-  async clearSavedGames(_userId, collectionId) {
-    return requestApi<void>(`/saved-games${buildCollectionQuery(collectionId)}`, {
+  async clearSavedGames(userId, collectionId) {
+    return requestAccount<void>(`/saved-games${buildCollectionQuery(collectionId)}`, userId, {
       method: "DELETE",
-      headers: requireAuthHeaders(),
+      headers: {},
     });
   },
 
@@ -99,10 +99,6 @@ export const apiCatalog: CatalogService = {
     });
   },
 };
-
-function buildJsonHeaders() {
-  return requireAuthHeaders({ "Content-Type": "application/json" });
-}
 
 function buildCollectionQuery(collectionId?: number) {
   return collectionId === undefined ? "" : `?${new URLSearchParams({ collectionId: collectionId.toString() })}`;

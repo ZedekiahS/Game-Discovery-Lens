@@ -1,3 +1,4 @@
+import { GameProvenance } from "./GameProvenance";
 import { ArrowLeft, ArrowUpRight, BarChart3, CircleDollarSign, Gamepad2, MessageSquare, Search, Sparkles, Star, Tags, Users } from "lucide-react";
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import type { Game } from "../types";
@@ -9,7 +10,6 @@ import { hasOriginalInsightContent, localizeGameInsights, localizeGameSummary } 
 import { ErrorNotice } from "./ui";
 import { SearchControls } from "./SearchControls";
 import { GameArtwork } from "./GameArtwork";
-import { DATA_MODE } from "../services/runtime";
 import { ResearchOverview } from "./ResearchOverview";
 import type { RecommendationFeed, RecommendationReason } from "../lib/recommendations";
 import "./audience-workspace.css";
@@ -69,7 +69,7 @@ export function GameWorkspace({ discovery, renderSaveMenu, renderQuickActions, c
         <div>
           <p className="eyebrow">{isDeveloper ? <BarChart3 size={14} aria-hidden="true" /> : <Gamepad2 size={14} aria-hidden="true" />} {isDeveloper ? t("Research / Compare / Create", "研究 / 对照 / 创作") : t("Discover / Play / Repeat", "发现 / 畅玩 / 再来一局")}</p>
           <h2 ref={workspaceHeading} tabIndex={-1}>{isDeveloper ? isBrowsing ? <>{t("Research ", "研究")}<span>{t("overview", "概览")}</span></> : <>{t("Find your next ", "寻找下一个")}<span>{t("opportunity.", "创作机会。")}</span></> : isBrowsing ? <>{t("What will you ", "今天，")}<span>{t("play next?", "玩点什么？")}</span></> : <>{t("Find your next ", "发现你的下一款")}<span>{t("game.", "游戏。")}</span></>}</h2>
-          <p className="audience-intro">{isDeveloper ? isBrowsing ? t("Get to know the catalog, choose a genre, or inspect a game to start your research.", "先了解目录，选择感兴趣的类型，或从一款参考作品开始研究。") : t("Explore comparable games, inspect catalog signals, and build a research shortlist.", "探索同类游戏，查看目录数据与机会分析，建立你的研究清单。") : isBrowsing ? personalized ? t("Follow your favorites into a new adventure, or return to a game you want to try.", "沿着你的喜好，发现下一场冒险，也看看那些一直想玩的作品。") : t("Start with a few standout games. Pick one to explore, or search for something on your mind.", "先从几款口碑佳作逛起。挑一款看看，或搜索你已经感兴趣的游戏。") : t("Discover games for your taste and budget, then save your next adventure.", "按喜好和预算发现游戏，收藏你的下一场冒险。")}</p>
+          <p className="audience-intro">{isDeveloper ? isBrowsing ? t("Get to know the catalog, choose a genre, or inspect a game to start your research.", "先了解目录，选择感兴趣的类型，或从一款参考作品开始研究。") : t("Explore comparable games, inspect catalog signals, and build a research shortlist.", "探索同类游戏，查看目录数据与机会分析，建立你的研究清单。") : isBrowsing ? personalized ? t("Follow your favorites into a new adventure, or return to a game you want to try.", "沿着你的喜好，发现下一场冒险，也看看那些一直想玩的作品。") : t("Start with a few standout games. Pick one to explore, or search for something on your mind.", "先从几款参考作品逛起。挑一款看看，或搜索你已经感兴趣的游戏。") : t("Discover games for your taste and budget, then save your next adventure.", "按喜好和预算发现游戏，收藏你的下一场冒险。")}</p>
         </div>
         <div className="workspace-actions">
           {(searchVisible || (isDeveloper && selectedId !== null)) && <button className="browse-search-button" type="button" onClick={returnToBrowse}><ArrowLeft size={16} aria-hidden="true" />{isDeveloper ? t("Back to overview", "返回概览") : t("Back to recommendations", "返回推荐")}</button>}
@@ -104,11 +104,12 @@ export function GameWorkspace({ discovery, renderSaveMenu, renderQuickActions, c
             {language === "zh" && selectedGame.summary && gameSummary === selectedGame.summary && <p className="supporting-note">{t("Original content", "原始内容")}</p>}
             <p className="feature-byline">{selectedGame.developer} <span aria-hidden="true">·</span> {selectedGame.releaseYear}</p>
             <div className="feature-stats">
-              <Stat icon={<Star size={15} aria-hidden="true" />} label={t("Catalog rating", "目录评分")} value={`${selectedGame.rating.toFixed(1)} / 5`} />
-              <Stat icon={<CircleDollarSign size={15} aria-hidden="true" />} label={t("Price", "价格")} value={money(selectedGame.price)} />
+              <Stat icon={<Star size={15} aria-hidden="true" />} label={selectedGame.metricsKind === "demo" ? t("Demo rating", "演示评分") : t("Unverified rating", "未核实评分")} value={`${selectedGame.rating.toFixed(1)} / 5`} />
+              <Stat icon={<CircleDollarSign size={15} aria-hidden="true" />} label={selectedGame.metricsKind === "demo" ? t("Demo price", "演示价格") : t("Unverified price", "未核实价格")} value={money(selectedGame.price)} />
               {renderSaveMenu(selectedGame)}
             </div>
             {renderQuickActions?.(selectedGame)}
+            <GameProvenance game={selectedGame} />
           </div>
         </section>
       )}
@@ -120,7 +121,7 @@ export function GameWorkspace({ discovery, renderSaveMenu, renderQuickActions, c
             <Stat icon={<Users size={15} aria-hidden="true" />} label={t("Estimated ownership", "估算拥有量")} value={number(selectedGame.ownership)} />
             <Stat icon={<CircleDollarSign size={15} aria-hidden="true" />} label={t("Estimated revenue · USD", "估算营收 · 美元")} value={`US$${number(selectedGame.revenue)}`} />
           </div>
-          <p>{DATA_MODE === "demo" ? t("Sample catalog data · Ownership and revenue are estimates for demonstration.", "示例目录数据 · 拥有量和营收为演示用估算值。") : t("Catalog metadata · Ownership and revenue are estimates, not verified sales.", "目录元数据 · 拥有量和营收为估算值，并非经核实的销量。")}</p>
+          <p>{selectedGame.metricsKind === "demo" ? t("Demonstration metrics · Synthetic review counts, ownership and revenue.", "演示指标 · 评价数、拥有量和营收均为合成值。") : t("Metric sources are unverified.", "指标来源尚未核实。")}</p>
         </section>
       )}
 
@@ -165,6 +166,7 @@ export function GameWorkspace({ discovery, renderSaveMenu, renderQuickActions, c
                   {personalized && reasonsById.get(game.id)?.[0] && <p className="recommendation-reason"><RecommendationReasonText reason={reasonsById.get(game.id)![0]} /></p>}
                 </div>
                 <div className="game-meta">
+                  <small>{game.metricsKind === "demo" ? t("Demo values", "演示数值") : t("Unverified", "未核实")}</small>
                   <strong>{isDeveloper ? t(`${number(game.reviewCount)} reviews`, `${number(game.reviewCount)} 条评价`) : money(game.price)}</strong>
                   <span>{t(`${game.rating.toFixed(1)} rating`, `${game.rating.toFixed(1)} 分`)}</span>
                   <ArrowUpRight size={16} className="game-card-arrow" aria-hidden="true" />
@@ -200,8 +202,8 @@ export function GameWorkspace({ discovery, renderSaveMenu, renderQuickActions, c
             <p className="insight-verdict">{selectedRecommendation?.body ?? (detailLoading ? t("Loading game insights…", "正在加载游戏洞察…") : selectedGame ? t("Game insights are unavailable.", "暂时无法获取游戏洞察。") : isDeveloper ? t("Choose a reference game to explore its pricing, reception, and development opportunities.", "选择一款参考作品，了解定价、评价表现和开发机会。") : t("Select a game to inspect recommendation signals.", "选择一款游戏，查看推荐依据。"))}</p>
             {isDeveloper && !selectedGame && <p className="supporting-note insight-basis">{t("Game analysis shows its source and supporting signals. Save useful references to a research collection.", "游戏分析会标明来源与依据，你也可以将有用的参考作品加入收藏夹。")}</p>}
             {originalRecommendationText && <p className="supporting-note">{t("Original content", "原始内容")}</p>}
-            {visibleInsights && <p className="supporting-note insight-basis">{t("Based on game genres, ratings and review counts.", "参考游戏类型、评分与评价数量。")}</p>}
-            {view === "developer" && selectedGame && <p className="supporting-note">{visibleInsights?.source === "mock" ? t("Catalog estimates · demo data", "目录估算 · 演示数据") : t("Catalog estimates", "目录估算")}</p>}
+            {visibleInsights && <p className="supporting-note insight-basis">{t("Based on catalog tags; no review text analyzed.", "依据目录标签，未分析评论原文。")}</p>}
+            {view === "developer" && selectedGame && <p className="supporting-note">{selectedGame.metricsKind === "demo" ? t("Synthetic demonstration metrics", "合成演示指标") : t("Unverified metrics", "指标未核实")}</p>}
             {selectedGame && visibleInsights && (
               <details className="insight-disclosure" key={`${selectedGame.id}-${view}`}>
                 <summary>{isDeveloper ? t("Analysis details and evidence", "分析详情与依据") : t("More game signals", "更多游戏信号")}</summary>

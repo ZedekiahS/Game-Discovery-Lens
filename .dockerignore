@@ -9,3 +9,6 @@
 !backend/app/**
 !catalog/
 !catalog/demo-catalog.json
+**/.env
+**/.env.*
+**/__pycache__/**

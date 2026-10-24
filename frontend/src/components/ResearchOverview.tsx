@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import type { Game } from "../types";
 import { useI18n } from "../i18n";
 import { summarizeCatalog } from "../lib/researchOverview";
-import { DATA_MODE } from "../services/runtime";
 import "./research-overview.css";
 
 export function ResearchOverview({ catalog, onResearchTag }: { catalog: Game[]; onResearchTag: (tag: string) => void }) {
@@ -12,9 +11,9 @@ export function ResearchOverview({ catalog, onResearchTag }: { catalog: Game[]; 
   return <section className="research-overview" aria-label={t("Catalog overview", "目录概况")}>
     <div className="section-heading">
       <h2><Library size={18} aria-hidden="true" />{t("Catalog at a glance", "游戏目录一览")}</h2>
-      <span className="overview-source">{DATA_MODE === "demo" ? t("Sample catalog", "示例目录") : t("API catalog", "API 目录")}</span>
+      <span className="overview-source">{catalog.length > 0 && catalog.every(game => game.metricsKind === "demo") ? t("Sample catalog", "示例目录") : t("Unverified metrics", "指标未核实")}</span>
     </div>
-    <p className="overview-scope">{DATA_MODE === "demo" ? t("A snapshot of the bundled games to help frame your research.", "从示例游戏目录出发，确定你的研究方向。") : t("A snapshot of the loaded catalog to help frame your research.", "从当前加载的游戏目录出发，确定你的研究方向。")}</p>
+    <p className="overview-scope">{catalog.length > 0 && catalog.every(game => game.metricsKind === "demo") ? t("Synthetic prices and ratings for comparison, not verified market data.", "价格与评分为合成演示值，可用于比较，不代表真实市场数据。") : t("A snapshot of the loaded catalog to help frame your research.", "从当前加载的游戏目录出发，确定你的研究方向。")}</p>
     <dl className="overview-metrics">
       <div><dt><Library size={15} aria-hidden="true" />{t("Games in catalog", "目录游戏数")}</dt><dd>{summary.gameCount}</dd></div>
       <div><dt><Building2 size={15} aria-hidden="true" />{t("Developers", "开发商数")}</dt><dd>{summary.developerCount}</dd></div>

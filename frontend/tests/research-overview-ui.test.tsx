@@ -93,7 +93,7 @@ describe("developer overview before research", () => {
     await waitFor(() => expect(container.querySelector(".insight-verdict")?.textContent).toContain("Miju Games"));
     expect(screen.getByRole("heading", { name: "Catalog analysis", exact: true })).toBeTruthy();
     expect(screen.getByRole("region", { name: "Research metrics" }).textContent).toContain("Estimated ownership");
-    expect(screen.getByRole("region", { name: "Research metrics" }).textContent).toContain("estimates for demonstration");
+    expect(screen.getByRole("region", { name: "Research metrics" }).textContent).toContain("Demonstration metrics");
     expect(insights).toHaveBeenCalledTimes(1);
     expect(insights).toHaveBeenCalledWith(expect.objectContaining({ name: "The Planet Crafter" }));
     await waitFor(() => expect(screen.getByRole("button", { name: "Save", exact: true }).hasAttribute("disabled")).toBe(false));

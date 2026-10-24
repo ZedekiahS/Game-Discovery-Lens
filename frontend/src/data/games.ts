@@ -25,4 +25,6 @@ export const games: Game[] = (catalog as CatalogRecord[]).map((record) => ({
   summary: record.summary,
   revenue: record.revenue,
   ownership: record.ownership,
+  contentSource: record.contentSource,
+  metricsKind: "demo",
 }));

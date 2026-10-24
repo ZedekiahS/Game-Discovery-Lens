@@ -4,10 +4,60 @@ import { API_BASE_URL, DATA_MODE } from "./runtime";
 
 const AUTH_TOKEN_STORAGE_KEY = `game-discovery-lens.api.${encodeURIComponent(API_BASE_URL)}.authToken`;
 const LEGACY_AUTH_TOKEN_STORAGE_KEY = `arcadeiq.api.${encodeURIComponent(API_BASE_URL)}.authToken`;
+export const AUTH_SESSION_STORAGE_KEY = `${AUTH_TOKEN_STORAGE_KEY}.session`;
+export const SESSION_CHANGED = "gdl-session-changed";
+export const SESSION_EXPIRED = "gdl-session-expired";
+export interface VerifiedSession { user: UserProfile; token: string; version: string }
+let verified: VerifiedSession | null = null;
+
+export function storedSessionVersion(): string | null {
+  const token = getStoredAuthToken();
+  if (!token) return null;
+  const raw = window.localStorage.getItem(AUTH_SESSION_STORAGE_KEY);
+  if (raw) {
+    const session = JSON.parse(raw) as { token: string; version: string };
+    if (session.token === token) return session.version;
+  }
+  return token; // Existing installations are verified before legacy credentials can be used.
+}
+export function verifySession(user: UserProfile, token: string, version: string | null) {
+  if (!version || getStoredAuthToken() !== token || storedSessionVersion() !== version) return false;
+  verified = { user, token, version };
+  return true;
+}
+export const getVerifiedSession = () => verified;
+export const invalidateSession = () => { verified = null; };
+export function isCurrentSession(session: VerifiedSession | null) {
+  if (DATA_MODE !== "api") return true;
+  return !!session && verified === session && getStoredAuthToken() === session.token && storedSessionVersion() === session.version;
+}
+export function checkSession(session: VerifiedSession | null) {
+  if (isCurrentSession(session)) return true;
+  window.dispatchEvent(new Event(SESSION_CHANGED));
+  return false;
+}
+
+export async function requestAccount<T>(path: string, userId: string, init: RequestInit = {}): Promise<T> {
+  const session = verified;
+  if (!session && !getStoredAuthToken()) throw new ApiError(401, "Sign in to access your account.");
+  if (!checkSession(session) || session?.user.id !== userId) {
+    throw new ApiError(409, "Your account changed. Check the current account before trying again.");
+  }
+  try {
+    const result = await requestApi<T>(path, { ...init, headers: { ...init.headers, Authorization: `Bearer ${session.token}` } });
+    if (!checkSession(session)) throw new ApiError(409, "Your account changed. Check the current account before trying again.");
+    return result;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401 && isCurrentSession(session)) {
+      window.dispatchEvent(new CustomEvent(SESSION_EXPIRED, { detail: session }));
+    }
+    throw error;
+  }
+}
 
 export async function getUsers(): Promise<UserProfile[]> {
   if (DATA_MODE === "demo") return [];
-  return requestApi<UserProfile[]>("/users", { headers: requireAuthHeaders() });
+  return requestAccount<UserProfile[]>("/users", verified?.user.id ?? "");
 }
 
 export async function loginUser(userId: string, password: string): Promise<AuthSession> {
@@ -44,6 +94,12 @@ export async function getAuthenticatedUser(token: string): Promise<UserProfile> 
 
 export function getStoredAuthToken(): string | null {
   if (DATA_MODE !== "api") return null;
+  const raw = window.localStorage.getItem(AUTH_SESSION_STORAGE_KEY);
+  if (raw !== null) {
+    const session = JSON.parse(raw) as { token?: unknown; version?: unknown };
+    if (typeof session.token !== "string" || typeof session.version !== "string") throw new Error("Saved sign-in is unreadable. Sign out and sign in again.");
+    return session.token;
+  }
   const currentToken = window.localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
   if (currentToken !== null) return currentToken;
   const legacyToken = window.localStorage.getItem(LEGACY_AUTH_TOKEN_STORAGE_KEY);
@@ -53,19 +109,16 @@ export function getStoredAuthToken(): string | null {
 
 export function setStoredAuthToken(token: string) {
   if (DATA_MODE !== "api") return;
-  window.localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, token);
+  window.localStorage.setItem(AUTH_SESSION_STORAGE_KEY, JSON.stringify({ token, version: crypto.randomUUID() }));
+  window.localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+  window.localStorage.removeItem(LEGACY_AUTH_TOKEN_STORAGE_KEY);
 }
 
 export function clearStoredAuthToken() {
   if (DATA_MODE !== "api") return;
   window.localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
   window.localStorage.removeItem(LEGACY_AUTH_TOKEN_STORAGE_KEY);
-}
-
-export function requireAuthHeaders(headers: Record<string, string> = {}): Record<string, string> {
-  const token = getStoredAuthToken();
-  if (!token) throw new ApiError(401, "Sign in to access your collections.");
-  return { ...headers, Authorization: `Bearer ${token}` };
+  window.localStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
 }
 
 function requireApiMode() {

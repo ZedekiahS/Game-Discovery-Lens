@@ -58,6 +58,10 @@ All collection and saved-game endpoints, including `/api/saved-games/insights`, 
 
 Saved-game endpoints accept an optional `collectionId` query/body field. When omitted, the API uses the authenticated user's `Default Shortlist` collection. Saving the same game to the same collection again returns the existing saved item.
 
+Concurrent duplicate saves and collection creation also return the existing row. Concurrent registration or collection-rename conflicts return `409`, after transaction rollback. Registration accepts an email up to 255 characters, a nonblank display name up to 120 and a password of 8–128 characters. Collection names are nonblank and at most 120, descriptions at most 500, and search queries at most 500; invalid bodies return `400`/`422` without writes.
+
+Game responses add optional `contentSource` (URL, `checkedOn`, scope) and `metricsKind` (`demo` or `unknown`). Bundled seed values are identified by conservative field matching without reseeding existing databases. A gameplay source does not establish numeric metric provenance. Empty collection aggregate values are `null`, not invented zeros. See [boundary verification](../docs/verification/boundaries-trust-2026-10-24.md).
+
 Collection create/update and saved-game request bodies no longer accept `userId` (or other extra fields); these return `422`. Legacy `userId` query parameters are ignored and cannot change ownership. Example bodies:
 
 ```json

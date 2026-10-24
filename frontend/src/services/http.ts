@@ -21,6 +21,11 @@ export async function requestApi<T>(path: string, init?: RequestInit): Promise<T
       try {
         const body = (await response.json()) as { detail?: unknown };
         if (typeof body.detail === "string") message = body.detail;
+        else if (Array.isArray(body.detail)) {
+          // Do not echo input values (especially credentials) returned by validation libraries.
+          message = body.detail.map((issue: { loc?: string[]; msg?: string }) =>
+            `${issue.loc?.slice(1).join(".") ?? "Input"}: ${issue.msg ?? "Invalid value"}`).join("; ");
+        }
       } catch {
         if (controller.signal.aborted) throw new Error("Request aborted");
         // Some network intermediaries return an empty body or HTML error page.

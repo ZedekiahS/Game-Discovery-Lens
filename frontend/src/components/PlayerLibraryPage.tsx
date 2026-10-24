@@ -11,6 +11,7 @@ import { CollectionsPanel } from "./CollectionsPanel";
 import { SaveGameMenu } from "./SaveGameMenu";
 import { ErrorNotice } from "./ui";
 import { useUnsavedChanges } from "../hooks/useUnsavedChanges";
+import { useAccountDraft, pendingRecordDraft } from "../hooks/useAccountDraft";
 import { createLibraryView, sortLibraryGames, type LibrarySort, type LibraryViewMemory } from "../lib/libraryView";
 
 export interface PlayerPageProps {
@@ -29,7 +30,7 @@ export function PlayerPageStatus({ catalogLoading, catalogError, retryCatalog, l
     {!userId && <p className="player-empty">{t("Sign in above to keep your games and preferences together.", "登录后即可管理你的游戏与偏好。")}</p>}
     {(catalogLoading || library.loading || collections.loading) && <p role="status">{t("Loading your games…", "正在加载你的游戏…")}</p>}
     {catalogError && <ErrorNotice message={catalogError} onRetry={retryCatalog} />}
-    {library.error && <ErrorNotice message={library.error} onRetry={library.retry} disabled={library.busy} />}
+    {library.error && <ErrorNotice message={library.error} onRetry={library.retry} retryLabel={t("Reload library", "重新加载游戏库")} disabled={library.busy} />}
     {collections.error && <ErrorNotice message={collections.error} onRetry={collections.retry} disabled={collections.busy} />}
   </>;
 }
@@ -48,8 +49,8 @@ export function PlayerLibraryPage(props: PlayerPageProps & { startGameId: number
   const setAdding = (adding: boolean) => setView((v) => ({ ...v, adding }));
   const enteredForRecord = useRef(startGameId !== null);
   useEffect(() => { if (props.memory) props.memory.view = view; }, [view, props.memory]);
-  const [selectedId, setSelectedId] = useState<number | null>(startGameId);
-  const [notice, setNotice] = useState<"saved" | "removed" | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(startGameId ?? pendingRecordDraft(userId));
+  const [notice, setNotice] = useState<"saved" | "removed" | "collection-removed" | null>(null);
   const records = useMemo(() => new Map(library.records.map((r) => [r.gameId, r])), [library.records]);
   const savedIds = new Set(Object.values(collections.savedGamesByCollection).flat().map((r) => r.gameId));
   const libraryIds = new Set([...records.keys(), ...savedIds]);
@@ -60,6 +61,12 @@ export function PlayerLibraryPage(props: PlayerPageProps & { startGameId: number
     && `${g.name} ${g.tags.map(tag).join(" ")}`.toLowerCase().includes(query.trim().toLowerCase())), sort, library.records, Object.values(collections.savedGamesByCollection).flat());
   const selectedGame = catalog.find((g) => g.id === selectedId);
   const ready = playerPageReady(props);
+  useEffect(() => {
+    if (ready && collectionFilter && !collections.collections.some(c => String(c.id) === collectionFilter)) {
+      setCollectionFilter("");
+      setNotice("collection-removed");
+    }
+  }, [ready, collectionFilter, collections.collections]);
   useEffect(() => {
     if (!ready || !props.memory) return;
     const memory = props.memory;
@@ -99,7 +106,7 @@ export function PlayerLibraryPage(props: PlayerPageProps & { startGameId: number
             </select></label>
           </div>
           <div className="library-results-heading"><h3>{adding ? t("Find your next game", "把下一款游戏收入囊中") : t("Your shelf", "你的游戏架")}</h3><span>{t(`${games.length} ${games.length === 1 ? "game" : "games"}`, `${games.length} 款游戏`)}</span></div>
-          {notice && <p className="library-notice" role="status"><Check size={15} aria-hidden="true" />{notice === "saved" ? t("Game record saved.", "游戏记录已保存。") : t("Game record removed.", "游戏记录已移除。")}</p>}
+          {notice && <p className="library-notice" role="status"><Check size={15} aria-hidden="true" />{notice === "collection-removed" ? t("That collection is no longer available. Showing all collections.", "该收藏夹已不存在，已恢复为全部收藏夹。") : notice === "saved" ? t("Game record saved.", "游戏记录已保存。") : t("Game record removed.", "游戏记录已移除。")}</p>}
           <div className="library-grid">{games.map((game) => {
             const record = records.get(game.id);
             return <button className="library-game" data-library-game={game.id} key={game.id} onClick={() => { if (props.memory) props.memory.gameId = game.id; setSelectedId(game.id); setNotice(null); }}>
@@ -128,25 +135,26 @@ function statusLabel(status: PlayStatus, t: (en: string, zh: string) => string) 
 function GameRecordEditor({ game, record, library, collections, userId, onClose, onSaved }: { game: Game; record?: PlayerGameRecord; library: ReturnType<typeof usePlayerLibrary>; collections: ReturnType<typeof useCollections>; userId: string | null; onClose: () => void; onSaved: (kind: "saved" | "removed") => void }) {
   const { t, language } = useI18n();
   const dialog = useRef<HTMLDialogElement>(null);
-  const [draft, setDraft] = useState<PlayerGameInput>(() => ({ status: record?.status ?? null, affinity: record?.affinity ?? "neutral", notes: record?.notes ?? "" }));
+  const [draft, setDraft, discardDraft, restored] = useAccountDraft<PlayerGameInput>(userId, `record:${game.id}`, { status: record?.status ?? null, affinity: record?.affinity ?? "neutral", notes: record?.notes ?? "" });
   const [confirmDelete, setConfirmDelete] = useState(false);
   const dirty = draft.status !== (record?.status ?? null) || draft.affinity !== (record?.affinity ?? "neutral") || draft.notes !== (record?.notes ?? "");
-  const confirmDiscard = useUnsavedChanges(dirty);
-  const closeEditor = () => { if (confirmDiscard()) onClose(); };
+  const confirmDiscard = useUnsavedChanges(dirty, discardDraft);
+  const closeEditor = () => { if (confirmDiscard()) { discardDraft(); onClose(); } };
   useEffect(() => { const el = dialog.current; el?.showModal(); return () => el?.close(); }, []);
   return <dialog className="game-record-dialog" ref={dialog} aria-labelledby="record-title" onCancel={(e) => { e.preventDefault(); if (!library.busy) closeEditor(); }}>
     <GameArtwork name={game.name} className="record-artwork" />
     <button className="record-close icon-button" type="button" aria-label={t("Close game record", "关闭游戏记录")} disabled={library.busy} onClick={closeEditor}><X size={20} aria-hidden="true" /></button>
-    <form onSubmit={async (e) => { e.preventDefault(); if (await library.saveRecord(game.id, draft)) onSaved("saved"); }}>
+    <form onSubmit={async (e) => { e.preventDefault(); if (await library.saveRecord(game.id, draft)) { discardDraft(); onSaved("saved"); } }}>
       <p className="eyebrow">{t("YOUR GAME RECORD", "你的游戏记录")}</p><h2 id="record-title">{game.name}</h2>
       <p className="record-description">{localizeGameSummary(game, language)}</p>
+      {restored && <p role="status">{t("Your unsaved draft was restored. Review it before saving.", "已恢复你的未保存草稿，请核对后再保存。")}</p>}
       {library.loading && <p role="status">{t("Checking your saved record…", "正在确认已保存的记录…")}</p>}
-      {library.error && <ErrorNotice message={library.error} onRetry={library.retry} disabled={library.loading} />}
+      {library.error && <ErrorNotice message={library.error} onRetry={library.retry} retryLabel={t("Reload library", "重新加载游戏库")} disabled={library.loading} />}
       <label className="field"><span>{t("Play status", "游玩状态")}</span><select value={draft.status ?? ""} disabled={library.busy} onChange={(e) => setDraft({ ...draft, status: (e.target.value || null) as PlayStatus | null })}><option value="">{t("Not recorded", "尚未记录")}</option>{(["want_to_play", "playing", "played"] as const).map((s) => <option key={s} value={s}>{statusLabel(s, t)}</option>)}</select></label>
       <fieldset disabled={library.busy} className="affinity-options"><legend>{t("How do you feel about it?", "这款游戏合你的口味吗？")}</legend>{([["neutral", t("Undecided", "还没想好")], ["like", t("I like it", "喜欢")], ["dislike", t("Not for me", "不合口味")]] as const).map(([value, label]) => <label key={value}><input type="radio" name="affinity" value={value} checked={draft.affinity === value} onChange={() => setDraft({ ...draft, affinity: value as GameAffinity })} />{label}</label>)}</fieldset>
       <label className="field"><span>{t("Personal note", "个人笔记")}</span><textarea maxLength={500} rows={3} disabled={library.busy} value={draft.notes} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} placeholder={t("What stood out? What will you try next?", "喜欢哪里？下次想尝试什么？")} /></label>
       <div className="record-actions"><button className="primary-button" disabled={library.busy || library.loading || !!library.error} type="submit">{library.busy ? t("Saving…", "正在保存…") : t("Save record", "保存记录")}</button><button className="small-button" type="button" onClick={closeEditor} disabled={library.busy}>{t("Cancel", "取消")}</button>{record && <button className="small-button danger" type="button" disabled={library.busy || library.loading || !!library.error} onClick={() => setConfirmDelete(true)}>{t("Remove record", "移除记录")}</button>}</div>
-      {confirmDelete && <div className="record-confirm"><p>{t("Remove your status, preference and note for this game? It will stay in your collections.", "移除这款游戏的游玩状态、喜好和笔记？收藏夹中的游戏会保留。")}</p><button type="button" className="small-button danger" disabled={library.busy || library.loading || !!library.error} onClick={async () => { if (await library.removeRecord(game.id)) onSaved("removed"); }}>{t("Confirm removal", "确认移除")}</button><button className="small-button" type="button" onClick={() => setConfirmDelete(false)}>{t("Keep record", "保留记录")}</button></div>}
+      {confirmDelete && <div className="record-confirm"><p>{t("Remove your status, preference and note for this game? It will stay in your collections.", "移除这款游戏的游玩状态、喜好和笔记？收藏夹中的游戏会保留。")}</p><button type="button" className="small-button danger" disabled={library.busy || library.loading || !!library.error} onClick={async () => { if (await library.removeRecord(game.id)) { discardDraft(); onSaved("removed"); } }}>{t("Confirm removal", "确认移除")}</button><button className="small-button" type="button" onClick={() => setConfirmDelete(false)}>{t("Keep record", "保留记录")}</button></div>}
     </form>
     <div className="record-collection"><SaveGameMenu state={collections} sessionUserId={userId} game={game} /></div>
   </dialog>;

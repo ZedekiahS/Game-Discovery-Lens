@@ -4,6 +4,7 @@ import { usePlayerLibrary } from "../src/hooks/usePlayerLibrary";
 import { playerLibrary } from "../src/services/playerLibrary";
 import type { PlayerGameRecord } from "../src/types";
 
+vi.mock("../src/services/runtime", () => ({ DATA_MODE: "demo", API_BASE_URL: "http://localhost:8000/api" }));
 vi.mock("../src/services/playerLibrary", () => ({
   emptyPreferences: () => ({ preferredTags: [], avoidedTags: [] }),
   playerLibrary: { getRecords: vi.fn(), getPreferences: vi.fn(), saveRecord: vi.fn(), removeRecord: vi.fn(), savePreferences: vi.fn() },

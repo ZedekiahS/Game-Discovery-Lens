@@ -30,6 +30,6 @@ class GameInsightsTests(unittest.TestCase):
         self.assertEqual(insights["game_id"], 2)
         self.assertEqual(insights["signal"], "Strong")
         self.assertEqual(insights["source"], "rules")
-        self.assertIn("Review Intelligence", insights["review_intelligence"]["title"])
-        self.assertIn("Developer Copilot", insights["developer_opportunity"]["title"])
+        self.assertIn("Catalog evidence", insights["review_intelligence"]["title"])
+        self.assertIn("Comparison reference", insights["developer_opportunity"]["title"])
         self.assertIn("Player Recommendation", insights["player_recommendation"]["title"])

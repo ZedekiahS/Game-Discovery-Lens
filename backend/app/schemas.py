@@ -6,6 +6,12 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 
+class ContentSourceOut(BaseModel):
+    url: str
+    checkedOn: str
+    scope: str
+
+
 class GameOut(BaseModel):
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
@@ -21,6 +27,8 @@ class GameOut(BaseModel):
     summary: str
     revenue: int
     ownership: int
+    content_source: ContentSourceOut | None = Field(default=None, alias="contentSource")
+    metrics_kind: Literal["demo", "unknown"] = Field(default="unknown", alias="metricsKind")
 
 
 class SearchIntentOut(BaseModel):
@@ -39,7 +47,7 @@ class SearchIntentOut(BaseModel):
 
 
 class SearchRequest(BaseModel):
-    query: str
+    query: str = Field(max_length=500)
 
 
 class SearchResponse(BaseModel):
@@ -62,16 +70,16 @@ class UserOut(BaseModel):
 class AuthLoginRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    user_id: str = Field(alias="userId")
-    password: str
+    user_id: str = Field(alias="userId", min_length=1, max_length=255)
+    password: str = Field(min_length=1, max_length=128)
 
 
 class AuthRegisterRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
-    email: str
-    display_name: str = Field(alias="displayName")
-    password: str
+    email: str = Field(min_length=1, max_length=255)
+    display_name: str = Field(alias="displayName", min_length=1, max_length=120)
+    password: str = Field(min_length=8, max_length=128)
 
 
 class AuthSessionOut(BaseModel):
@@ -104,16 +112,16 @@ class GameInsightsOut(BaseModel):
 class CollectionCreateRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
-    name: str
-    description: str = ""
+    name: str = Field(min_length=1, max_length=120)
+    description: str = Field(default="", max_length=500)
     purpose: Literal["unspecified", "player", "research"] = "unspecified"
 
 
 class CollectionUpdateRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
-    name: str
-    description: str | None = None
+    name: str = Field(min_length=1, max_length=120)
+    description: str | None = Field(default=None, max_length=500)
     purpose: Literal["unspecified", "player", "research"] | None = None
 
 
@@ -151,9 +159,9 @@ class ShortlistInsightsOut(BaseModel):
 
     user_id: str = Field(alias="userId")
     saved_count: int = Field(alias="savedCount")
-    average_price: float = Field(alias="averagePrice")
-    average_rating: float = Field(alias="averageRating")
-    total_visible_revenue: int = Field(alias="totalVisibleRevenue")
+    average_price: float | None = Field(alias="averagePrice")
+    average_rating: float | None = Field(alias="averageRating")
+    total_visible_revenue: int | None = Field(alias="totalVisibleRevenue")
     top_tags: list[str] = Field(alias="topTags")
     strategy: InsightPanelOut
     source: str = "rules"

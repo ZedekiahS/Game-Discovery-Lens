@@ -55,18 +55,18 @@ describe("audience entry and navigation", () => {
     expect(screen.queryByRole("button", { name: "Developer", exact: true })).toBeNull();
 
     await searchForCeleste();
-    expect(container.querySelector(".insight-verdict")?.textContent).toContain("catalog signal");
-    expect(screen.getByText(/Catalog estimates/)).toBeTruthy();
+    expect(container.querySelector(".insight-verdict")?.textContent).toContain("comparison reference");
+    expect(screen.getByText(/Synthetic demonstration metrics/)).toBeTruthy();
     expect(screen.getByRole("region", { name: "Research metrics" }).textContent).toContain("Estimated ownership");
     expect(screen.getByRole("region", { name: "Research metrics" }).textContent).toContain("Estimated revenue · USD");
-    expect(screen.getByRole("region", { name: "Research metrics" }).textContent).toContain("estimates for demonstration");
+    expect(screen.getByRole("region", { name: "Research metrics" }).textContent).toContain("Demonstration metrics");
     expect(screen.getByRole("link", { name: "Home", exact: true }).getAttribute("href")).toBe("#home");
     fireEvent.click(screen.getByRole("link", { name: "Home", exact: true }));
     await screen.findByRole("link", { name: "Enter as player" });
     fireEvent.click(screen.getByRole("link", { name: "Enter as player" }));
     await screen.findByRole("heading", { name: "Game insights", exact: true });
     await searchForCeleste();
-    expect(container.querySelector(".insight-verdict")?.textContent).toContain("good match for players");
+    expect(container.querySelector(".insight-verdict")?.textContent).toContain("Explore this title");
     expect(screen.queryByRole("heading", { name: "Catalog analysis", exact: true })).toBeNull();
     expect(screen.queryByRole("region", { name: "Research metrics" })).toBeNull();
 

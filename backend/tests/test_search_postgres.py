@@ -46,7 +46,7 @@ class SearchPostgresTests(unittest.TestCase):
         cls.fixture = json.loads((Path(__file__).resolve().parents[2] / "tests/fixtures" / cls.fixture_filename).read_text(encoding="utf-8"))
         with cls.session_factory.begin() as db:
             for game in cls.fixture["games"]:
-                db.add(Game(**GameOut.model_validate(game).model_dump()))
+                db.add(Game(**GameOut.model_validate(game).model_dump(exclude={"content_source", "metrics_kind"})))
 
     @classmethod
     def drop_test_schema(cls) -> None:
