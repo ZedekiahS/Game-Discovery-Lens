@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from app.config import Settings
 from app.services.search_intent import (
     BUDGET_PRICE, HIGH_RATING, SearchIntent, apply_product_constraints, extract_title,
-    normalize_search_intent, parse_search_intent,
+    normalize_search_intent, parse_search_intent, extract_excluded_tags,
 )
 
 
@@ -33,7 +33,13 @@ def resolve_search_intent(
         if settings.ai_provider == "deepseek":
             intent = parse_with_deepseek(query, available_tags, settings, available_titles)
             _, conditions = extract_title(query, available_titles or [])
+            _, conditions = extract_excluded_tags(conditions, available_tags)
             apply_product_constraints(conditions.lower(), intent)
+            # A provider may omit or invert a recognized negative constraint.
+            excluded = sorted(set(intent.get("excluded_tags", [])) | set(rules.intent.get("excluded_tags", [])))
+            if excluded:
+                intent["excluded_tags"] = excluded
+                intent["tags"] = [tag for tag in intent["tags"] if tag not in excluded]
             # Older/provider payloads must not silently erase literal title searches.
             if intent["title_query"] is None:
                 intent["title_query"] = rules.intent["title_query"]
@@ -111,7 +117,7 @@ def build_intent_system_prompt(available_tags: list[str], available_titles: list
     return (
         "You parse game search intent for Game Discovery Lens. Return JSON only. "
         "Use exactly this JSON shape: "
-        '{"titleQuery": null | string, "maxPrice": null | number, "minRating": number, "hasReviews": boolean, "tags": string[], '
+        '{"titleQuery": null | string, "maxPrice": null | number, "minRating": number, "hasReviews": boolean, "tags": string[], "excludedTags": string[], '
         '"mode": "player" | "developer", "sortBy": null | "name" | "price" | "rating" | "review_count" | '
         '"release_year" | "revenue" | "ownership", "sortDirection": "asc" | "desc", "limit": null | number, "offset": number}. '
         "Use only these tags when tags are relevant: "
@@ -127,6 +133,7 @@ def build_intent_system_prompt(available_tags: list[str], available_titles: list
         f"Highly rated, top rated, or 高评分 means minRating {HIGH_RATING}, hasReviews true, sortBy rating descending. "
         "Good reviews, has reviews, most reviews, or 有评价 requires hasReviews true but does not set a minimum rating by itself. "
         "Do not invent additional filters. Cheapest or most expensive requests rank by price without an implied budget. "
+        "Without, not, no, exclude, 不要, 不含 or 排除 followed by a game type adds that type to excludedTags, never tags. Require every tags item and reject any excludedTags item. "
         "Most reviews sorts by review_count descending; highest revenue sorts by revenue descending. "
         "For ranked queries such as second most expensive, use sortBy price, sortDirection desc, limit 1, and offset 1. "
         "An ordinal selects a row, not a distinct price. SQL uses name ascending to break ties. "

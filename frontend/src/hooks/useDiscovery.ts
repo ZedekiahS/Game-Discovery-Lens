@@ -34,6 +34,7 @@ export function useDiscovery(view: SearchIntent["mode"] = "player") {
   const [searchSource, setSearchSource] = useState<SearchResponse["source"]>(DATA_MODE === "demo" ? "mock" : "rules");
   const [searchError, setSearchError] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
+  const [conditionsEdited, setConditionsEdited] = useState(false);
   const searchSequence = useRef(0);
   const pendingSearch = useRef<string | null>(null);
 
@@ -74,6 +75,7 @@ export function useDiscovery(view: SearchIntent["mode"] = "player") {
       const response = await searchCatalog(submittedQuery, tags, catalog);
       if (request !== searchSequence.current) return;
       setIntent(response.intent);
+      setConditionsEdited(false);
       setSearchResults(response.games);
       setSearchSource(response.source);
       setSelectedId(response.games[0]?.id ?? null);
@@ -93,6 +95,7 @@ export function useDiscovery(view: SearchIntent["mode"] = "player") {
     setSearchLoading(false);
     setSearchError("");
     setIsBrowsing(false);
+    setConditionsEdited(true);
     const nextIntent = { ...intent, ...partial };
     const nextGames = filterGames(catalog, nextIntent);
     setIntent(nextIntent);
@@ -112,12 +115,14 @@ export function useDiscovery(view: SearchIntent["mode"] = "player") {
     setSearchLoading(false);
     setSelectedId(view === "player" ? recommendGames(catalog)[0]?.id ?? null : null);
     setIsBrowsing(true);
+    setConditionsEdited(false);
   }
 
   return {
     catalog, catalogLoading, catalogError, query, setQuery, intent, tags, priceCeiling,
     filteredGames, selectedId, selectedPreview, selectGame: (id: number | null) => setSelectedId(id), view,
-    searchSource, searchError, searchLoading, runSearch, updateIntent, isBrowsing, resetBrowse,
+    searchSource, searchError, searchLoading, runSearch, updateIntent, isBrowsing, resetBrowse, conditionsEdited,
+    clearFilters: () => updateIntent({ ...defaults, excludedTags: [] }),
     retryCatalog: () => setCatalogRevision((value) => value + 1),
   };
 }

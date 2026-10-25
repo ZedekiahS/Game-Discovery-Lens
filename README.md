@@ -53,6 +53,14 @@ The player homepage now uses that profile. Want-to-play games and explicit prefe
 
 These screenshots use six manually entered validation records, not a real player's activity. Fresh accounts start empty. The 80 catalog entries have bilingual gameplay summaries and curated tags linked to official store descriptions in each entry's `contentSource`. Prices, ratings, review counts, ownership, and revenue in the bundled catalog remain synthetic sample values; the source check does not validate those metrics. See [the implementation and verification record](docs/verification/player-library-2026-10-08.md).
 
+### Editable search / 可编辑搜索
+
+Applied conditions appear as removable chips. Expand **Filters / 筛选条件** to edit the title, included/excluded types, budget, minimum rating, review-count condition, ordering and result range. Edits reuse the loaded catalog without another search-provider request. Clearing conditions preserves the query draft; submitting that text again replaces the edited conditions.
+
+Type exclusions work in both languages: `FPS without multiplayer` or `找剧情游戏但不要恐怖`. A general horror exclusion covers both Horror and Survival Horror. Exclusions match editorial catalog tags, not verified multiplayer modes or a complete genre taxonomy. Unsupported negation (such as `not free` / `不要免费`) gives an actionable error and retains the input. This is bounded type filtering, not arbitrary Boolean search.
+
+The [search and recommendation evaluation record](docs/verification/search-controls-recommendations-2026-10-25.md) includes real API browser checks and 11 fixed editorial recommendation scenarios. Eight relevance-scored scenarios have macro precision@6 of 0.875; the Celeste-interest and space-exploration cases score 4/6. These authored fixtures are a diagnostic baseline, not real-user judgments or evidence of an improved ranking algorithm. The ranking implementation is unchanged.
+
 ## Run the Demo
 
 Use Node.js 24 LTS, matching `.nvmrc` and CI. From the repository root:
@@ -94,7 +102,7 @@ The frontend defaults to `http://localhost:8000/api`. To change it, copy `fronte
 - **Concurrent requests:** an older search, game insight, or account response cannot replace a newer selection or session.
 - **Session boundaries:** verified identity, token and session version travel together. Private requests check the session before sending and after receiving; cross-tab account changes invalidate the old view. Unsaved notes/preferences and collection-name drafts stay in the original account's memory in that tab and can be recovered after sign-in. Reloading or closing the tab ends that temporary recovery; uncertain writes are never replayed automatically.
 - **Source boundaries:** game details expose the catalog's gameplay source and check date. Synthetic prices, ratings, review counts, ownership and revenue are marked in both demo and seeded API mode; gameplay sources do not verify those metrics. Missing provenance stays unknown.
-- **Search consistency:** literal title search combines with price, tag, and review filters. Frontend rules and PostgreSQL search tests share `tests/fixtures/search-contract.json`.
+- **Search consistency:** literal title search combines with price, required/excluded tags, and review-count filters. Frontend rules and PostgreSQL search tests share `tests/fixtures/search-contract.json` and `search-negation.json`.
 - **Clear module boundaries:** page composition, discovery, selected-game details, account/collection state, and API/demo adapters have separate responsibilities.
 - **Reproducible verification:** unit and UI tests, isolated PostgreSQL integration tests, TypeScript/build checks, and desktop/mobile browser journeys run in GitHub Actions. The browser suite registers accounts through the UI and exercises the real API, including recovery after a committed save loses its response. See [browser test setup](frontend/README.md#browser-tests-with-the-real-api).
 

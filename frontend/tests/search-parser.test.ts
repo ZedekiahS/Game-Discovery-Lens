@@ -4,8 +4,28 @@ import { filterGames, parseSearchIntent } from "../src/lib/search";
 import contract from "../../tests/fixtures/search-contract.json";
 import boundaries from "../../tests/fixtures/search-evaluation-boundaries.json";
 import unseen from "../../tests/fixtures/search-evaluation-unseen.json";
+import negation from "../../tests/fixtures/search-negation.json";
 
 const tags = [...new Set(games.flatMap((game) => game.tags))];
+
+describe("shared negative type conditions", () => {
+  it.each(negation.cases)("$query", ({ query, expected, gameIds }) => {
+    const intent = parseSearchIntent(query, negation.availableTags, negation.games.map(g => g.name));
+    expect({ ...intent, excludedTags: intent.excludedTags ?? [] }).toMatchObject(expected);
+    expect(filterGames(negation.games, intent).map(g => g.id)).toEqual(gameIds);
+  });
+  it.each(negation.unsupported)("rejects unsupported/conflicting conditions: %s", query => {
+    expect(() => parseSearchIntent(query, negation.availableTags)).toThrow();
+  });
+  it("rejects exclusion against an empty tag catalog without crashing", () => {
+    expect(() => parseSearchIntent("without unicorn", [])).toThrow("Only game-type exclusions");
+  });
+  it.each(["without horror", "不要恐怖"])("excludes both catalog horror classifications: %s", query => {
+    const intent = parseSearchIntent(query, tags, games.map(g => g.name));
+    expect(intent.excludedTags).toEqual(["Horror", "Survival Horror"]);
+    expect(filterGames(games, intent).every(g => !g.tags.some(t => ["Horror", "Survival Horror"].includes(t)))).toBe(true);
+  });
+});
 
 describe("literal title search", () => {
   it("finds Celeste instead of returning an unrelated catalog", () => {

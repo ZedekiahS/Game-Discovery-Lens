@@ -92,11 +92,11 @@ describe("language switching in the actual application", () => {
     expect((screen.getByLabelText("搜索游戏") as HTMLTextAreaElement).value).toBe("找25美元以下的高评分剧情游戏");
     expect([...container.querySelectorAll(".game-card h3")].map((el) => el.textContent)).toEqual(["Celeste", "Hades", "Outer Wilds", "SIGNALIS", "Sticky Business"]);
     fireEvent.click(screen.getByText("筛选条件", { exact: true }));
-    expect((screen.getByRole("combobox", { name: "游戏类型" }) as HTMLSelectElement).value).toBe("Story Rich");
-    expect(screen.getByRole("option", { name: "剧情丰富" }).getAttribute("value")).toBe("Story Rich");
+    expect(screen.getByRole("button", { name: "移除包含：剧情丰富" })).toBeTruthy();
+    expect(within(screen.getByRole("combobox", { name: "添加排除类型" })).getByRole("option", { name: "剧情丰富" }).getAttribute("value")).toBe("Story Rich");
     fireEvent.click(screen.getByRole("button", { name: "English", exact: true }));
     expect(screen.getByText("5 results")).toBeTruthy();
-    expect((screen.getByRole("combobox", { name: "Tag Focus" }) as HTMLSelectElement).value).toBe("Story Rich");
+    expect(screen.getByRole("button", { name: "Remove Include: Story Rich" })).toBeTruthy();
     expect((screen.getByLabelText("Search games") as HTMLTextAreaElement).value).toBe("Show highly rated story rich games under 25 dollars");
   });
 

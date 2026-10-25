@@ -13,6 +13,19 @@ AVAILABLE_TAGS = ["Exploration", "Multiplayer", "Story Rich", "Survival"]
 
 
 class AISearchTests(unittest.TestCase):
+    def test_provider_cannot_invert_an_explicit_exclusion(self):
+        with patch('app.services.ai_search.urllib.request.urlopen', return_value=self.provider_response({'tags': ['Multiplayer'], 'excludedTags': []})):
+            result = resolve_search_intent('without multiplayer', AVAILABLE_TAGS, self.ai_settings())
+        self.assertEqual(result.source, 'deepseek')
+        self.assertEqual(result.intent['excluded_tags'], ['Multiplayer'])
+        self.assertEqual(result.intent['tags'], [])
+
+    def test_unsupported_negation_never_calls_a_paid_provider(self):
+        with patch('app.services.ai_search.urllib.request.urlopen') as provider:
+            with self.assertRaisesRegex(ValueError, 'Only game-type exclusions'):
+                resolve_search_intent('not free', AVAILABLE_TAGS, self.ai_settings())
+            provider.assert_not_called()
+
     def ai_settings(self, *, fallback: bool = True) -> SimpleNamespace:
         return SimpleNamespace(
             ai_enabled=True, ai_provider="deepseek", ai_fallback_to_rules=fallback,

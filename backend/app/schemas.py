@@ -39,6 +39,7 @@ class SearchIntentOut(BaseModel):
     min_rating: float = Field(alias="minRating")
     has_reviews: bool = Field(alias="hasReviews")
     tags: list[str]
+    excluded_tags: list[str] = Field(default_factory=list, alias="excludedTags")
     mode: str
     sort_by: str | None = Field(alias="sortBy")
     sort_direction: str = Field(alias="sortDirection")

@@ -10,7 +10,7 @@ from app.db.models import Game
 from app.schemas import GameInsightsOut, GameOut, SearchRequest, SearchResponse
 from app.services.ai_search import AIProviderError, resolve_search_intent
 from app.services.game_insights import build_game_insights
-from app.services.search_intent import SearchIntent
+from app.services.search_intent import SearchIntent, SearchQueryError
 
 router = APIRouter(tags=["games"])
 
@@ -52,6 +52,8 @@ def search_games(request: SearchRequest, db: Session = Depends(get_db)) -> dict[
     available_titles = [name for name, _ in catalog]
     try:
         result = resolve_search_intent(request.query, available_tags, get_settings(), available_titles)
+    except SearchQueryError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     except AIProviderError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
@@ -84,6 +86,8 @@ def apply_intent_filters(stmt: Select[tuple[Game]], intent: SearchIntent) -> Sel
 
     for tag in intent["tags"]:
         stmt = stmt.where(Game.tags.contains([tag]))
+    for tag in intent.get("excluded_tags", []):
+        stmt = stmt.where(~Game.tags.contains([tag]))
 
     sort_columns = {
         "name": Game.name,

@@ -36,7 +36,7 @@ class SearchPolicyTests(unittest.TestCase):
         for case in fixture["cases"]:
             with self.subTest(query=case["query"]):
                 intent = SearchIntentOut.model_validate(parse_search_intent(case["query"], fixture["availableTags"], titles)).model_dump(by_alias=True)
-                self.assertEqual(intent, case["expected"])
+                self.assertEqual(intent, {"excludedTags": [], **case["expected"]})
 
     def resolve(self, query, raw, titles=None):
         settings = SimpleNamespace(ai_enabled=True, ai_provider="deepseek", ai_fallback_to_rules=False,

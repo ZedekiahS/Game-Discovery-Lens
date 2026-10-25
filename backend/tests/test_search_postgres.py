@@ -88,3 +88,13 @@ class BoundarySearchPostgresTests(SearchPostgresTests):
 
 class IndependentSearchPostgresTests(SearchPostgresTests):
     fixture_filename = "search-evaluation-unseen.json"
+
+
+class NegationSearchPostgresTests(SearchPostgresTests):
+    fixture_filename = "search-negation.json"
+
+    def test_unsupported_or_conflicting_negation_is_422(self):
+        for query in self.fixture['unsupported']:
+            with self.subTest(query=query):
+                response = self.client.post('/api/search', json={'query': query})
+                self.assertEqual(response.status_code, 422)

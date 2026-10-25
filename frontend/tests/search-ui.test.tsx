@@ -60,6 +60,24 @@ beforeEach(() => {
 afterEach(() => { cleanup(); window.history.replaceState(null, "", "/"); });
 
 describe("search results and selection", () => {
+  it("lets a player remove title/rank restrictions and edit types without another search request", async () => {
+    const ranked = result(celeste);
+    ranked.intent = { ...ranked.intent, limit: 1, offset: 1, excludedTags: ["FPS"] };
+    vi.mocked(catalog.searchCatalog).mockResolvedValue(ranked);
+    await openApp();
+    search("Celeste");
+    await screen.findByRole("button", { name: "Remove Result 2" });
+    fireEvent.click(screen.getByRole("button", { name: "Remove Result 2" }));
+    fireEvent.click(screen.getByRole("button", { name: "Remove Title: celeste" }));
+    expect(screen.getByRole("textbox", { name: "Search games" }).getAttribute("maxlength")).toBe("500");
+    fireEvent.click(screen.getByText("Filters", { selector: "summary" }));
+    fireEvent.change(screen.getByLabelText("Include type"), { target: { value: "FPS" } });
+    expect(screen.queryByRole("button", { name: "Remove Exclude: FPS" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Remove Include: FPS" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Clear conditions" }));
+    expect(screen.queryByRole("button", { name: "Remove Include: FPS" })).toBeNull();
+    expect(catalog.searchCatalog).toHaveBeenCalledTimes(1);
+  });
   it("searches with Enter but preserves Shift+Enter and IME confirmation", async () => {
     vi.mocked(catalog.searchCatalog).mockResolvedValue(result(celeste));
     await openApp();

@@ -115,7 +115,7 @@ describe("player recommendations before search", () => {
     expect((screen.getByRole("textbox", { name: "Search games" }) as HTMLTextAreaElement).value).toBe("");
     expect(screen.queryByRole("list", { name: "Current search filters" })).toBeNull();
     fireEvent.click(screen.getByText("Filters", { selector: "summary" }));
-    expect((screen.getByRole("combobox", { name: "Tag Focus" }) as HTMLSelectElement).value).toBe("");
+    expect((screen.getByRole("combobox", { name: "Include type" }) as HTMLSelectElement).value).toBe("");
     expect(screen.getByText("Any price", { selector: "strong" })).toBeTruthy();
     submitSearch("nonexistent");
     await screen.findByText("No games match these filters.");
@@ -130,7 +130,7 @@ describe("player recommendations before search", () => {
     const { container } = await enterPlayer();
     openSearch();
     fireEvent.click(screen.getByText("Filters", { selector: "summary" }));
-    fireEvent.change(screen.getByRole("combobox", { name: "Tag Focus" }), { target: { value: "FPS" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Include type" }), { target: { value: "FPS" } });
     expect(screen.queryByRole("heading", { name: "Recommended games", exact: true })).toBeNull();
     expect(cardTitles(container)).toContain("Aimlabs");
     expect(cardTitles(container)).not.toContain("Stardew Valley");

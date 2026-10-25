@@ -1,0 +1,54 @@
+import { test, expect } from '@playwright/test';
+
+test('negative types, editable conditions and clear work without repeated interpretation', async ({ page }) => {
+  const searches: string[] = [];
+  page.on('request', request => { if (request.method() === 'POST' && new URL(request.url()).pathname === '/api/search') searches.push(request.postData() ?? ''); });
+  await page.goto('/?mode=api#player');
+  await page.getByRole('button', { name:'English', exact:true }).click();
+  await page.getByRole('button', { name:'Search games', exact:true }).click();
+  const query = page.getByRole('textbox', { name:'Search games', exact:true });
+  await query.fill('FPS without multiplayer');
+  await query.press('Enter');
+  await expect(page.getByRole('button', { name:'Remove Exclude: Multiplayer', exact:true })).toBeVisible();
+  await expect(page.locator('.game-card h3')).toHaveText(['Half-Life: Alyx','Left 4 Dead 2','MULLET MADJACK','Ready or Not']);
+  await page.getByText('Filters', { exact:true }).click();
+  await page.getByLabel('Title contains', { exact:true }).fill('MULLET');
+  await expect(page.locator('.game-card h3')).toHaveText(['MULLET MADJACK']);
+  await page.getByRole('button', { name:'Remove Title: MULLET', exact:true }).press('Enter');
+  await page.getByRole('combobox', { name:'Exclude type', exact:true }).selectOption('Survival Horror');
+  await expect(page.locator('.game-card h3')).toHaveText(['Half-Life: Alyx','MULLET MADJACK','Ready or Not']);
+  expect(searches).toHaveLength(1);
+  await page.getByRole('button', { name:'Clear conditions', exact:true }).click();
+  await expect(page.locator('.game-card h3')).toHaveCount(80);
+  await expect(query).toHaveValue('FPS without multiplayer');
+  expect(searches).toHaveLength(1);
+  await query.fill('Find the second most expensive FPS game');
+  await query.press('Enter');
+  await expect(page.getByRole('button', { name:'Remove Result 2', exact:true })).toBeVisible();
+  await expect(page.locator('.game-card h3')).toHaveCount(1);
+  await page.getByRole('button', { name:'Remove Result 2', exact:true }).click();
+  await expect(page.locator('.game-card h3')).toHaveCount(8);
+  expect(searches).toHaveLength(2);
+});
+
+test('Chinese exclusions preserve input on unsupported negation and recover', async ({ page }, info) => {
+  await page.goto('/?mode=api#player');
+  await page.getByRole('button', { name:'中文', exact:true }).click();
+  await page.getByRole('button', { name:'搜索游戏', exact:true }).click();
+  const query = page.getByRole('textbox', { name:'搜索游戏', exact:true });
+  await query.fill('找剧情游戏但不要恐怖');
+  await query.press('Enter');
+  await expect(page.getByRole('button', { name:'移除排除：生存恐怖', exact:true })).toBeVisible();
+  await expect(page.getByRole('button', { name:'移除排除：恐怖', exact:true })).toBeVisible();
+  await page.getByText('筛选条件', { exact:true }).click();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.locator('#game-search-panel').screenshot({ path:`../docs/screenshots/search-edit-${info.project.name}-zh.png` });
+  await query.fill('不要免费');
+  await query.press('Enter');
+  await expect(page.getByText('目前支持排除游戏类型。试试“不要多人”，或直接编辑筛选条件。', { exact:true })).toBeVisible();
+  await expect(query).toHaveValue('不要免费');
+  await query.fill('不要多人');
+  await query.press('Enter');
+  await expect(page.getByRole('button', { name:'移除排除：多人', exact:true })).toBeVisible();
+  await expect(page.getByText('目前支持排除游戏类型。试试“不要多人”，或直接编辑筛选条件。', { exact:true })).toHaveCount(0);
+});

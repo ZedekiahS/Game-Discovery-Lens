@@ -50,7 +50,9 @@ const tagAliases: Record<string, string[]> = {
 };
 
 export function parseSearchIntent(query: string, availableTags: string[], availableTitles: string[] = []): SearchIntent {
-  const { title, remaining } = extractTitle(query, availableTitles);
+  const protectedTitle = extractTitle(query, availableTitles);
+  const title = protectedTitle.title;
+  const { excluded, remaining } = extractExcludedTags(protectedTitle.remaining, availableTags);
   const text = remaining.toLowerCase();
   const intent: SearchIntent = { ...defaultIntent, tags: [] };
 
@@ -85,6 +87,10 @@ export function parseSearchIntent(query: string, availableTags: string[], availa
   addAliasTags(text, tags, availableTags);
 
   intent.tags = prioritizeTags([...tags].sort(), text);
+  if (excluded.length) {
+    if (intent.tags.some(tag => excluded.includes(tag))) throw new Error("A type cannot be both required and excluded. Revise the query.");
+    intent.excludedTags = excluded;
+  }
   intent.titleQuery = normalizeTitle([title, remainingTitle(text, availableTags, intent)].filter(Boolean).join(" "));
   return intent;
 }
@@ -96,7 +102,8 @@ export function filterGames(games: Game[], intent: SearchIntent): Game[] {
     const ratingMatch = game.rating >= intent.minRating;
     const reviewMatch = !intent.hasReviews || game.reviewCount > 0;
     const tagMatch = intent.tags.length === 0 || intent.tags.every((tag) => game.tags.includes(tag));
-    return titleMatch && priceMatch && ratingMatch && reviewMatch && tagMatch;
+    const excludedMatch = !(intent.excludedTags ?? []).some(tag => game.tags.includes(tag));
+    return titleMatch && priceMatch && ratingMatch && reviewMatch && tagMatch && excludedMatch;
   });
 
   return rankGames(filteredGames, intent);
@@ -113,6 +120,33 @@ function escapePattern(value: string): string {
 function tagPattern(value: string, global = false): RegExp {
   // ASCII boundaries also recognize mixed queries such as 第二贵的FPSgame.
   return new RegExp(`(?<![a-z0-9])${escapePattern(value)}(?=$|[^a-z0-9]|games?\\b)`, global ? "gi" : "i");
+}
+
+function extractExcludedTags(text: string, availableTags: string[]) {
+  const phrases = new Map(availableTags.map(tag => [tag.toLowerCase(), tag]));
+  for (const tag of availableTags) for (const alias of tagAliases[tag] ?? []) phrases.set(alias, tag);
+  for (const [alias, tag] of [["story", "Story Rich"], ["horror", "Survival Horror"]]) if (availableTags.includes(tag)) phrases.set(alias, tag);
+  if (availableTags.includes("Horror") && !phrases.has("恐怖")) phrases.set("恐怖", "Horror");
+  const choices = [...phrases.keys()].sort((a, b) => b.length - a.length || a.localeCompare(b)).map(escapePattern).join("|") || "(?!)";
+  const term = new RegExp(`^(?:${choices})(?![a-z0-9])`, "i");
+  const negation = /(?<![a-z0-9])(?:but\s+)?(?:without|excluding|exclude|not|no)(?![a-z0-9])\s*|(?:但是|但)?(?:不想玩|不想要|不要|不含|排除|非)\s*/i;
+  const excluded = new Set<string>();
+  let match: RegExpExecArray | null;
+  while ((match = negation.exec(text))) {
+    let end = match.index + match[0].length;
+    let found = term.exec(text.slice(end));
+    if (!found) throw new Error("Only game-type exclusions are supported. Try 'without multiplayer' or edit Filters.");
+    while (found) {
+      excluded.add(phrases.get(found[0].toLowerCase())!);
+      if (["horror", "恐怖"].includes(found[0].toLowerCase()) && availableTags.includes("Horror")) excluded.add("Horror");
+      end += found[0].length;
+      const separator = /^\s*(?:and\b|or\b|、|和|或)\s*/i.exec(text.slice(end));
+      found = separator ? term.exec(text.slice(end + separator[0].length)) : null;
+      if (found) end += separator![0].length;
+    }
+    text = text.slice(0, match.index) + " " + text.slice(end);
+  }
+  return { excluded: [...excluded].sort(), remaining: text };
 }
 
 function extractTitle(query: string, availableTitles: string[]) {
@@ -156,9 +190,9 @@ function remainingTitle(text: string, availableTags: string[], intent: SearchInt
   if (intent.hasReviews) remaining = remaining.replace(/高评分|有评价/g, " ");
 
   remaining = remaining.replace(/\b(?:show|find|give\s+me|list|all|the|a|an|me|games?|please|with|and|for|of|dollars?|usd|premium)\b/g, " ");
-  if (intent.tags.length > 0 || intent.sortBy !== null || intent.maxPrice !== null || intent.hasReviews || intent.mode === "developer") {
+  if (intent.tags.length > 0 || intent.excludedTags?.length || intent.sortBy !== null || intent.maxPrice !== null || intent.hasReviews || intent.mode === "developer") {
     // Only consume connector segments separated by recognized conditions, preserving unknown words.
-    remaining = remaining.replace(/(^|\s)(?:找|为|且|的|类|游戏)+(?=\s|$)/g, " ");
+    remaining = remaining.replace(/(^|[\s,，])(?:找|为|且|的|类|游戏)+(?=[\s,，]|$)/g, " ");
   }
   return remaining.replace(/^[\s,;:!?，；：！？]+|[\s,;:!?，；：！？]+$/g, "");
 }

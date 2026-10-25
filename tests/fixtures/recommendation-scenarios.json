@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "purpose": "Offline editorial relevance checks on the fixed 80-game catalog. Authored before running rankings; not real user judgments or a held-out research benchmark.",
+  "scenarios": [
+    {"id":"new-player","brief":"No recorded taste: show general picks without claiming personal evidence.","preferred":[],"avoided":[],"records":[],"personal":[],"research":[],"personalized":false},
+    {"id":"cozy-evening","brief":"Relaxed games with cozy presentation; avoid horror and difficult action.","preferred":["Cozy"],"avoided":["Horror","Survival Horror","Difficult"],"records":[],"personal":[],"research":[],"relevant":[19,37,42,63,68,77],"minimumPrecision":1},
+    {"id":"puzzle-discovery","brief":"Puzzle solving without horror; allow exploration and cooperative puzzles.","preferred":["Puzzle"],"avoided":["Horror","Survival Horror"],"records":[],"personal":[],"research":[],"relevant":[4,8,14,51,62,64,65,66,71,72,76,78],"minimumPrecision":1},
+    {"id":"cooperative-weekend","brief":"Cooperative play without horror; no requirement that a game also carry the Multiplayer tag.","preferred":["Co-op"],"avoided":["Horror","Survival Horror"],"records":[],"personal":[],"research":[],"relevant":[10,27,28,30,31,34,35,37,41,51,52,54,55,56,60,62,64,71],"minimumPrecision":1},
+    {"id":"wishlist-first","brief":"Return to two saved intentions before exploring more roguelikes; never suggest the current or disliked game.","preferred":["Roguelike"],"avoided":[],"records":[{"id":2,"status":"want_to_play"},{"id":15,"status":"want_to_play","affinity":"like"},{"id":31,"status":"playing"},{"id":25,"affinity":"dislike"}],"personal":[],"research":[],"relevant":[2,15,17,18,36,53,54,55,73],"topTwo":[2,15],"minimumPrecision":1},
+    {"id":"celeste-fan","brief":"Liked and finished Celeste; look for precise movement, discovery or strong narrative. This editorial set is intentionally broader than one tag.","preferred":[],"avoided":[],"records":[{"id":2,"status":"played","affinity":"like"}],"personal":[],"research":[],"relevant":[8,14,15,16,28,36,62,64,66,69]},
+    {"id":"space-explorer","brief":"Space exploration, with no multiplayer games in this session.","preferred":["Space","Exploration"],"avoided":["Multiplayer"],"records":[],"personal":[],"research":[],"relevant":[7,14,29,41]},
+    {"id":"research-is-not-taste","brief":"A market-comparison collection must not become personal interest evidence.","preferred":[],"avoided":[],"records":[],"personal":[],"research":[3,24,26,40,59,70],"personalized":false,"sameAs":"new-player"},
+    {"id":"personal-collection","brief":"One personal collection containing Celeste supplies interest evidence once.","preferred":[],"avoided":[],"records":[],"personal":[[2]],"research":[],"relevant":[8,14,15,16,28,36,62,64,66,69]},
+    {"id":"duplicate-collection","brief":"Saving the same game in three personal folders must not increase its influence.","preferred":[],"avoided":[],"records":[],"personal":[[2],[2],[2]],"research":[],"sameAs":"personal-collection"},
+    {"id":"negative-overrides-wishlist","brief":"A wishlisted horror game is excluded after the player opts out of horror.","preferred":["Story Rich"],"avoided":["Horror","Survival Horror"],"records":[{"id":3,"status":"want_to_play","affinity":"like"}],"personal":[],"research":[],"relevant":[2,14,15,22,28,36,46,51,77],"minimumPrecision":1}
+  ]
+}

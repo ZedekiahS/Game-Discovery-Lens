@@ -24,6 +24,7 @@ export interface SearchIntent {
   minRating: number;
   hasReviews: boolean;
   tags: string[];
+  excludedTags?: string[];
   mode: "player" | "developer";
   sortBy: SearchSortBy | null;
   sortDirection: "asc" | "desc";

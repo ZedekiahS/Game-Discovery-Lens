@@ -142,7 +142,7 @@ describe("developer overview before research", () => {
     openSearch();
     expect((screen.getByRole("textbox", { name: "Research the catalog" }) as HTMLTextAreaElement).value).toBe("");
     fireEvent.click(screen.getByText("Filters", { selector: "summary" }));
-    expect((screen.getByRole("combobox", { name: "Tag Focus" }) as HTMLSelectElement).value).toBe("");
+    expect((screen.getByRole("combobox", { name: "Include type" }) as HTMLSelectElement).value).toBe("");
     expect(screen.getByText("Any price", { selector: "strong" })).toBeTruthy();
     expect(screen.queryByRole("list", { name: "Current search filters" })).toBeNull();
   });

@@ -52,6 +52,7 @@ class SearchIntent(TypedDict):
     min_rating: float
     has_reviews: bool
     tags: list[str]
+    excluded_tags: list[str]
     mode: Literal["player", "developer"]
     sort_by: SearchSortBy | None
     sort_direction: SearchSortDirection
@@ -78,6 +79,7 @@ def parse_search_intent(
     query: str, available_tags: list[str], available_titles: list[str] | None = None,
 ) -> SearchIntent:
     title, remainder = extract_title(query, available_titles or [])
+    excluded, remainder = extract_excluded_tags(remainder, available_tags)
     text = remainder.lower()
     intent = default_search_intent()
 
@@ -112,9 +114,50 @@ def parse_search_intent(
                     remainder = remainder.replace(alias, " ")
 
     intent["tags"] = prioritize_tags(sorted(matched_tags), text)
+    if excluded:
+        if set(excluded) & set(intent["tags"]):
+            raise SearchQueryError("A type cannot be both required and excluded. Revise the query.")
+        intent["excluded_tags"] = excluded
     remainder = remove_filter_words(remainder, intent)
     intent["title_query"] = normalize_title(f"{title or ''} {remainder}")
     return intent
+
+
+class SearchQueryError(ValueError):
+    pass
+
+
+NEGATION = r"(?<![a-z0-9])(?:but\s+)?(?:without|excluding|exclude|not|no)(?![a-z0-9])\s*|(?:但是|但)?(?:不想玩|不想要|不要|不含|排除|非)\s*"
+
+
+def extract_excluded_tags(text: str, available_tags: list[str]) -> tuple[list[str], str]:
+    # Consume only supported type clauses. Titles have already been protected.
+    phrases = {tag.lower(): tag for tag in available_tags}
+    for tag in available_tags:
+        for alias in TAG_ALIASES.get(tag, []):
+            phrases[alias] = tag
+    for alias, tag in (("story", "Story Rich"), ("horror", "Survival Horror")):
+        if tag in available_tags:
+            phrases[alias] = tag
+    if "Horror" in available_tags:
+        phrases.setdefault("恐怖", "Horror")
+    choices = "|".join(re.escape(p) for p in sorted(phrases, key=lambda p: (-len(p), p))) or r"(?!)"
+    term = re.compile(rf"(?:{choices})(?![a-z0-9])", re.IGNORECASE)
+    excluded = set()
+    while match := re.search(NEGATION, text, re.IGNORECASE):
+        end = match.end()
+        found = term.match(text, end)
+        if not found:
+            raise SearchQueryError("Only game-type exclusions are supported. Try 'without multiplayer' or edit Filters.")
+        while found:
+            excluded.add(phrases[found.group().lower()])
+            if found.group().lower() in {"horror", "恐怖"} and "Horror" in available_tags:
+                excluded.add("Horror")
+            end = found.end()
+            separator = re.match(r"\s*(?:and\b|or\b|、|和|或)\s*", text[end:], re.IGNORECASE)
+            found = term.match(text, end + separator.end()) if separator else None
+        text = text[:match.start()] + " " + text[end:]
+    return sorted(excluded), text
 
 
 def apply_product_constraints(text: str, intent: SearchIntent) -> None:
@@ -182,9 +225,9 @@ def remove_filter_words(text: str, intent: SearchIntent) -> str:
         text = re.sub(r"高评分|有评价", " ", text)
     text = re.sub(r"第[一二三四五]\s*贵|最便宜|最贵|便宜|第[一二三四五]", " ", text)
     text = re.sub(r"\b(?:show|find|give\s+me|list|all|the|a|an|me|games?|please|with|and|for|of|dollars?|usd|premium)\b", " ", text, flags=re.IGNORECASE)
-    if intent["tags"] or intent["sort_by"] is not None or intent["max_price"] is not None or intent["has_reviews"] or intent["mode"] == "developer":
+    if intent["tags"] or intent.get("excluded_tags") or intent["sort_by"] is not None or intent["max_price"] is not None or intent["has_reviews"] or intent["mode"] == "developer":
         # Only consume connector segments separated by recognized conditions, preserving unknown words.
-        text = re.sub(r"(^|\s)(?:找|为|且|的|类|游戏)+(?=\s|$)", " ", text)
+        text = re.sub(r"(^|[\s,，])(?:找|为|且|的|类|游戏)+(?=[\s,，]|$)", " ", text)
     return text.strip(" \t\r\n,;:!?，；：！？")
 
 
@@ -223,6 +266,13 @@ def normalize_search_intent(raw_intent: dict[str, object], available_tags: list[
             if tag and tag not in tags:
                 tags.append(tag)
         intent["tags"] = tags[:3]
+
+    raw_excluded = get_first(raw_intent, "excludedTags", "excluded_tags")
+    if isinstance(raw_excluded, list):
+        excluded = sorted({available_tag_lookup[str(tag).strip().lower()] for tag in raw_excluded if str(tag).strip().lower() in available_tag_lookup})
+        if excluded:
+            intent["excluded_tags"] = excluded
+            intent["tags"] = [tag for tag in intent["tags"] if tag not in excluded]
 
     return intent
 
