@@ -1,0 +1,205 @@
+{
+  "availableTags": [
+    "Co-op",
+    "FPS",
+    "Horror",
+    "Multiplayer",
+    "Singleplayer",
+    "Survival Horror"
+  ],
+  "games": [
+    {
+      "id": 1,
+      "name": "Solo FPS",
+      "price": 10,
+      "rating": 4.8,
+      "reviewCount": 100,
+      "releaseYear": 2018,
+      "developer": "Fixture",
+      "publisher": "Fixture",
+      "tags": [
+        "FPS",
+        "Singleplayer"
+      ],
+      "summary": "Contract fixture",
+      "revenue": 0,
+      "ownership": 0
+    },
+    {
+      "id": 2,
+      "name": "Cooperative FPS",
+      "price": 10,
+      "rating": 4.8,
+      "reviewCount": 100,
+      "releaseYear": 2018,
+      "developer": "Fixture",
+      "publisher": "Fixture",
+      "tags": [
+        "FPS",
+        "Co-op"
+      ],
+      "summary": "Contract fixture",
+      "revenue": 0,
+      "ownership": 0
+    },
+    {
+      "id": 3,
+      "name": "Competitive FPS",
+      "price": 10,
+      "rating": 4.8,
+      "reviewCount": 100,
+      "releaseYear": 2018,
+      "developer": "Fixture",
+      "publisher": "Fixture",
+      "tags": [
+        "FPS",
+        "Multiplayer"
+      ],
+      "summary": "Contract fixture",
+      "revenue": 0,
+      "ownership": 0
+    },
+    {
+      "id": 4,
+      "name": "Survival Fear",
+      "price": 10,
+      "rating": 4.8,
+      "reviewCount": 100,
+      "releaseYear": 2018,
+      "developer": "Fixture",
+      "publisher": "Fixture",
+      "tags": [
+        "Survival Horror"
+      ],
+      "summary": "Contract fixture",
+      "revenue": 0,
+      "ownership": 0
+    },
+    {
+      "id": 5,
+      "name": "Narrative Fear",
+      "price": 10,
+      "rating": 4.8,
+      "reviewCount": 100,
+      "releaseYear": 2018,
+      "developer": "Fixture",
+      "publisher": "Fixture",
+      "tags": [
+        "Horror"
+      ],
+      "summary": "Contract fixture",
+      "revenue": 0,
+      "ownership": 0
+    },
+    {
+      "id": 6,
+      "name": "Solo and Cooperative",
+      "price": 10,
+      "rating": 4.8,
+      "reviewCount": 100,
+      "releaseYear": 2018,
+      "developer": "Fixture",
+      "publisher": "Fixture",
+      "tags": [
+        "Singleplayer",
+        "Co-op"
+      ],
+      "summary": "Contract fixture",
+      "revenue": 0,
+      "ownership": 0
+    }
+  ],
+  "cases": [
+    {
+      "query": "FPS without multiplayer",
+      "expected": {},
+      "gameIds": [
+        1
+      ]
+    },
+    {
+      "query": "不要多人",
+      "expected": {},
+      "gameIds": [
+        5,
+        1,
+        4
+      ]
+    },
+    {
+      "query": "multiplayer",
+      "expected": {
+        "tags": [
+          "Multiplayer"
+        ]
+      },
+      "gameIds": [
+        3,
+        2,
+        6
+      ]
+    },
+    {
+      "query": "合作",
+      "expected": {
+        "tags": [
+          "Co-op"
+        ]
+      },
+      "gameIds": [
+        2,
+        6
+      ]
+    },
+    {
+      "query": "multiplayer without co-op",
+      "expected": {
+        "tags": [
+          "Multiplayer"
+        ]
+      },
+      "gameIds": [
+        3
+      ]
+    },
+    {
+      "query": "horror",
+      "expected": {
+        "tags": [
+          "Horror"
+        ]
+      },
+      "gameIds": [
+        5,
+        4
+      ]
+    },
+    {
+      "query": "horror without survival horror",
+      "expected": {
+        "tags": [
+          "Horror"
+        ]
+      },
+      "gameIds": [
+        5
+      ]
+    },
+    {
+      "query": "singleplayer without multiplayer",
+      "expected": {
+        "tags": [
+          "Singleplayer"
+        ]
+      },
+      "gameIds": [
+        1
+      ]
+    }
+  ],
+  "unsupported": [
+    "co-op without multiplayer",
+    "合作但不要多人",
+    "survival horror without horror"
+  ]
+}

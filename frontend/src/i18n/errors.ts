@@ -1,6 +1,7 @@
 const chineseErrors: Record<string, string> = {
   "Only game-type exclusions are supported. Try 'without multiplayer' or edit Filters.": "目前支持排除游戏类型。试试“不要多人”，或直接编辑筛选条件。",
-  "A type cannot be both required and excluded. Revise the query.": "同一类型不能同时要求包含和排除，请修改搜索内容。",
+  "A type cannot be both required and excluded. Revise the query.": "必选类型与排除范围冲突，请修改搜索条件。",
+  "A preferred type is excluded by an avoided type. Remove one of the conflicting choices.": "偏爱类型属于已排除的范围，请移除其中一个冲突选项。",
   "Your session has expired. Sign in again to continue. Unsaved drafts stay with their original account in this tab.": "登录已过期，请重新登录。未保存草稿会留在当前标签页，仅原账号可恢复。",
   "Your account changed. Check the current account before trying again.": "登录账号已变化，请确认当前账号后重新操作。",
   "Email or account name is already registered. Sign in or choose another display name.": "邮箱或账号名称已被注册，请登录或更换昵称。",

@@ -13,6 +13,12 @@ AVAILABLE_TAGS = ["Exploration", "Multiplayer", "Story Rich", "Survival"]
 
 
 class AISearchTests(unittest.TestCase):
+    def test_provider_cannot_bypass_an_excluded_parent_with_a_child_tag(self):
+        with patch('app.services.ai_search.urllib.request.urlopen', return_value=self.provider_response({'tags': ['Co-op'], 'excludedTags': []})):
+            result = resolve_search_intent('without multiplayer', ['Multiplayer', 'Co-op'], self.ai_settings())
+        self.assertEqual(result.intent['excluded_tags'], ['Multiplayer'])
+        self.assertEqual(result.intent['tags'], [])
+
     def test_provider_cannot_invert_an_explicit_exclusion(self):
         with patch('app.services.ai_search.urllib.request.urlopen', return_value=self.provider_response({'tags': ['Multiplayer'], 'excludedTags': []})):
             result = resolve_search_intent('without multiplayer', AVAILABLE_TAGS, self.ai_settings())

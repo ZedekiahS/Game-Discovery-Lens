@@ -98,3 +98,13 @@ class NegationSearchPostgresTests(SearchPostgresTests):
             with self.subTest(query=query):
                 response = self.client.post('/api/search', json={'query': query})
                 self.assertEqual(response.status_code, 422)
+
+
+class TagFamilySearchPostgresTests(NegationSearchPostgresTests):
+    fixture_filename = "tag-semantics.json"
+
+    def test_get_filter_includes_children_without_rewriting_raw_tags(self):
+        response = self.client.get('/api/games', params={'tag': 'Multiplayer'})
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual({game['id'] for game in response.json()}, {2, 3, 6})
+        self.assertEqual(next(game for game in response.json() if game['id'] == 2)['tags'], ['FPS', 'Co-op'])

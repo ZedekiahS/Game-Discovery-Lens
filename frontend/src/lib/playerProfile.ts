@@ -1,4 +1,5 @@
 import type { Game, GameCollection, PlayerGameRecord, PlayerPreferences, SavedGame } from "../types";
+import { conflictsWithExclusions } from './tagSemantics';
 
 export function buildPlayerProfile(catalog: readonly Game[], records: readonly PlayerGameRecord[], collections: readonly GameCollection[], saved: Record<number, SavedGame[]>, preferences: PlayerPreferences) {
   const games = new Map(catalog.map((g) => [g.id, g]));
@@ -14,7 +15,7 @@ export function buildPlayerProfile(catalog: readonly Game[], records: readonly P
       const game = games.get(id);
       if (!game) continue;
       for (const tag of new Set(game.tags)) {
-        if (avoid.includes(tag)) continue;
+        if (conflictsWithExclusions(tag, avoid)) continue;
         byTag.set(tag, [...(byTag.get(tag) ?? []), game]);
       }
     }

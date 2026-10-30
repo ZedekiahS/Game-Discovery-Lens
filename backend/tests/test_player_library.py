@@ -26,6 +26,26 @@ class PlayerLibraryAuthTests(unittest.TestCase):
 
 
 class PlayerLibraryPostgresTests(SavedGamesPostgresFixture):
+    def test_tag_family_preferences_preserve_legacy_reads_and_reject_new_conflicts(self):
+        from app.db.models import Game, PlayerPreference
+        a = self.headers(self.a)
+        with self.session_factory.begin() as db:
+            db.get(Game, 1).tags = ['Co-op', 'Survival Horror']
+            db.add(PlayerPreference(user_id=self.a['user']['id'], preferred_tags=['Co-op'], avoided_tags=['Multiplayer']))
+        legacy = self.client.get('/api/me/preferences', headers=a)
+        self.assertEqual(legacy.status_code, 200, legacy.text)
+        self.assertEqual(legacy.json()['preferredTags'], ['Co-op'])
+        for body in [legacy.json(), {'preferredTags': ['Survival Horror'], 'avoidedTags': ['Horror']}]:
+            response = self.client.put('/api/me/preferences', headers=a, json=body)
+            self.assertEqual(response.status_code, 422, response.text)
+        self.assertEqual(self.client.get('/api/me/preferences', headers=a).json(), legacy.json())
+        # A broad preferred family can still exclude its narrower child.
+        body = {'preferredTags': ['Multiplayer'], 'avoidedTags': ['Co-op']}
+        response = self.client.put('/api/me/preferences', headers=a, json=body)
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(response.json(), body)
+        self.assertEqual(self.client.get('/api/me/preferences', headers=self.headers(self.b)).json()['preferredTags'], [])
+
     def test_quick_changes_preserve_other_fields_and_account_ownership(self):
         a = self.headers(self.a)
         self.client.put("/api/me/games/1", headers=a, json={"status": "playing", "notes": "Keep this note"})

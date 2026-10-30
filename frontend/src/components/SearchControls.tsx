@@ -3,6 +3,7 @@ import { exampleQueries, type useDiscovery } from "../hooks/useDiscovery";
 import { useI18n } from "../i18n";
 import { localizeExampleQuery } from "../i18n/examples";
 import { ErrorNotice } from "./ui";
+import { conflictsWithExclusions } from '../lib/tagSemantics';
 
 function exampleLabel(query: string) {
   return query === "Celeste" ? "Celeste" : query.includes("FPS") ? "FPS rank" : query.includes("story") ? "Story picks" : query.includes("developer") ? "Dev lens" : "Survival deal";
@@ -125,13 +126,13 @@ export function SearchControls({ discovery, onReturnToBrowse }: { discovery: Ret
                 <span>{t("Include type", "添加必选类型")}</span>
               <select
                 value=""
-                onChange={(event) => { if (event.target.value) updateIntent({ tags: [...intent.tags, event.target.value], excludedTags: excluded.filter(v => v !== event.target.value) }); }}
+                onChange={(event) => { if (event.target.value) updateIntent({ tags: [...intent.tags, event.target.value], excludedTags: excluded.filter(v => !conflictsWithExclusions(event.target.value, [v])) }); }}
               >
                 <option value="">{t("Add a type", "选择类型")}</option>
                 {tags.filter(value => !intent.tags.includes(value)).map((value) => <option key={value} value={value}>{tag(value)}</option>)}
               </select>
             </label>
-            <label className="field"><span>{t("Exclude type", "添加排除类型")}</span><select value="" onChange={e => { if (e.target.value) updateIntent({ excludedTags: [...excluded, e.target.value], tags: intent.tags.filter(v => v !== e.target.value) }); }}><option value="">{t("Add a type", "选择类型")}</option>{tags.filter(value => !excluded.includes(value)).map(value => <option key={value} value={value}>{tag(value)}</option>)}</select></label>
+            <label className="field"><span>{t("Exclude type", "添加排除类型")}</span><select value="" onChange={e => { if (e.target.value) updateIntent({ excludedTags: [...excluded, e.target.value], tags: intent.tags.filter(v => !conflictsWithExclusions(v, [e.target.value])) }); }}><option value="">{t("Add a type", "选择类型")}</option>{tags.filter(value => !excluded.includes(value)).map(value => <option key={value} value={value}>{tag(value)}</option>)}</select></label>
             <label className="field"><span>{t("Minimum rating", "最低评分")}</span><select value={intent.minRating} onChange={e => updateIntent({ minRating: Number(e.target.value) })}>{[...new Set([0, 3, 4, 4.4, 4.5, 4.8, intent.minRating])].sort((a,b) => a-b).map(value => <option key={value} value={value}>{value === 0 ? t("Any rating", "不限评分") : `${value}+`}</option>)}</select></label>
             <label className="check-row">
               <input
@@ -160,6 +161,7 @@ export function SearchControls({ discovery, onReturnToBrowse }: { discovery: Ret
             <label className="field"><span>{t("Maximum results", "最多显示数量")}</span><select value={intent.limit ?? ""} onChange={e => updateIntent({ limit: e.target.value ? Number(e.target.value) : null })}><option value="">{t("All results", "全部结果")}</option>{Array.from({ length: 50 }, (_, i) => <option key={i + 1} value={i + 1}>{i + 1}</option>)}</select></label>
             <label className="field"><span>{t("Start at result", "从第几项开始")}</span><select value={intent.offset + 1} onChange={e => updateIntent({ offset: Number(e.target.value) - 1 })}>{Array.from({ length: 101 }, (_, i) => <option key={i + 1} value={i + 1}>{i + 1}</option>)}</select></label>
           </div>
+          {[...intent.tags, ...excluded].some(v => v === 'Multiplayer' || v === 'Co-op') && <p className="supporting-note">{t('Multiplayer includes online and local co-op tags. Singleplayer does not mean singleplayer-only.', '多人也包含在线及本地合作标签；单人标签不代表仅限单人。')}</p>}
           <button className="small-button" type="button" onClick={clearFilters}>{t("Clear conditions", "清空条件")}</button>
         </details>
 

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "purpose": "New editorial scenarios frozen before the 2026-10-29 ranking change. Authored by the coding agent, not independent human judgments or a held-out user study. Original 2026-10-25 labels remain unchanged.",
+  "scenarios": [
+    {"id":"ori-traversal","brief":"Liked and finished Ori; seek platforming, connected exploration and traversal challenges.","preferred":[],"avoided":[],"records":[{"id":69,"status":"played","affinity":"like"}],"personal":[],"research":[],"relevant":[2,8,13,14,16,28,49,62,64,66,67]},
+    {"id":"deckbuilder-runs","brief":"Likes Slay the Spire: prioritize card-building and repeatable run-based decisions, not strategy alone.","preferred":[],"avoided":[],"records":[{"id":17,"affinity":"like"}],"personal":[],"research":[],"relevant":[15,18,36,53,54,55,73]},
+    {"id":"portal-puzzles","brief":"Finished and liked Portal 2; seek puzzle-solving or spatial reasoning, not just another cooperative game.","preferred":[],"avoided":[],"records":[{"id":51,"status":"played","affinity":"like"}],"personal":[],"research":[],"relevant":[4,8,14,62,64,65,71,72,76,78]},
+    {"id":"hollow-exploration","brief":"Liked Hollow Knight: connected exploration, hidden routes and challenging traversal or combat.","preferred":[],"avoided":[],"records":[{"id":16,"affinity":"like"}],"personal":[],"research":[],"relevant":[2,8,13,14,49,65,66,67,69,80]},
+    {"id":"avoid-multiplayer-wishlist","brief":"Opting out of multiplayer also excludes cooperative titles, even when wishlisted and liked.","preferred":[],"avoided":["Multiplayer"],"records":[{"id":51,"status":"want_to_play","affinity":"like"}],"personal":[],"research":[],"forbiddenIds":[28,30,31,34,35,37,40,41,51,52,54,55,56,60,62]},
+    {"id":"avoid-horror-family","brief":"Avoiding Horror also excludes Survival Horror; the narrower label must not bypass a broad exclusion.","preferred":[],"avoided":["Horror"],"records":[{"id":3,"status":"want_to_play","affinity":"like"}],"personal":[],"research":[],"forbiddenIds":[3,24,26,40,44]}
+  ]
+}

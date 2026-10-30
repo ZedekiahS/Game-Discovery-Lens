@@ -1,12 +1,21 @@
 import catalog from '../../catalog/demo-catalog.json';
-import fixture from '../../tests/fixtures/recommendation-scenarios.json';
+import originalFixture from '../../tests/fixtures/recommendation-scenarios.json';
 import { recommendForPlayer, recommendGames, type RecommendationContext } from '../src/lib/recommendations';
 import type { PlayerGameRecord, GameCollection, SavedGame } from '../src/types';
+import { matchesTag } from '../src/lib/tagSemantics';
 
 // Relevance labels live in the fixture, not in the ranking implementation.
-export function evaluateRecommendations() {
+interface Scenario {
+  id: string; brief: string; preferred: string[]; avoided: string[];
+  records: { id: number; status?: string; affinity?: string }[];
+  personal: number[][]; research: number[]; relevant?: number[];
+  personalized?: boolean; topTwo?: number[]; minimumPrecision?: number; sameAs?: string;
+  forbiddenIds?: number[];
+}
+
+export function evaluateRecommendations(fixture: { version: number; purpose: string; scenarios: Scenario[] } = originalFixture) {
   const rows = fixture.scenarios.map(scenario => {
-    const records: PlayerGameRecord[] = scenario.records.map(row => ({ gameId: row.id, status: 'status' in row ? row.status as PlayerGameRecord['status'] : null, affinity: 'affinity' in row ? row.affinity as PlayerGameRecord['affinity'] : 'neutral', notes: '', updatedAt: '' }));
+    const records: PlayerGameRecord[] = scenario.records.map(row => ({ gameId: row.id, status: (row.status ?? null) as PlayerGameRecord['status'], affinity: (row.affinity ?? 'neutral') as PlayerGameRecord['affinity'], notes: '', updatedAt: '' }));
     const collections: GameCollection[] = [];
     const saved: Record<number, SavedGame[]> = {};
     for (const [index, ids] of [...scenario.personal, scenario.research].entries()) {
@@ -19,12 +28,13 @@ export function evaluateRecommendations() {
     const ids = feed.items.map(item => item.game.id);
     const personal = new Set(scenario.personal.flat());
     const violations: string[] = [];
+    for (const id of ids) if (scenario.forbiddenIds?.includes(id)) violations.push(`forbidden-by-scenario:${id}`);
     for (const item of feed.items) {
       const record = records.find(r => r.gameId === item.game.id);
       if (item.game.tags.some(tag => scenario.avoided.includes(tag)) || record?.affinity === 'dislike' || ['playing','played'].includes(record?.status ?? '')) violations.push(`ineligible:${item.game.id}`);
       if (record?.status !== 'want_to_play' && (personal.has(item.game.id) || record?.affinity === 'like')) violations.push(`known-favorite:${item.game.id}`);
       for (const reason of item.reasons) {
-        if (reason.kind === 'preferred' && !reason.tags.every(tag => scenario.preferred.includes(tag) && item.game.tags.includes(tag))) violations.push('unbacked-preference');
+        if (reason.kind === 'preferred' && !reason.tags.every(tag => scenario.preferred.includes(tag) && matchesTag(item.game.tags, tag))) violations.push('unbacked-preference');
         if (reason.kind === 'wishlist' && record?.status !== 'want_to_play') violations.push('unbacked-wishlist');
         if (reason.kind === 'interest' || reason.kind === 'history') {
           const source = catalog.find(g => g.name === reason.gameName);

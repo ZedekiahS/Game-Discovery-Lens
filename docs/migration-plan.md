@@ -1,99 +1,32 @@
-# Game Discovery Lens Migration Plan
+# Game Discovery Lens: Migration Status and Portfolio Scope
 
-This plan moves Game Discovery Lens from a copied course project into a personally maintained and deployable AI/data product.
+Updated 2026-10-29. The SQL Server-first plan in the original version of this document has been superseded. The maintained application is React/TypeScript + FastAPI + PostgreSQL; it runs independently of the original school database. This is a portfolio project demonstrating reliable software development, not a public commercial launch plan.
 
-## Phase 1: Public Repository Baseline
+## Completed migration
 
-Goal: make the repository safe and understandable.
+| Area | Current implementation and evidence |
+| --- | --- |
+| Runtime | React/Vite frontend, FastAPI backend, PostgreSQL and Alembic. [Local setup](local-postgres-setup.md), [architecture](architecture.md). Node 24 is pinned for the frontend and CI. |
+| Identity and private data | Email/password registration, signed bearer authentication, server-owned collections, game records and preferences. Cross-tab account changes, stale responses and owner-scoped unsaved drafts have regression coverage. |
+| Player experience | English/Chinese discovery, editable search conditions, private library sorting and return state, quick preferences, notes, personal collections and evidence-based recommendations. |
+| Search and AI boundary | Bounded bilingual rules search; optional DeepSeek interpretation with normalized fields and configured fallback. Database queries remain deterministic. No paid provider is needed for local tests. |
+| Data credibility | 80 catalog entries with source-linked gameplay summaries and editorial tags. Prices, ratings, counts, ownership and revenue are synthetic demo values. No source review corpus is connected. |
+| Quality gates | Frontend unit/UI tests and production build, backend tests with isolated PostgreSQL schemas, dependency audit, desktop/mobile real-API browser journeys, and documented Computer Use checks. |
 
-- Add a professional README.
-- Remove school-hosted database assumptions from app configuration.
-- Move database settings to `GDL_DB_*` environment variables.
-- Ignore local secrets, generated JavaScript, `node_modules`, temporary Office files, and personal-looking seed user data.
-- Keep the legacy code intact enough to preserve project history.
+## This round: semantic consistency and recommendation evidence
 
-Status: in progress.
+The [2026-10-29 verification record](verification/tag-semantics-recommendations-2026-10-29.md) covers three bounded changes:
 
-## Phase 2: Personal SQL Server Deployment
+1. A shared, directional tag contract: Multiplayer includes Co-op; Horror includes Survival Horror. Search and preference exclusions apply the same scope without rewriting raw catalog tags.
+2. Concrete gameplay evidence outranks broad themes and player-count coincidence. Diversity only breaks equal relevance scores. Original and additional frozen editorial scenarios retain their labels and report both improvements and regressions.
+3. Documentation now describes the implemented application instead of scheduling already completed architecture work.
 
-Goal: run the existing application without the school server.
+## Legacy scope
 
-- Retain the legacy SQL Server database name `ArcadeIQ` so the historical migrations remain replayable.
-- Retain the legacy app principal `ArcadeIQApp`; it is a technical compatibility identifier, not the current product brand.
-- Apply the legacy SQL migrations or rebuild a clean schema from them.
-- Load safe seed data from `data/gamedata.csv` and `data/reviews.csv`.
-- Create a sanitized replacement for `data/userdata.csv`.
-- Document local setup steps.
+`UI/`, root `migrations/`, `Views/` and the original data import code preserve the Java Swing/SQL Server coursework. Group authorship remains distinct from the modern refactor. [SQL Server setup](local-sqlserver-setup.md) is optional historical reproduction, not a prerequisite or the next deployment stage. Legacy `ArcadeIQ` database/principal identifiers are compatibility details.
 
-Setup entry points:
+Purchases, vouchers, bundles and reviews in the legacy system are not current web features. The modern app does not fetch public reviews or summarize review originals. Developer views use catalog metadata and explicitly identified synthetic aggregates; they do not establish real market demand.
 
-- [Local PostgreSQL Setup](local-postgres-setup.md)
-- [Local SQL Server Setup](local-sqlserver-setup.md)
+## Deferred work
 
-Recommended local options:
-
-- SQL Server Developer Edition
-- SQL Server in Docker
-- Azure SQL for a cloud-hosted demo
-
-## Phase 3: Legacy Stabilization
-
-Goal: make the current Java and SQL system easier to reason about.
-
-- Fix visible text encoding issues in the Java UI.
-- Replace old package/window names with Game Discovery Lens naming.
-- Add scripts for local database setup.
-- Add screenshots and ER diagram exports.
-- Consolidate duplicate or superseded stored procedure migrations.
-- Add smoke tests for the data population scripts.
-
-## Phase 4: Backend API Layer
-
-Goal: stop having the UI call stored procedures directly.
-
-- Introduce a backend API using FastAPI.
-- Move database access into service/repository modules.
-- Expose stable endpoints for games, users, reviews, purchases, bundles, and developer analytics.
-- Keep the Java Swing UI as legacy, or replace it with a web frontend.
-
-Recommended direction for portfolio value:
-
-- FastAPI backend
-- React + TypeScript frontend
-- PostgreSQL for the new product database
-
-## Phase 5: AI Feature MVP
-
-Goal: add one AI feature that clearly improves the product.
-
-First AI feature:
-
-- Natural-language game search
-- Input: "Find cheap multiplayer survival games with good reviews"
-- Output: structured filters such as tags, max price, review requirement, date range, developer, and publisher
-- Database action: query the existing game list endpoint or stored procedure
-
-Second AI feature:
-
-- Review summarization
-- Summarize player feedback for a selected game
-- Produce pros, cons, sentiment, and common themes
-
-Third AI feature:
-
-- Developer insights
-- Explain revenue, review trends, and tag/category opportunities
-
-## Phase 6: Long-Term Database Decision
-
-Do not migrate to MySQL by default. The current project is SQL Server-specific, and MySQL would require a large rewrite without directly supporting the AI roadmap.
-
-Preferred options:
-
-- **Stay on SQL Server** if the goal is to preserve and polish the original database system.
-- **Move to PostgreSQL** if the goal is stronger AI/search/analytics support, especially with embeddings and pgvector.
-
-Decision rule:
-
-- Use SQL Server for the first personal deployment.
-- Revisit PostgreSQL when the backend API and first AI MVP are working.
+Further recommendation evaluation needs independently authored player scenarios or actual user judgments; the present editorial fixtures support diagnosis, not a quality guarantee. Live provider evaluation, a complete mode taxonomy, real market data ingestion, public comments and production account operations are separate decisions. No database replacement, public deployment or broader roadmap is authorized by this document.

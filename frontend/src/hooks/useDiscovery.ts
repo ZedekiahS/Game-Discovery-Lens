@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { getCatalog, searchCatalog } from "../services/catalog";
 import { DATA_MODE } from "../services/runtime";
 import { filterGames } from "../lib/search";
+import { availableTagChoices } from '../lib/tagSemantics';
 import { recommendGames } from "../lib/recommendations";
 import { researchGames } from "../lib/researchOverview";
 import type { Game, SearchIntent, SearchResponse } from "../types";
@@ -54,7 +55,7 @@ export function useDiscovery(view: SearchIntent["mode"] = "player") {
 
   useEffect(() => () => { ++searchSequence.current; }, []);
 
-  const tags = useMemo(() => [...new Set(catalog.flatMap((game) => game.tags))].sort(), [catalog]);
+  const tags = useMemo(() => availableTagChoices(catalog.flatMap((game) => game.tags)), [catalog]);
   const priceCeiling = Math.max(70, intent.maxPrice ?? 0, ...catalog.map((game) => game.price));
   const filteredGames = useMemo(() => isBrowsing ? view === "player" ? recommendGames(catalog) : researchGames(catalog) : searchResults ?? filterGames(catalog, intent), [catalog, intent, isBrowsing, searchResults, view]);
   const selectedPreview = catalog.find((game) => game.id === selectedId) ?? searchResults?.find((game) => game.id === selectedId);

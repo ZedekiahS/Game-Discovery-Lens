@@ -94,6 +94,34 @@ async function login(page: Page, email: string) {
   await expect(page.getByRole("button", { name: "Sign Out", exact: true })).toBeVisible();
 }
 
+test("multiplayer avoidance excludes cooperative wishlist games and survives profile edits", async ({ page }, info) => {
+  await register(page);
+  await page.getByRole("button", { name: "Track this game", exact: true }).click();
+  const editor = page.getByRole("dialog");
+  await editor.getByRole("combobox", { name: "Play status", exact: true }).selectOption("want_to_play");
+  await editor.getByRole("button", { name: "Save record", exact: true }).click();
+  await expect(editor).not.toBeVisible();
+  await page.getByRole("link", { name: "My taste", exact: true }).click();
+  await page.getByRole("combobox", { name: "Less of this", exact: true }).selectOption("Multiplayer");
+  await page.getByRole("combobox", { name: "More of this", exact: true }).selectOption("Co-op");
+  await expect(page.getByRole("button", { name: "Remove Multiplayer from avoided types", exact: true })).toHaveCount(0);
+  await page.getByRole("combobox", { name: "Less of this", exact: true }).selectOption("Multiplayer");
+  await expect(page.getByRole("button", { name: "Remove Co-op from preferred types", exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "Save preferences", exact: true }).click();
+  await expect(page.getByText("Preferences saved", { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Remove Multiplayer from avoided types", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "中文", exact: true }).click();
+  await expect(page.getByText("多人也包含在线及本地合作标签；单人标签不代表仅限单人。", { exact: true })).toBeVisible();
+  await page.locator('.taste-preferences').screenshot({ path: `../docs/screenshots/tag-families-${info.project.name}-zh.png` });
+  await page.getByRole("button", { name: "English", exact: true }).click();
+  await page.getByRole("link", { name: "Discover", exact: true }).click();
+  await expect(page.locator(".game-card")).toHaveCount(6);
+  await expect(page.locator(".game-card").filter({ hasText: "Ready or Not" })).toHaveCount(0);
+  await page.getByRole("link", { name: "My games", exact: true }).click();
+  await expect(page.getByRole("button", { name: /^Ready or Not / }).first()).toBeVisible();
+});
+
 test("real account journey persists records, updates recommendations, and isolates another account", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));

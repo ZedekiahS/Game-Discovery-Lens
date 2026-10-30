@@ -1,0 +1,1052 @@
+{
+  "fixtureVersion": 1,
+  "catalogSize": 80,
+  "scope": "Offline editorial relevance checks on the fixed 80-game catalog. Authored before running rankings; not real user judgments or a held-out research benchmark.",
+  "summary": {
+    "scenarios": 11,
+    "scored": 8,
+    "violations": 0,
+    "macroPrecisionAt6": 0.8958333333333333,
+    "popularityMacroPrecisionAt6": 0.12499999999999999
+  },
+  "rows": [
+    {
+      "id": "new-player",
+      "brief": "No recorded taste: show general picks without claiming personal evidence.",
+      "ids": [
+        31,
+        47,
+        19,
+        16,
+        18,
+        56
+      ],
+      "names": [
+        "Ready or Not",
+        "Elite Dangerous",
+        "Stardew Valley",
+        "Hollow Knight",
+        "Balatro",
+        "Sun Haven"
+      ],
+      "personalized": false,
+      "precisionAt6": null,
+      "ndcgAt6": null,
+      "popularityPrecisionAt6": null,
+      "uniquePrimaryTypes": 5,
+      "violations": [],
+      "reasons": [
+        {
+          "id": 31,
+          "reasons": [
+            {
+              "kind": "catalog"
+            }
+          ]
+        },
+        {
+          "id": 47,
+          "reasons": [
+            {
+              "kind": "catalog"
+            }
+          ]
+        },
+        {
+          "id": 19,
+          "reasons": [
+            {
+              "kind": "catalog"
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "reasons": [
+            {
+              "kind": "catalog"
+            }
+          ]
+        },
+        {
+          "id": 18,
+          "reasons": [
+            {
+              "kind": "catalog"
+            }
+          ]
+        },
+        {
+          "id": 56,
+          "reasons": [
+            {
+              "kind": "catalog"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cozy-evening",
+      "brief": "Relaxed games with cozy presentation; avoid horror and difficult action.",
+      "ids": [
+        19,
+        68,
+        37,
+        77,
+        42,
+        63
+      ],
+      "names": [
+        "Stardew Valley",
+        "Little Kitty, Big City",
+        "PowerWash Simulator",
+        "Sticky Business",
+        "Tiny Glade",
+        "Slime Rancher"
+      ],
+      "personalized": true,
+      "precisionAt6": 1,
+      "ndcgAt6": 1,
+      "popularityPrecisionAt6": 0.16666666666666666,
+      "uniquePrimaryTypes": 5,
+      "violations": [],
+      "reasons": [
+        {
+          "id": 19,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Cozy"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 68,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Cozy"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 37,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Cozy"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 77,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Cozy"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 42,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Cozy"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 63,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Cozy"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "puzzle-discovery",
+      "brief": "Puzzle solving without horror; allow exploration and cooperative puzzles.",
+      "ids": [
+        14,
+        71,
+        78,
+        8,
+        62,
+        66
+      ],
+      "names": [
+        "Outer Wilds",
+        "We Were Here Forever",
+        "Mini Motorways",
+        "ANIMAL WELL",
+        "Human Fall Flat",
+        "TUNIC"
+      ],
+      "personalized": true,
+      "precisionAt6": 1,
+      "ndcgAt6": 1,
+      "popularityPrecisionAt6": 0,
+      "uniquePrimaryTypes": 6,
+      "violations": [],
+      "reasons": [
+        {
+          "id": 14,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Puzzle"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 71,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Puzzle"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 78,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Puzzle"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Puzzle"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 62,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Puzzle"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 66,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Puzzle"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cooperative-weekend",
+      "brief": "Cooperative play without horror; no requirement that a game also carry the Multiplayer tag.",
+      "ids": [
+        31,
+        56,
+        71,
+        41,
+        35,
+        37
+      ],
+      "names": [
+        "Ready or Not",
+        "Sun Haven",
+        "We Were Here Forever",
+        "The Planet Crafter",
+        "Bloons TD 6",
+        "PowerWash Simulator"
+      ],
+      "personalized": true,
+      "precisionAt6": 1,
+      "ndcgAt6": 1,
+      "popularityPrecisionAt6": 0.3333333333333333,
+      "uniquePrimaryTypes": 6,
+      "violations": [],
+      "reasons": [
+        {
+          "id": 31,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Co-op"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 56,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Co-op"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 71,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Co-op"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 41,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Co-op"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 35,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Co-op"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 37,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Co-op"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wishlist-first",
+      "brief": "Return to two saved intentions before exploring more roguelikes; never suggest the current or disliked game.",
+      "ids": [
+        15,
+        2,
+        36,
+        55,
+        53,
+        73
+      ],
+      "names": [
+        "Hades",
+        "Celeste",
+        "Hades II",
+        "Enter the Gungeon",
+        "Noita",
+        "Halls of Torment"
+      ],
+      "personalized": true,
+      "precisionAt6": 1,
+      "ndcgAt6": 1,
+      "popularityPrecisionAt6": 0.16666666666666666,
+      "uniquePrimaryTypes": 3,
+      "violations": [],
+      "reasons": [
+        {
+          "id": 15,
+          "reasons": [
+            {
+              "kind": "wishlist"
+            },
+            {
+              "kind": "preferred",
+              "tags": [
+                "Roguelike"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "reasons": [
+            {
+              "kind": "wishlist"
+            },
+            {
+              "kind": "interest",
+              "tag": "Story Rich",
+              "gameName": "Hades"
+            }
+          ]
+        },
+        {
+          "id": 36,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Roguelike"
+              ]
+            },
+            {
+              "kind": "interest",
+              "tag": "Roguelike",
+              "gameName": "Hades"
+            }
+          ]
+        },
+        {
+          "id": 55,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Roguelike"
+              ]
+            },
+            {
+              "kind": "interest",
+              "tag": "Roguelike",
+              "gameName": "Hades"
+            }
+          ]
+        },
+        {
+          "id": 53,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Roguelike"
+              ]
+            },
+            {
+              "kind": "interest",
+              "tag": "Roguelike",
+              "gameName": "Hades"
+            }
+          ]
+        },
+        {
+          "id": 73,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Roguelike"
+              ]
+            },
+            {
+              "kind": "interest",
+              "tag": "Roguelike",
+              "gameName": "Hades"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "celeste-fan",
+      "brief": "Liked and finished Celeste; look for precise movement, discovery or strong narrative. This editorial set is intentionally broader than one tag.",
+      "ids": [
+        28,
+        16,
+        80,
+        64,
+        69,
+        62
+      ],
+      "names": [
+        "Split Fiction",
+        "Hollow Knight",
+        "ELDEN RING",
+        "PICO PARK",
+        "Ori and the Will of the Wisps",
+        "Human Fall Flat"
+      ],
+      "personalized": true,
+      "precisionAt6": 0.8333333333333334,
+      "ndcgAt6": 0.8486987932505933,
+      "popularityPrecisionAt6": 0.16666666666666666,
+      "uniquePrimaryTypes": 4,
+      "violations": [],
+      "reasons": [
+        {
+          "id": 28,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Platformer",
+              "gameName": "Celeste"
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Difficult",
+              "gameName": "Celeste"
+            }
+          ]
+        },
+        {
+          "id": 80,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Difficult",
+              "gameName": "Celeste"
+            }
+          ]
+        },
+        {
+          "id": 64,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Platformer",
+              "gameName": "Celeste"
+            }
+          ]
+        },
+        {
+          "id": 69,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Platformer",
+              "gameName": "Celeste"
+            }
+          ]
+        },
+        {
+          "id": 62,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Platformer",
+              "gameName": "Celeste"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "space-explorer",
+      "brief": "Space exploration, with no multiplayer games in this session.",
+      "ids": [
+        14,
+        7,
+        29,
+        16,
+        44,
+        68
+      ],
+      "names": [
+        "Outer Wilds",
+        "EVERSPACE 2",
+        "Stellaris",
+        "Hollow Knight",
+        "The Forest",
+        "Little Kitty, Big City"
+      ],
+      "personalized": true,
+      "precisionAt6": 0.5,
+      "ndcgAt6": 0.8318724637288826,
+      "popularityPrecisionAt6": 0,
+      "uniquePrimaryTypes": 6,
+      "violations": [],
+      "reasons": [
+        {
+          "id": 14,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Exploration",
+                "Space"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Exploration",
+                "Space"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 29,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Exploration",
+                "Space"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Exploration"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 44,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Exploration"
+              ]
+            }
+          ]
+        },
+        {
+          "id": 68,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Exploration"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "research-is-not-taste",
+      "brief": "A market-comparison collection must not become personal interest evidence.",
+      "ids": [
+        31,
+        47,
+        19,
+        16,
+        18,
+        56
+      ],
+      "names": [
+        "Ready or Not",
+        "Elite Dangerous",
+        "Stardew Valley",
+        "Hollow Knight",
+        "Balatro",
+        "Sun Haven"
+      ],
+      "personalized": false,
+      "precisionAt6": null,
+      "ndcgAt6": null,
+      "popularityPrecisionAt6": null,
+      "uniquePrimaryTypes": 5,
+      "violations": [],
+      "reasons": [
+        {
+          "id": 31,
+          "reasons": [
+            {
+              "kind": "catalog"
+            }
+          ]
+        },
+        {
+          "id": 47,
+          "reasons": [
+            {
+              "kind": "catalog"
+            }
+          ]
+        },
+        {
+          "id": 19,
+          "reasons": [
+            {
+              "kind": "catalog"
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "reasons": [
+            {
+              "kind": "catalog"
+            }
+          ]
+        },
+        {
+          "id": 18,
+          "reasons": [
+            {
+              "kind": "catalog"
+            }
+          ]
+        },
+        {
+          "id": 56,
+          "reasons": [
+            {
+              "kind": "catalog"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "personal-collection",
+      "brief": "One personal collection containing Celeste supplies interest evidence once.",
+      "ids": [
+        28,
+        16,
+        80,
+        64,
+        69,
+        62
+      ],
+      "names": [
+        "Split Fiction",
+        "Hollow Knight",
+        "ELDEN RING",
+        "PICO PARK",
+        "Ori and the Will of the Wisps",
+        "Human Fall Flat"
+      ],
+      "personalized": true,
+      "precisionAt6": 0.8333333333333334,
+      "ndcgAt6": 0.8486987932505933,
+      "popularityPrecisionAt6": 0.16666666666666666,
+      "uniquePrimaryTypes": 4,
+      "violations": [],
+      "reasons": [
+        {
+          "id": 28,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Platformer",
+              "gameName": "Celeste"
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Difficult",
+              "gameName": "Celeste"
+            }
+          ]
+        },
+        {
+          "id": 80,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Difficult",
+              "gameName": "Celeste"
+            }
+          ]
+        },
+        {
+          "id": 64,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Platformer",
+              "gameName": "Celeste"
+            }
+          ]
+        },
+        {
+          "id": 69,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Platformer",
+              "gameName": "Celeste"
+            }
+          ]
+        },
+        {
+          "id": 62,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Platformer",
+              "gameName": "Celeste"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duplicate-collection",
+      "brief": "Saving the same game in three personal folders must not increase its influence.",
+      "ids": [
+        28,
+        16,
+        80,
+        64,
+        69,
+        62
+      ],
+      "names": [
+        "Split Fiction",
+        "Hollow Knight",
+        "ELDEN RING",
+        "PICO PARK",
+        "Ori and the Will of the Wisps",
+        "Human Fall Flat"
+      ],
+      "personalized": true,
+      "precisionAt6": null,
+      "ndcgAt6": null,
+      "popularityPrecisionAt6": null,
+      "uniquePrimaryTypes": 4,
+      "violations": [],
+      "reasons": [
+        {
+          "id": 28,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Platformer",
+              "gameName": "Celeste"
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Difficult",
+              "gameName": "Celeste"
+            }
+          ]
+        },
+        {
+          "id": 80,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Difficult",
+              "gameName": "Celeste"
+            }
+          ]
+        },
+        {
+          "id": 64,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Platformer",
+              "gameName": "Celeste"
+            }
+          ]
+        },
+        {
+          "id": 69,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Platformer",
+              "gameName": "Celeste"
+            }
+          ]
+        },
+        {
+          "id": 62,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Platformer",
+              "gameName": "Celeste"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-overrides-wishlist",
+      "brief": "A wishlisted horror game is excluded after the player opts out of horror.",
+      "ids": [
+        15,
+        14,
+        77,
+        28,
+        22,
+        46
+      ],
+      "names": [
+        "Hades",
+        "Outer Wilds",
+        "Sticky Business",
+        "Split Fiction",
+        "Disco Elysium",
+        "Half-Life: Alyx"
+      ],
+      "personalized": true,
+      "precisionAt6": 1,
+      "ndcgAt6": 1,
+      "popularityPrecisionAt6": 0,
+      "uniquePrimaryTypes": 6,
+      "violations": [],
+      "reasons": [
+        {
+          "id": 15,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Story Rich"
+              ]
+            },
+            {
+              "kind": "interest",
+              "tag": "Story Rich",
+              "gameName": "SIGNALIS"
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Story Rich"
+              ]
+            },
+            {
+              "kind": "interest",
+              "tag": "Story Rich",
+              "gameName": "SIGNALIS"
+            }
+          ]
+        },
+        {
+          "id": 77,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Story Rich"
+              ]
+            },
+            {
+              "kind": "interest",
+              "tag": "Story Rich",
+              "gameName": "SIGNALIS"
+            }
+          ]
+        },
+        {
+          "id": 28,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Story Rich"
+              ]
+            },
+            {
+              "kind": "interest",
+              "tag": "Story Rich",
+              "gameName": "SIGNALIS"
+            }
+          ]
+        },
+        {
+          "id": 22,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Story Rich"
+              ]
+            },
+            {
+              "kind": "interest",
+              "tag": "Story Rich",
+              "gameName": "SIGNALIS"
+            }
+          ]
+        },
+        {
+          "id": 46,
+          "reasons": [
+            {
+              "kind": "preferred",
+              "tags": [
+                "Story Rich"
+              ]
+            },
+            {
+              "kind": "interest",
+              "tag": "Story Rich",
+              "gameName": "SIGNALIS"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

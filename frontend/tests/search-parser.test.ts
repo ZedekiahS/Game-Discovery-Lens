@@ -5,8 +5,20 @@ import contract from "../../tests/fixtures/search-contract.json";
 import boundaries from "../../tests/fixtures/search-evaluation-boundaries.json";
 import unseen from "../../tests/fixtures/search-evaluation-unseen.json";
 import negation from "../../tests/fixtures/search-negation.json";
+import semantics from "../../tests/fixtures/tag-semantics.json";
 
 const tags = [...new Set(games.flatMap((game) => game.tags))];
+
+describe("shared directional tag families", () => {
+  it.each(semantics.cases)("$query", ({ query, expected, gameIds }) => {
+    const intent = parseSearchIntent(query, semantics.availableTags);
+    expect(intent).toMatchObject(expected);
+    expect(filterGames(semantics.games, intent).map(game => game.id)).toEqual(gameIds);
+  });
+  it.each(semantics.unsupported)("rejects impossible family conditions: %s", query => {
+    expect(() => parseSearchIntent(query, semantics.availableTags)).toThrow();
+  });
+});
 
 describe("shared negative type conditions", () => {
   it.each(negation.cases)("$query", ({ query, expected, gameIds }) => {

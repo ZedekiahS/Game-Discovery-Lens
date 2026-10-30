@@ -153,6 +153,7 @@
           "Story Rich"
         ],
         "excludedTags": [
+          "Horror",
           "Survival Horror"
         ]
       },
@@ -169,6 +170,7 @@
           "Story Rich"
         ],
         "excludedTags": [
+          "Horror",
           "Survival Horror"
         ]
       },
@@ -183,6 +185,7 @@
         "titleQuery": null,
         "tags": [],
         "excludedTags": [
+          "Horror",
           "Multiplayer",
           "Survival Horror"
         ]
@@ -199,6 +202,7 @@
         "titleQuery": null,
         "tags": [],
         "excludedTags": [
+          "Horror",
           "Multiplayer",
           "Survival Horror"
         ]
@@ -287,6 +291,7 @@
         "titleQuery": null,
         "tags": [],
         "excludedTags": [
+          "Horror",
           "Multiplayer",
           "Survival Horror"
         ]

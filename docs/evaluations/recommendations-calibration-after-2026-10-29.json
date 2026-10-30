@@ -1,0 +1,542 @@
+{
+  "fixtureVersion": 1,
+  "catalogSize": 80,
+  "scope": "New editorial scenarios frozen before the 2026-10-29 ranking change. Authored by the coding agent, not independent human judgments or a held-out user study. Original 2026-10-25 labels remain unchanged.",
+  "summary": {
+    "scenarios": 6,
+    "scored": 4,
+    "violations": 0,
+    "macroPrecisionAt6": 0.9583333333333334,
+    "popularityMacroPrecisionAt6": 0.08333333333333333
+  },
+  "rows": [
+    {
+      "id": "ori-traversal",
+      "brief": "Liked and finished Ori; seek platforming, connected exploration and traversal challenges.",
+      "ids": [
+        16,
+        8,
+        28,
+        2,
+        64,
+        62
+      ],
+      "names": [
+        "Hollow Knight",
+        "ANIMAL WELL",
+        "Split Fiction",
+        "Celeste",
+        "PICO PARK",
+        "Human Fall Flat"
+      ],
+      "personalized": true,
+      "precisionAt6": 1,
+      "ndcgAt6": 1,
+      "popularityPrecisionAt6": 0.16666666666666666,
+      "uniquePrimaryTypes": 4,
+      "violations": [],
+      "reasons": [
+        {
+          "id": 16,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Metroidvania",
+              "gameName": "Ori and the Will of the Wisps"
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Metroidvania",
+              "gameName": "Ori and the Will of the Wisps"
+            }
+          ]
+        },
+        {
+          "id": 28,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Platformer",
+              "gameName": "Ori and the Will of the Wisps"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Platformer",
+              "gameName": "Ori and the Will of the Wisps"
+            }
+          ]
+        },
+        {
+          "id": 64,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Platformer",
+              "gameName": "Ori and the Will of the Wisps"
+            }
+          ]
+        },
+        {
+          "id": 62,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Platformer",
+              "gameName": "Ori and the Will of the Wisps"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "deckbuilder-runs",
+      "brief": "Likes Slay the Spire: prioritize card-building and repeatable run-based decisions, not strategy alone.",
+      "ids": [
+        18,
+        55,
+        53,
+        54,
+        15,
+        73
+      ],
+      "names": [
+        "Balatro",
+        "Enter the Gungeon",
+        "Noita",
+        "PlateUp!",
+        "Hades",
+        "Halls of Torment"
+      ],
+      "personalized": true,
+      "precisionAt6": 1,
+      "ndcgAt6": 1,
+      "popularityPrecisionAt6": 0.16666666666666666,
+      "uniquePrimaryTypes": 4,
+      "violations": [],
+      "reasons": [
+        {
+          "id": 18,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Card Battler",
+              "gameName": "Slay the Spire"
+            }
+          ]
+        },
+        {
+          "id": 55,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Roguelike",
+              "gameName": "Slay the Spire"
+            }
+          ]
+        },
+        {
+          "id": 53,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Roguelike",
+              "gameName": "Slay the Spire"
+            }
+          ]
+        },
+        {
+          "id": 54,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Roguelike",
+              "gameName": "Slay the Spire"
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Roguelike",
+              "gameName": "Slay the Spire"
+            }
+          ]
+        },
+        {
+          "id": 73,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Roguelike",
+              "gameName": "Slay the Spire"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "portal-puzzles",
+      "brief": "Finished and liked Portal 2; seek puzzle-solving or spatial reasoning, not just another cooperative game.",
+      "ids": [
+        65,
+        72,
+        14,
+        71,
+        62,
+        64
+      ],
+      "names": [
+        "Viewfinder",
+        "Return of the Obra Dinn",
+        "Outer Wilds",
+        "We Were Here Forever",
+        "Human Fall Flat",
+        "PICO PARK"
+      ],
+      "personalized": true,
+      "precisionAt6": 1,
+      "ndcgAt6": 1,
+      "popularityPrecisionAt6": 0,
+      "uniquePrimaryTypes": 5,
+      "violations": [],
+      "reasons": [
+        {
+          "id": 65,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Puzzle",
+              "gameName": "Portal 2"
+            }
+          ]
+        },
+        {
+          "id": 72,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Puzzle",
+              "gameName": "Portal 2"
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Puzzle",
+              "gameName": "Portal 2"
+            }
+          ]
+        },
+        {
+          "id": 71,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Puzzle",
+              "gameName": "Portal 2"
+            }
+          ]
+        },
+        {
+          "id": 62,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Puzzle",
+              "gameName": "Portal 2"
+            }
+          ]
+        },
+        {
+          "id": 64,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Puzzle",
+              "gameName": "Portal 2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hollow-exploration",
+      "brief": "Liked Hollow Knight: connected exploration, hidden routes and challenging traversal or combat.",
+      "ids": [
+        8,
+        69,
+        67,
+        66,
+        13,
+        21
+      ],
+      "names": [
+        "ANIMAL WELL",
+        "Ori and the Will of the Wisps",
+        "Another Crab's Treasure",
+        "TUNIC",
+        "Subnautica",
+        "DREDGE"
+      ],
+      "personalized": true,
+      "precisionAt6": 0.8333333333333334,
+      "ndcgAt6": 0.892210845475489,
+      "popularityPrecisionAt6": 0,
+      "uniquePrimaryTypes": 4,
+      "violations": [],
+      "reasons": [
+        {
+          "id": 8,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Metroidvania",
+              "gameName": "Hollow Knight"
+            }
+          ]
+        },
+        {
+          "id": 69,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Metroidvania",
+              "gameName": "Hollow Knight"
+            }
+          ]
+        },
+        {
+          "id": 67,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Difficult",
+              "gameName": "Hollow Knight"
+            }
+          ]
+        },
+        {
+          "id": 66,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Difficult",
+              "gameName": "Hollow Knight"
+            }
+          ]
+        },
+        {
+          "id": 13,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Atmospheric",
+              "gameName": "Hollow Knight"
+            }
+          ]
+        },
+        {
+          "id": 21,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Atmospheric",
+              "gameName": "Hollow Knight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "avoid-multiplayer-wishlist",
+      "brief": "Opting out of multiplayer also excludes cooperative titles, even when wishlisted and liked.",
+      "ids": [
+        65,
+        72,
+        14,
+        78,
+        8,
+        66
+      ],
+      "names": [
+        "Viewfinder",
+        "Return of the Obra Dinn",
+        "Outer Wilds",
+        "Mini Motorways",
+        "ANIMAL WELL",
+        "TUNIC"
+      ],
+      "personalized": true,
+      "precisionAt6": null,
+      "ndcgAt6": null,
+      "popularityPrecisionAt6": null,
+      "uniquePrimaryTypes": 6,
+      "violations": [],
+      "reasons": [
+        {
+          "id": 65,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Puzzle",
+              "gameName": "Portal 2"
+            }
+          ]
+        },
+        {
+          "id": 72,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Puzzle",
+              "gameName": "Portal 2"
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Puzzle",
+              "gameName": "Portal 2"
+            }
+          ]
+        },
+        {
+          "id": 78,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Puzzle",
+              "gameName": "Portal 2"
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Puzzle",
+              "gameName": "Portal 2"
+            }
+          ]
+        },
+        {
+          "id": 66,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Puzzle",
+              "gameName": "Portal 2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "avoid-horror-family",
+      "brief": "Avoiding Horror also excludes Survival Horror; the narrower label must not bypass a broad exclusion.",
+      "ids": [
+        16,
+        13,
+        21,
+        8,
+        49,
+        77
+      ],
+      "names": [
+        "Hollow Knight",
+        "Subnautica",
+        "DREDGE",
+        "ANIMAL WELL",
+        "Stray",
+        "Sticky Business"
+      ],
+      "personalized": true,
+      "precisionAt6": null,
+      "ndcgAt6": null,
+      "popularityPrecisionAt6": null,
+      "uniquePrimaryTypes": 5,
+      "violations": [],
+      "reasons": [
+        {
+          "id": 16,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Atmospheric",
+              "gameName": "SIGNALIS"
+            }
+          ]
+        },
+        {
+          "id": 13,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Atmospheric",
+              "gameName": "SIGNALIS"
+            }
+          ]
+        },
+        {
+          "id": 21,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Atmospheric",
+              "gameName": "SIGNALIS"
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Atmospheric",
+              "gameName": "SIGNALIS"
+            }
+          ]
+        },
+        {
+          "id": 49,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Atmospheric",
+              "gameName": "SIGNALIS"
+            }
+          ]
+        },
+        {
+          "id": 77,
+          "reasons": [
+            {
+              "kind": "interest",
+              "tag": "Story Rich",
+              "gameName": "SIGNALIS"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

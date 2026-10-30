@@ -9,6 +9,37 @@ const empty = (): RecommendationContext => ({ records: [], collections: [], save
 const ids = (feed: ReturnType<typeof recommendForPlayer>) => feed.items.map((item) => item.game.id);
 
 describe("personal recommendations", () => {
+  it('prefers a specific gameplay link over several broad themes and explains that link', () => {
+    const catalog = [game(1, ['Platformer', 'Action', 'Exploration']), game(2, ['Platformer'], 1), game(3, ['Action', 'Exploration'], 5)];
+    const result = recommendForPlayer(catalog, { ...empty(), records: [record(1, 'played', 'like')] });
+    expect(ids(result)).toEqual([2,3]);
+    expect(result.items[0].reasons[0]).toEqual({ kind: 'interest', tag: 'Platformer', gameName: 'Game 1' });
+  });
+  it('does not use player count alone as inferred gameplay evidence', () => {
+    const context = { ...empty(), records: [record(1, 'played', 'like')] };
+    const result = recommendForPlayer([game(1, ['FPS', 'Singleplayer']), game(2, ['Puzzle', 'Singleplayer'])], context);
+    expect(result.items[0].reasons).toEqual([{ kind: 'explore' }]);
+    context.preferences.preferredTags = ['Singleplayer'];
+    expect(recommendForPlayer([game(1, ['FPS', 'Singleplayer']), game(2, ['Puzzle', 'Singleplayer'])], context).items[0].reasons[0])
+      .toEqual({ kind: 'preferred', tags: ['Singleplayer'] });
+  });
+
+  it('keeps stronger gameplay evidence ahead of variety, even after similar picks', () => {
+    const catalog = [game(1, ['Platformer', 'Story Rich']), ...[2,3,4,5,6,7].map(id => game(id, ['Platformer', 'Story Rich'])), game(8, ['Story Rich'], 5)];
+    const result = recommendForPlayer(catalog, { ...empty(), records: [record(1, 'played', 'like')] });
+    expect(ids(result)).toEqual([2,3,4,5,6,7]);
+  });
+
+  it('applies broad preference/exclusion families without inventing raw tags', () => {
+    const catalog = [game(1, ['Co-op']), game(2, ['Multiplayer']), game(3, ['Survival Horror'])];
+    const context = { ...empty(), preferences: { preferredTags: ['Multiplayer'], avoidedTags: ['Horror'] } };
+    const result = recommendForPlayer(catalog, context);
+    expect(ids(result).sort()).toEqual([1,2]);
+    expect(result.items.find(i => i.game.id === 1)?.reasons[0]).toEqual({ kind: 'preferred', tags: ['Multiplayer'] });
+    context.preferences = { preferredTags: [], avoidedTags: ['Multiplayer'] };
+    expect(ids(recommendForPlayer(catalog, context))).toEqual([3]);
+    expect(catalog[0].tags).toEqual(['Co-op']);
+  });
   it("retains the cold-start order for empty, note-only, research and unclassified profiles", () => {
     const catalog = [game(1, ["FPS"], 5), game(2, ["Puzzle"], 3)];
     const context = empty();

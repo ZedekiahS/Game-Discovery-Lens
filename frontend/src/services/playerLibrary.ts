@@ -1,6 +1,7 @@
 import type { PlayerGameInput, PlayerGameRecord, PlayerGameUpdate, PlayerPreferences } from "../types";
 import { DATA_MODE } from "./runtime";
 import { requestAccount } from "./users";
+import { conflictsWithExclusions } from '../lib/tagSemantics';
 
 export const emptyPreferences = (): PlayerPreferences => ({ preferredTags: [], avoidedTags: [] });
 interface PlayerLibraryService {
@@ -59,6 +60,9 @@ const demo: PlayerLibraryService = {
   },
   async savePreferences(userId, input) {
     checkPreferences(input);
+    if (input.preferredTags.some(tag => conflictsWithExclusions(tag, input.avoidedTags))) {
+      throw new Error('A preferred type is excluded by an avoided type. Remove one of the conflicting choices.');
+    }
     window.localStorage.setItem(key(userId, "preferences"), JSON.stringify(input));
     return input;
   },

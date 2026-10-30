@@ -9,6 +9,11 @@ const record = (gameId: number, affinity: PlayerGameRecord["affinity"], status: 
 const preferences = { preferredTags: [], avoidedTags: [] };
 
 describe("evidence-based player profile", () => {
+  it("hides an avoided child from inferred interests while retaining factual play history", () => {
+    const profile = buildPlayerProfile(games, [record(51, "like", "played")], [], {}, { preferredTags: [], avoidedTags: ["Multiplayer"] });
+    expect(profile.interests.some(row => row.tag === "Co-op")).toBe(false);
+    expect(profile.played.some(row => row.tag === "Co-op")).toBe(true);
+  });
   it("deduplicates personal saves and likes, and excludes research and unclassified saves", () => {
     const profile = buildPlayerProfile(games, [record(2, "like")], [collection(1, "player"), collection(2, "player"), collection(3, "research"), collection(4)], {
       1: [saved(1, 2)], 2: [saved(2, 2)], 3: [saved(3, 5)], 4: [saved(4, 9)],

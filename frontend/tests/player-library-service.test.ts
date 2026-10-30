@@ -5,6 +5,19 @@ beforeEach(() => { vi.resetModules(); window.localStorage.clear(); window.histor
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 const draft = { status: "played" as const, affinity: "like" as const, notes: "Personal note" };
 describe("player library persistence adapters", () => {
+  it("reads legacy family preferences but rejects contradictory new writes without overwriting", async () => {
+    vi.stubEnv("VITE_DATA_MODE", "demo");
+    const { playerLibrary } = await import("../src/services/playerLibrary");
+    const legacy = { preferredTags: ["Co-op"], avoidedTags: ["Multiplayer"] };
+    window.localStorage.setItem("game-discovery-lens.demo.player.a.preferences", JSON.stringify(legacy));
+    expect(await playerLibrary.getPreferences("a")).toEqual(legacy);
+    await expect(playerLibrary.savePreferences("a", legacy)).rejects.toThrow("excluded");
+    expect(await playerLibrary.getPreferences("a")).toEqual(legacy);
+    const valid = { preferredTags: ["Multiplayer"], avoidedTags: ["Co-op"] };
+    await playerLibrary.savePreferences("a", valid);
+    expect(await playerLibrary.getPreferences("a")).toEqual(valid);
+    expect(await playerLibrary.getPreferences("b")).toEqual({ preferredTags: [], avoidedTags: [] });
+  });
   it("patches only the selected preference, retaining the latest note and other fields", async () => {
     vi.stubEnv("VITE_DATA_MODE", "demo");
     const { playerLibrary } = await import("../src/services/playerLibrary");

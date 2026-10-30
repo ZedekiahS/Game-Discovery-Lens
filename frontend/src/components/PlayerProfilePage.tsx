@@ -5,6 +5,7 @@ import { Compass, Heart, SlidersHorizontal, X } from "lucide-react";
 import type { Game, PlayerPreferences } from "../types";
 import { useI18n } from "../i18n";
 import { buildPlayerProfile } from "../lib/playerProfile";
+import { availableTagChoices, conflictsWithExclusions } from '../lib/tagSemantics';
 import { GameArtwork } from "./GameArtwork";
 import { PlayerPageStatus, playerPageReady, type PlayerPageProps } from "./PlayerLibraryPage";
 
@@ -12,7 +13,7 @@ export function PlayerProfilePage(props: PlayerPageProps) {
   const { catalog, collections, library } = props;
   const { t, tag } = useI18n();
   const profile = buildPlayerProfile(catalog, library.records, collections.collections, collections.savedGamesByCollection, library.preferences);
-  const tags = [...new Set(catalog.flatMap((g) => g.tags))].sort((a, b) => tag(a).localeCompare(tag(b)));
+  const tags = availableTagChoices(catalog.flatMap((g) => g.tags)).sort((a, b) => tag(a).localeCompare(tag(b)));
   const ready = playerPageReady(props);
   return <main className="workspace player-page">
     <header className="player-page-heading"><div><p className="eyebrow"><Compass size={16} aria-hidden="true" />{t("A TASTE OF YOUR WORLDS", "你的游戏，你的风格")}</p><h2>{t("My gaming taste", "玩家画像")}</h2><p>{t("See what draws you in, and make room for your next discovery.", "看看哪些世界吸引着你，也为下一次发现留点空间。")}</p></div><a className="small-button" href="#player/library">{t("Manage my games", "管理我的游戏")}</a></header>
@@ -50,14 +51,18 @@ function PreferencesEditor({ userId, preferences, tags, busy, onSave }: { userId
   const { t, tag } = useI18n();
   const [draft, setDraft, discardDraft] = useAccountDraft(userId, "preferences", preferences);
   const [saved, setSaved] = useState(false);
-  const dirty = JSON.stringify(draft) !== JSON.stringify(preferences);
+  const dirty = JSON.stringify(draft.preferredTags) !== JSON.stringify(preferences.preferredTags)
+    || JSON.stringify(draft.avoidedTags) !== JSON.stringify(preferences.avoidedTags);
   const confirmDiscard = useUnsavedChanges(dirty, discardDraft);
   return <section className="taste-preferences"><div className="section-heading"><h3><SlidersHorizontal size={18} aria-hidden="true" />{t("Make your preferences explicit", "你的偏好，由你决定")}</h3></div><p>{t("Choose what you enjoy and what you prefer to avoid. You can change these anytime.", "选出你偏爱的类型，以及不合口味的类型，随时都可以调整。")}</p>
     <form onSubmit={async (e) => { e.preventDefault(); if (await onSave(draft)) { discardDraft(); setSaved(true); } }}>
       <div className="preference-columns">{(["preferredTags", "avoidedTags"] as const).map((field) => <div key={field}>
-        <label className="field"><span>{field === "preferredTags" ? t("More of this", "更偏爱") : t("Less of this", "不合口味")}</span><select value="" disabled={busy || draft[field].length >= 12} onChange={(e) => { const value = e.target.value; if (value) { setDraft({ preferredTags: draft.preferredTags.filter((v) => v !== value), avoidedTags: draft.avoidedTags.filter((v) => v !== value), [field]: [...draft[field], value] }); setSaved(false); } }}><option value="">{t("Choose a type or style", "选择类型或风格")}</option>{tags.filter((v) => !draft[field].includes(v)).map((v) => <option key={v} value={v}>{tag(v)}</option>)}</select></label>
+        <label className="field"><span>{field === "preferredTags" ? t("More of this", "更偏爱") : t("Less of this", "不合口味")}</span><select value="" disabled={busy || draft[field].length >= 12} onChange={(e) => { const value = e.target.value; if (value) { setDraft(field === 'preferredTags'
+          ? { preferredTags: [...draft.preferredTags, value], avoidedTags: draft.avoidedTags.filter(v => !conflictsWithExclusions(value, [v])) }
+          : { avoidedTags: [...draft.avoidedTags, value], preferredTags: draft.preferredTags.filter(v => !conflictsWithExclusions(v, [value])) }); setSaved(false); } }}><option value="">{t("Choose a type or style", "选择类型或风格")}</option>{tags.filter((v) => !draft[field].includes(v)).map((v) => <option key={v} value={v}>{tag(v)}</option>)}</select></label>
         <div className="preference-chips">{draft[field].map((v) => <button type="button" key={v} disabled={busy} onClick={() => { setDraft({ ...draft, [field]: draft[field].filter((n) => n !== v) }); setSaved(false); }} aria-label={t(`Remove ${tag(v)} from ${field === "preferredTags" ? "preferred" : "avoided"} types`, `从${field === "preferredTags" ? "偏爱" : "不合口味"}中移除${tag(v)}`)}>{tag(v)}<X size={14} aria-hidden="true" /></button>)}</div>
       </div>)}</div>
+      {[...draft.preferredTags, ...draft.avoidedTags].some(v => v === 'Multiplayer' || v === 'Co-op') && <p className="supporting-note">{t('Multiplayer includes online and local co-op tags. Singleplayer does not mean singleplayer-only.', '多人也包含在线及本地合作标签；单人标签不代表仅限单人。')}</p>}
       <div className="record-actions"><button className="primary-button" type="submit" disabled={busy || !dirty}>{busy ? t("Saving…", "正在保存…") : t("Save preferences", "保存偏好")}</button>{dirty && <button type="button" className="small-button" disabled={busy} onClick={() => { if (confirmDiscard()) { setDraft(preferences); discardDraft(); } }}>{t("Cancel changes", "取消更改")}</button>}{saved && <span role="status">{t("Preferences saved", "偏好已保存")}</span>}</div>
     </form>
   </section>;

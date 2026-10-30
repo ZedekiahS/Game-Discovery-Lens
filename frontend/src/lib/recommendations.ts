@@ -1,9 +1,15 @@
 import type { Game, GameCollection, PlayerGameRecord, PlayerPreferences, SavedGame } from "../types";
 import { buildPlayerProfile } from "./playerProfile";
+import { availableTagChoices, matchesTag } from './tagSemantics';
 
 const compareCatalog = (left: Game, right: Game) =>
   right.rating - left.rating || right.reviewCount - left.reviewCount ||
   left.name.localeCompare(right.name, "en") || left.id - right.id;
+
+// These describe a broad theme, presentation or play context rather than a specific gameplay loop.
+// They can support a secondary discovery reason; explicit choices always retain their own priority.
+const contextualTags = new Set(['Action', 'Adventure', 'Exploration', 'Atmospheric', 'Story Rich',
+  'Difficult', 'First-Person', 'VR', 'Space', 'Co-op']);
 
 // Shared cold-start order; sample metrics are not evidence of a player's interests.
 export function recommendGames(catalog: readonly Game[]): Game[] {
@@ -37,7 +43,7 @@ export function recommendForPlayer(catalog: readonly Game[], context?: Recommend
 
   const { records, collections, saved, preferences } = context;
   const profile = buildPlayerProfile(catalog, records, collections, saved, preferences);
-  const knownTags = new Set(catalog.flatMap((game) => game.tags));
+  const knownTags = new Set(availableTagChoices(catalog.flatMap((game) => game.tags)));
   const preferred = new Set(preferences.preferredTags.filter((tag) => knownTags.has(tag)));
   const avoided = new Set(preferences.avoidedTags.filter((tag) => knownTags.has(tag)));
   const recordById = new Map(records.map((record) => [record.gameId, record]));
@@ -55,33 +61,35 @@ export function recommendForPlayer(catalog: readonly Game[], context?: Recommend
   for (const game of catalog) for (const tag of new Set(game.tags)) frequency.set(tag, (frequency.get(tag) ?? 0) + 1);
   const evidenceFor = (game: Game, rows: typeof profile.interests) => rows
     .map((row) => ({ ...row, games: row.games.filter((source) => source.id !== game.id && recordById.get(source.id)?.affinity !== "dislike") }))
-    .filter((row) => game.tags.includes(row.tag) && row.games.length > 0)
-    .map((row) => ({ ...row, weight: Math.min(row.games.length, 3) / Math.sqrt(frequency.get(row.tag) ?? 1) }))
-    .sort((a, b) => b.weight - a.weight || a.tag.localeCompare(b.tag, "en"));
+    // Player count alone does not establish similar gameplay. Explicit preferences still apply.
+    .filter((row) => !["Singleplayer", "Multiplayer"].includes(row.tag) && game.tags.includes(row.tag) && row.games.length > 0)
+    .map((row) => ({ ...row, specific: !contextualTags.has(row.tag), weight: Math.min(row.games.length, 3) / Math.sqrt(frequency.get(row.tag) ?? 1) }))
+    .sort((a, b) => Number(b.specific) - Number(a.specific) || b.weight - a.weight || a.tag.localeCompare(b.tag, "en"));
 
   const candidates = catalog.flatMap((game) => {
     const record = recordById.get(game.id);
-    if (game.tags.some((tag) => avoided.has(tag)) || record?.affinity === "dislike"
+    if ([...avoided].some((tag) => matchesTag(game.tags, tag)) || record?.affinity === "dislike"
       || record?.status === "playing" || record?.status === "played") return [];
     const wishlist = record?.status === "want_to_play";
     // A wishlist entry can be surfaced again; other known favorites belong in the library.
     if (!wishlist && (record?.affinity === "like" || personalSaves.has(game.id))) return [];
 
-    const preferredTags = [...new Set(game.tags.filter((tag) => preferred.has(tag)))].sort();
+    const preferredTags = [...preferred].filter(tag => matchesTag(game.tags, tag)).sort();
     const interests = evidenceFor(game, profile.interests);
     const history = evidenceFor(game, profile.played);
     const reasons: RecommendationReason[] = [];
     if (wishlist) reasons.push({ kind: "wishlist" });
     if (preferredTags.length) reasons.push({ kind: "preferred", tags: preferredTags.slice(0, 2) });
-    const strongest = interests[0] ?? history[0];
+    const fromInterest = interests[0]?.specific || !history[0]?.specific ? interests[0] : undefined;
+    const strongest = fromInterest ?? history[0];
     if (strongest) {
       const source = [...strongest.games].sort((a, b) => a.id - b.id)[0];
-      reasons.push({ kind: interests.length ? "interest" : "history", tag: strongest.tag, gameName: source.name });
+      reasons.push({ kind: fromInterest ? "interest" : "history", tag: strongest.tag, gameName: source.name });
     }
     if (!reasons.length) reasons.push({ kind: "explore" });
 
     return [{ game, reasons: reasons.slice(0, 2),
-      tier: wishlist ? 3 : preferredTags.length ? 2 : strongest ? 1 : 0,
+      tier: wishlist ? 3 : preferredTags.length ? 2 : strongest?.specific ? 1 : strongest ? 0.5 : 0,
       score: preferredTags.length * 6 + interests.reduce((sum, row) => sum + row.weight * 2, 0)
         + history.reduce((sum, row) => sum + row.weight, 0),
     }];
@@ -89,11 +97,11 @@ export function recommendForPlayer(catalog: readonly Game[], context?: Recommend
 
   const items: RecommendationFeed["items"] = [];
   const usedTags = new Map<string, number>();
-  const adjustedScore = (candidate: typeof candidates[number]) => candidate.score
-    - [...new Set(candidate.game.tags)].reduce((sum, tag) => sum + (usedTags.get(tag) ?? 0) * 0.35, 0);
+  const repetition = (candidate: typeof candidates[number]) =>
+    [...new Set(candidate.game.tags)].reduce((sum, tag) => sum + (usedTags.get(tag) ?? 0), 0);
   while (candidates.length && items.length < 6) {
-    // Variety only breaks competition within the same evidence tier; explicit choices remain first.
-    candidates.sort((a, b) => b.tier - a.tier || adjustedScore(b) - adjustedScore(a) || compareCatalog(a.game, b.game));
+    // Variety breaks equal relevance scores; it cannot displace stronger evidence after several picks.
+    candidates.sort((a, b) => b.tier - a.tier || b.score - a.score || repetition(a) - repetition(b) || compareCatalog(a.game, b.game));
     const next = candidates.shift()!;
     items.push({ game: next.game, reasons: next.reasons });
     for (const tag of new Set(next.game.tags)) usedTags.set(tag, (usedTags.get(tag) ?? 0) + 1);

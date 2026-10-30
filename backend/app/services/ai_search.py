@@ -6,6 +6,7 @@ import urllib.request
 from dataclasses import dataclass
 
 from app.config import Settings
+from app.services.tag_semantics import available_tag_choices, conflicts_with_exclusions
 from app.services.search_intent import (
     BUDGET_PRICE, HIGH_RATING, SearchIntent, apply_product_constraints, extract_title,
     normalize_search_intent, parse_search_intent, extract_excluded_tags,
@@ -25,6 +26,7 @@ class IntentParseResult:
 def resolve_search_intent(
     query: str, available_tags: list[str], settings: Settings, available_titles: list[str] | None = None,
 ) -> IntentParseResult:
+    available_tags = available_tag_choices(available_tags)
     rules = parse_with_rules(query, available_tags, available_titles)
     if not query.strip() or not settings.ai_enabled or settings.ai_provider == "rules":
         return rules
@@ -39,7 +41,7 @@ def resolve_search_intent(
             excluded = sorted(set(intent.get("excluded_tags", [])) | set(rules.intent.get("excluded_tags", [])))
             if excluded:
                 intent["excluded_tags"] = excluded
-                intent["tags"] = [tag for tag in intent["tags"] if tag not in excluded]
+                intent["tags"] = [tag for tag in intent["tags"] if not conflicts_with_exclusions(tag, excluded)]
             # Older/provider payloads must not silently erase literal title searches.
             if intent["title_query"] is None:
                 intent["title_query"] = rules.intent["title_query"]

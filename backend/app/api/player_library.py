@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from app.api.auth import get_current_user
 from app.db.database import get_db
 from app.db.models import Game, PlayerGame, PlayerPreference, User
+from app.services.tag_semantics import available_tag_choices, conflicts_with_exclusions
 
 router = APIRouter(prefix="/me", tags=["player-library"])
 
@@ -103,7 +104,10 @@ def get_preferences(user: User = Depends(get_current_user), db: Session = Depend
 
 @router.put("/preferences", response_model=PreferencesInput)
 def save_preferences(request: PreferencesInput, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    known = {tag for tags in db.scalars(select(Game.tags)) for tag in tags}
+    # Enforce new family conflicts on writes only; legacy preferences must remain readable.
+    if any(conflicts_with_exclusions(tag, request.avoided_tags) for tag in request.preferred_tags):
+        raise HTTPException(422, "A preferred type is excluded by an avoided type. Remove one of the conflicting choices.")
+    known = set(available_tag_choices(tag for tags in db.scalars(select(Game.tags)) for tag in tags))
     if not set(request.preferred_tags + request.avoided_tags) <= known:
         raise HTTPException(400, "Choose tags from the game catalog")
     values = request.model_dump()

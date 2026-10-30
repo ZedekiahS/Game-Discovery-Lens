@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import Select, select
+from sqlalchemy import Select, select, or_
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
@@ -11,6 +11,7 @@ from app.schemas import GameInsightsOut, GameOut, SearchRequest, SearchResponse
 from app.services.ai_search import AIProviderError, resolve_search_intent
 from app.services.game_insights import build_game_insights
 from app.services.search_intent import SearchIntent, SearchQueryError
+from app.services.tag_semantics import matching_tags
 
 router = APIRouter(tags=["games"])
 
@@ -27,7 +28,7 @@ def list_games(
     if max_price is not None:
         stmt = stmt.where(Game.price <= max_price)
     if tag:
-        stmt = stmt.where(Game.tags.contains([tag]))
+        stmt = stmt.where(or_(*(Game.tags.contains([member]) for member in matching_tags(tag))))
     if has_reviews:
         stmt = stmt.where(Game.review_count > 0)
 
@@ -85,9 +86,9 @@ def apply_intent_filters(stmt: Select[tuple[Game]], intent: SearchIntent) -> Sel
         stmt = stmt.where(Game.review_count > 0)
 
     for tag in intent["tags"]:
-        stmt = stmt.where(Game.tags.contains([tag]))
+        stmt = stmt.where(or_(*(Game.tags.contains([member]) for member in matching_tags(tag))))
     for tag in intent.get("excluded_tags", []):
-        stmt = stmt.where(~Game.tags.contains([tag]))
+        stmt = stmt.where(~or_(*(Game.tags.contains([member]) for member in matching_tags(tag))))
 
     sort_columns = {
         "name": Game.name,

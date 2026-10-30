@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 import re
 from typing import Literal, TypedDict
+from app.services.tag_semantics import available_tag_choices, conflicts_with_exclusions
 
 SearchSortBy = Literal["name", "price", "rating", "review_count", "release_year", "revenue", "ownership"]
 SearchSortDirection = Literal["asc", "desc"]
@@ -42,7 +43,8 @@ TAG_ALIASES: dict[str, list[str]] = {
     "Story Rich": ["剧情", "故事"],
     "Strategy": ["策略"],
     "Survival": ["生存"],
-    "Survival Horror": ["恐怖", "生存恐怖"],
+    "Horror": ["恐怖"],
+    "Survival Horror": ["生存恐怖"],
 }
 
 
@@ -78,6 +80,7 @@ def default_search_intent() -> SearchIntent:
 def parse_search_intent(
     query: str, available_tags: list[str], available_titles: list[str] | None = None,
 ) -> SearchIntent:
+    available_tags = available_tag_choices(available_tags)
     title, remainder = extract_title(query, available_titles or [])
     excluded, remainder = extract_excluded_tags(remainder, available_tags)
     text = remainder.lower()
@@ -100,7 +103,7 @@ def parse_search_intent(
             remainder = re.sub(pattern, " ", remainder, flags=re.IGNORECASE)
 
     available_tag_lookup = {tag.lower(): tag for tag in available_tags}
-    for word, canonical in (("story", "Story Rich"), ("horror", "Survival Horror")):
+    for word, canonical in (("story", "Story Rich"), ("horror", "Horror")):
         if canonical.lower() in available_tag_lookup and has_any(text, [word]):
             matched_tags.add(available_tag_lookup[canonical.lower()])
             remainder = re.sub(phrase_pattern(word), " ", remainder, flags=re.IGNORECASE)
@@ -115,7 +118,7 @@ def parse_search_intent(
 
     intent["tags"] = prioritize_tags(sorted(matched_tags), text)
     if excluded:
-        if set(excluded) & set(intent["tags"]):
+        if any(conflicts_with_exclusions(tag, excluded) for tag in intent["tags"]):
             raise SearchQueryError("A type cannot be both required and excluded. Revise the query.")
         intent["excluded_tags"] = excluded
     remainder = remove_filter_words(remainder, intent)
@@ -151,8 +154,8 @@ def extract_excluded_tags(text: str, available_tags: list[str]) -> tuple[list[st
             raise SearchQueryError("Only game-type exclusions are supported. Try 'without multiplayer' or edit Filters.")
         while found:
             excluded.add(phrases[found.group().lower()])
-            if found.group().lower() in {"horror", "恐怖"} and "Horror" in available_tags:
-                excluded.add("Horror")
+            if found.group().lower() in {"horror", "恐怖"}:
+                excluded.update(tag for tag in ("Horror", "Survival Horror") if tag in available_tags)
             end = found.end()
             separator = re.match(r"\s*(?:and\b|or\b|、|和|或)\s*", text[end:], re.IGNORECASE)
             found = term.match(text, end + separator.end()) if separator else None
@@ -272,7 +275,7 @@ def normalize_search_intent(raw_intent: dict[str, object], available_tags: list[
         excluded = sorted({available_tag_lookup[str(tag).strip().lower()] for tag in raw_excluded if str(tag).strip().lower() in available_tag_lookup})
         if excluded:
             intent["excluded_tags"] = excluded
-            intent["tags"] = [tag for tag in intent["tags"] if tag not in excluded]
+            intent["tags"] = [tag for tag in intent["tags"] if not conflicts_with_exclusions(tag, excluded)]
 
     return intent
 

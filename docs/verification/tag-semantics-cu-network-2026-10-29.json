@@ -1,0 +1,320 @@
+{
+  "scope": "Computer Use production preview against a dedicated real API schema; access-log sequence only. OPTIONS included; no tokens, credentials or request bodies.",
+  "entries": [
+    {
+      "method": "GET",
+      "path": "/api/games",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/31",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/31/insights",
+      "status": 200
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/search",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/search",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/46",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/46/insights",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/10",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/10/insights",
+      "status": 200
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/auth/register",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/register",
+      "status": 201
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/collections",
+      "status": 200
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/me/games",
+      "status": 200
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/me/preferences",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/me/games",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/collections",
+      "status": 200
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/saved-games?allCollections=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/me/preferences",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/saved-games?allCollections=true",
+      "status": 200
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/me/preferences",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/me/preferences",
+      "status": 200
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/saved-games/insights?collectionId=1",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/14",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/saved-games/insights?collectionId=1",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/14/insights",
+      "status": 200
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/auth/me",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/me/preferences",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/collections",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/me/games",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/saved-games?allCollections=true",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/me/preferences",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/31",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/saved-games/insights?collectionId=1",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/31/insights",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/search",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/69",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/69/insights",
+      "status": 200
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/me/games/69",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/me/games/69",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/16",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/16/insights",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/search",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/46",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/46/insights",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/search",
+      "status": 422
+    },
+    {
+      "method": "POST",
+      "path": "/api/search",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/2/insights",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/me/preferences",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/saved-games/insights?collectionId=1",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/16",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/16/insights",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/me/games",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/collections",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/me/preferences",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/saved-games?allCollections=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/16",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/saved-games/insights?collectionId=1",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/games/16/insights",
+      "status": 200
+    }
+  ]
+}

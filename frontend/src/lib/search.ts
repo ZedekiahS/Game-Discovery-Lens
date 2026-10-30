@@ -1,4 +1,5 @@
 import type { Game, GameSignal, SearchIntent } from "../types";
+import { availableTagChoices, conflictsWithExclusions, matchesTag } from './tagSemantics';
 
 const defaultIntent: SearchIntent = {
   titleQuery: null,
@@ -46,10 +47,12 @@ const tagAliases: Record<string, string[]> = {
   "Story Rich": ["剧情", "故事"],
   Strategy: ["策略"],
   Survival: ["生存"],
-  "Survival Horror": ["恐怖", "生存恐怖"],
+  Horror: ["恐怖"],
+  "Survival Horror": ["生存恐怖"],
 };
 
 export function parseSearchIntent(query: string, availableTags: string[], availableTitles: string[] = []): SearchIntent {
+  availableTags = availableTagChoices(availableTags);
   const protectedTitle = extractTitle(query, availableTitles);
   const title = protectedTitle.title;
   const { excluded, remaining } = extractExcludedTags(protectedTitle.remaining, availableTags);
@@ -82,13 +85,13 @@ export function parseSearchIntent(query: string, availableTags: string[], availa
   for (const tag of availableTags) if (tagPattern(tag).test(text)) tags.add(tag);
 
   if (tagPattern("story").test(text) && availableTags.includes("Story Rich")) tags.add("Story Rich");
-  if (tagPattern("horror").test(text) && availableTags.includes("Survival Horror")) tags.add("Survival Horror");
+  if (tagPattern("horror").test(text) && availableTags.includes("Horror")) tags.add("Horror");
 
   addAliasTags(text, tags, availableTags);
 
   intent.tags = prioritizeTags([...tags].sort(), text);
   if (excluded.length) {
-    if (intent.tags.some(tag => excluded.includes(tag))) throw new Error("A type cannot be both required and excluded. Revise the query.");
+    if (intent.tags.some(tag => conflictsWithExclusions(tag, excluded))) throw new Error("A type cannot be both required and excluded. Revise the query.");
     intent.excludedTags = excluded;
   }
   intent.titleQuery = normalizeTitle([title, remainingTitle(text, availableTags, intent)].filter(Boolean).join(" "));
@@ -101,8 +104,8 @@ export function filterGames(games: Game[], intent: SearchIntent): Game[] {
     const priceMatch = intent.maxPrice === null || game.price <= intent.maxPrice;
     const ratingMatch = game.rating >= intent.minRating;
     const reviewMatch = !intent.hasReviews || game.reviewCount > 0;
-    const tagMatch = intent.tags.length === 0 || intent.tags.every((tag) => game.tags.includes(tag));
-    const excludedMatch = !(intent.excludedTags ?? []).some(tag => game.tags.includes(tag));
+    const tagMatch = intent.tags.every((tag) => matchesTag(game.tags, tag));
+    const excludedMatch = !(intent.excludedTags ?? []).some(tag => matchesTag(game.tags, tag));
     return titleMatch && priceMatch && ratingMatch && reviewMatch && tagMatch && excludedMatch;
   });
 
@@ -138,7 +141,7 @@ function extractExcludedTags(text: string, availableTags: string[]) {
     if (!found) throw new Error("Only game-type exclusions are supported. Try 'without multiplayer' or edit Filters.");
     while (found) {
       excluded.add(phrases.get(found[0].toLowerCase())!);
-      if (["horror", "恐怖"].includes(found[0].toLowerCase()) && availableTags.includes("Horror")) excluded.add("Horror");
+      if (["horror", "恐怖"].includes(found[0].toLowerCase())) for (const tag of ['Horror', 'Survival Horror']) if (availableTags.includes(tag)) excluded.add(tag);
       end += found[0].length;
       const separator = /^\s*(?:and\b|or\b|、|和|或)\s*/i.exec(text.slice(end));
       found = separator ? term.exec(text.slice(end + separator[0].length)) : null;
