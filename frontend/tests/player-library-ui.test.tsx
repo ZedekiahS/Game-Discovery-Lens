@@ -85,6 +85,62 @@ describe("library to profile journey", () => {
 
 
 describe("protecting player changes", () => {
+  it('preserves a dirty old editor and merges only its edited fields with a newer saved note', async () => {
+    const original = await playerLibrary.saveRecord('demo-user', 2, { status: 'want_to_play', affinity: 'neutral', notes: 'Original' });
+    render(<App />);
+    fireEvent.click(await screen.findByRole('button', { name: /Celeste/ }));
+    fireEvent.change(screen.getByLabelText('Play status'), { target: { value: 'playing' } });
+    await playerLibrary.saveRecord('demo-user', 2, { status: 'want_to_play', affinity: 'neutral', notes: 'Newer note' }, original.updatedAt);
+    // No storage event: the server/adapter still rejects the stale write.
+    fireEvent.click(screen.getByRole('button', { name: 'Save record', exact: true }));
+    await screen.findByText('This record changed elsewhere. Your unsaved changes are still here.');
+    expect((screen.getByLabelText('Personal note') as HTMLTextAreaElement).value).toBe('Original');
+    expect((await playerLibrary.getRecords('demo-user'))[0].notes).toBe('Newer note');
+    expect(screen.getByRole('button', { name: 'Save record', exact: true }).hasAttribute('disabled')).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Merge my changes' }));
+    expect((screen.getByLabelText('Personal note') as HTMLTextAreaElement).value).toBe('Newer note');
+    expect((screen.getByLabelText('Play status') as HTMLSelectElement).value).toBe('playing');
+    expect((await playerLibrary.getRecords('demo-user'))[0].status).toBe('want_to_play');
+    fireEvent.click(screen.getByRole('button', { name: 'Save record', exact: true }));
+    await screen.findByText('Game record saved.');
+    expect((await playerLibrary.getRecords('demo-user'))[0]).toMatchObject({ notes: 'Newer note', status: 'playing' });
+  });
+
+  it('refreshes on focus without overwriting a dirty note and allows accepting the saved version', async () => {
+    const original = await playerLibrary.saveRecord('demo-user', 2, { status: null, affinity: 'neutral', notes: 'Original' });
+    render(<App />);
+    fireEvent.click(await screen.findByRole('button', { name: /Celeste/ }));
+    fireEvent.change(screen.getByLabelText('Personal note'), { target: { value: 'My draft' } });
+    await playerLibrary.saveRecord('demo-user', 2, { status: null, affinity: 'like', notes: 'Remote note' }, original.updatedAt);
+    fireEvent(window, new Event('focus'));
+    await screen.findByText('This record changed elsewhere. Your unsaved changes are still here.');
+    expect((screen.getByLabelText('Personal note') as HTMLTextAreaElement).value).toBe('My draft');
+    fireEvent.click(screen.getByRole('button', { name: 'Use saved record' }));
+    expect((screen.getByLabelText('Personal note') as HTMLTextAreaElement).value).toBe('Remote note');
+    fireEvent.click(screen.getByRole('button', { name: 'Close game record' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('searches notes, finds disliked games, and clears empty filters without opening the catalog', async () => {
+    await playerLibrary.saveRecord('demo-user', 2, { status: null, affinity: 'dislike', notes: '空中冲刺练习' });
+    render(<App />);
+    const search = await screen.findByLabelText('Find a game');
+    fireEvent.change(search, { target: { value: '空中冲刺' } });
+    expect(screen.getByRole('button', { name: /Celeste/ })).toBeTruthy();
+    expect(screen.getByText('Has note')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /^Not for me/ }));
+    expect(screen.getByRole('button', { name: /Celeste/ })).toBeTruthy();
+    fireEvent.change(search, { target: { value: 'No match' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+    expect(screen.getByRole('heading', { name: 'Your shelf' })).toBeTruthy();
+    expect(document.querySelectorAll('.library-game')).toHaveLength(1);
+    fireEvent.click(screen.getByRole('button', { name: /Celeste/ }));
+    fireEvent.click(screen.getByLabelText('Undecided'));
+    fireEvent.click(screen.getByRole('button', { name: 'Save record', exact: true }));
+    await screen.findByText('Game record saved.');
+    expect((await playerLibrary.getRecords('demo-user'))[0]).toMatchObject({ affinity: 'neutral', notes: '空中冲刺练习' });
+  });
+
   async function openRecord() {
     render(<App />);
     const add = await screen.findByRole("button", { name: "Add games" });
@@ -129,6 +185,25 @@ describe("protecting player changes", () => {
     resolve([]);
     await waitFor(() => expect(screen.getByRole("button", { name: "Save record" }).hasAttribute("disabled")).toBe(false));
     expect((screen.getByLabelText("Personal note") as HTMLTextAreaElement).value).toBe("Keep my draft");
+  });
+
+  it("reconciles a committed save with a lost response without replaying the write", async () => {
+    await openRecord();
+    const save = playerLibrary.saveRecord;
+    const write = vi.spyOn(playerLibrary, "saveRecord").mockImplementationOnce(async (...args) => {
+      await save(...args);
+      throw new Error("Response lost after commit");
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save record" }));
+    await waitFor(() => expect(within(screen.getByRole("dialog")).getByRole("alert")).toBeTruthy());
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Reload library" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Save record" }).hasAttribute("disabled")).toBe(false));
+    expect((screen.getByLabelText("Personal note") as HTMLTextAreaElement).value).toBe("Keep my draft");
+    expect(write).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText("This record changed elsewhere. Your unsaved changes are still here.")).toBeNull();
+    const refresh = new Event("beforeunload", { cancelable: true });
+    window.dispatchEvent(refresh);
+    expect(refresh.defaultPrevented).toBe(false);
   });
 
   it("protects unsaved preferences on navigation and allows an explicit discard", async () => {

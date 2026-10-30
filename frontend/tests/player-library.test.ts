@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { usePlayerLibrary } from "../src/hooks/usePlayerLibrary";
 import { playerLibrary } from "../src/services/playerLibrary";
 import type { PlayerGameRecord } from "../src/types";
+import { ApiError } from '../src/services/http';
 
 vi.mock("../src/services/runtime", () => ({ DATA_MODE: "demo", API_BASE_URL: "http://localhost:8000/api" }));
 vi.mock("../src/services/playerLibrary", () => ({
@@ -18,6 +19,16 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("private library state", () => {
+  it('distinguishes rejected inputs from an uncertain write and permits correction without reload', async () => {
+    vi.mocked(playerLibrary.saveRecord).mockRejectedValueOnce(new ApiError(422, 'notes: String should have at most 500 characters')).mockResolvedValue(row);
+    const { result } = renderHook(() => usePlayerLibrary('a', 0));
+    await waitFor(() => expect(result.current.loaded).toBe(true));
+    await act(async () => { expect(await result.current.saveRecord(2, row)).toBe(false); });
+    expect(result.current.error).toBe('');
+    expect(result.current.rejection).toContain('notes:');
+    await act(async () => { expect(await result.current.saveRecord(2, row)).toBe(true); });
+    expect(result.current.rejection).toBe('');
+  });
   it("hides old account records immediately and ignores late responses", async () => {
     let resolve!: (r: PlayerGameRecord[]) => void;
     vi.mocked(playerLibrary.getRecords).mockReturnValueOnce(new Promise((done) => { resolve = done; })).mockResolvedValue([]);

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { researchGames, summarizeCatalog } from "../src/lib/researchOverview";
 import type { Game } from "../src/types";
+import { filterGames } from '../src/lib/search';
+import { defaultIntent } from '../src/lib/discoveryLocation';
+import { games as demoGames } from '../src/data/games';
 
 function game(id: number, overrides: Partial<Game> = {}): Game {
   return {
@@ -11,6 +14,13 @@ function game(id: number, overrides: Partial<Game> = {}): Game {
 }
 
 describe("catalog overview", () => {
+  it('uses the same tag families for overview counts and drilldown results', () => {
+    for (const { tag, count } of summarizeCatalog(demoGames).topTags) {
+      expect(filterGames(demoGames, { ...defaultIntent('developer'), tags: [tag] })).toHaveLength(count);
+    }
+    expect(summarizeCatalog([game(1, { tags: ['Co-op', 'Multiplayer'] }), game(2, { tags: ['Co-op'] })]).topTags)
+      .toContainEqual({ tag: 'Multiplayer', count: 2 });
+  });
   it("includes free games and all ratings in averages, and counts distinct nonempty developer names", () => {
     const catalog = [
       game(1, { price: 0, rating: 0, developer: " Example " }),

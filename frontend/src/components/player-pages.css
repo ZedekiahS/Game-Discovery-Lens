@@ -22,6 +22,12 @@
 .library-search { display: flex; align-items: center; gap: 12px; flex: 1; min-height: 46px; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 0 12px; }
 .library-search input { width: 100%; min-width: 0; padding: 12px 0; background: transparent; border: 0; }
 .library-tools .field { max-width: 200px; min-width: 145px; }
+.library-filter-options summary { cursor: pointer; font-size: 13px; color: var(--muted); min-height: 44px; padding: 12px 0; }
+.library-filter-fields { display: flex; gap: 12px; }
+.library-note { display: inline-flex; align-items: center; gap: 4px; }
+.library-game-labels { flex-wrap: wrap; }
+.record-conflict { border: 1px solid #b9974a; background: #302917; border-radius: 8px; padding: 16px; display: grid; gap: 12px; line-height: 1.6; }
+.record-saved-note { white-space: pre-wrap; overflow-wrap: anywhere; }
 .quick-game-actions { margin-top: 20px; }
 .quick-game-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .quick-game-buttons button { min-height: 44px; }
@@ -114,6 +120,20 @@
   .library-shelves button { padding: 10px 12px; } .library-shelves button span { padding-left: 8px; }
 }
 @media (prefers-reduced-motion: reduce) { .library-game { transition: none; } .library-game:hover { transform: none; } }
+
+@media (max-width: 720px) {
+  .library-page .player-page-heading { margin: 0 0 14px; gap: 12px; flex-direction: row; align-items: center; }
+  .library-page .player-page-heading h2 { font-size: 28px; }
+  .library-page .player-page-heading .eyebrow, .library-page .player-page-heading p:not(.eyebrow) { display: none; }
+  .library-page .player-page-heading > .primary-button { width: auto; flex-shrink: 0; }
+  .library-page .library-shelves { gap: 6px; padding-bottom: 14px; }
+  .library-page .library-tools { gap: 8px; margin-bottom: 14px; }
+  .library-filter-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+  .library-filter-options { grid-column: 1 / -1; }
+  .library-filter-fields .field { min-width: 0; }
+  .library-filter-fields select { width: 100%; min-width: 0; }
+  .library-filter-options summary { min-height: 44px; }
+}
 
 .game-provenance { margin-top: 1rem; font-size: .85rem; line-height: 1.6; max-width: 70ch; }
 .game-provenance summary { cursor: pointer; }

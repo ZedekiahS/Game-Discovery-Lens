@@ -60,6 +60,22 @@ beforeEach(() => {
 afterEach(() => { cleanup(); window.history.replaceState(null, "", "/"); });
 
 describe("search results and selection", () => {
+  it('restores an applied search and selection after remount without another interpretation request', async () => {
+    vi.mocked(catalog.searchCatalog).mockResolvedValue(result(celeste));
+    await openApp();
+    search('Celeste');
+    await screen.findByRole('button', { name: 'Remove Title: celeste' });
+    const link = window.location.href;
+    fireEvent.change(screen.getByRole('textbox', { name: 'Search games' }), { target: { value: 'Unsubmitted draft' } });
+    fireEvent.click(document.querySelector<HTMLButtonElement>('.game-card')!);
+    expect(window.location.href).toBe(link);
+    cleanup();
+    render(<App />);
+    await screen.findByRole('heading', { name: celeste.name, level: 2 });
+    expect((screen.getByRole('textbox', { name: 'Search games' }) as HTMLTextAreaElement).value).toBe('Celeste');
+    expect(window.location.href).toBe(link);
+    expect(catalog.searchCatalog).toHaveBeenCalledTimes(1);
+  });
   it("lets a player remove title/rank restrictions and edit types without another search request", async () => {
     const ranked = result(celeste);
     ranked.intent = { ...ranked.intent, limit: 1, offset: 1, excludedTags: ["FPS"] };

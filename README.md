@@ -42,6 +42,8 @@ Players can record **Want to play / Playing / Played**, mark **Like / Not for me
 
 Signed-in players can toggle **Like**, **Want to play**, and **Not for me** directly on the featured game. These actions preserve notes and unrelated record fields. The library sorts by latest activity, collection date, or title; returning from discovery or the taste profile preserves its filters, search and scroll position within the current account session. [Interaction and request verification](docs/verification/quick-preferences-2026-10-23.md) covers the API behavior and desktop/mobile Computer Use review.
 
+Full record edits and removals check the version opened by the editor. If another tab saves first, the old draft stays available for comparison; merging preserves newer values in fields the player did not edit, and still requires an explicit save. The library includes a **Not for me** shelf, note search and note indicators. Signing in after **Track this game** resumes that game's editor. Applied searches and selected results survive refresh and browser Back through public URL state, without repeating an AI interpretation request.
+
 The taste profile separates games of interest from games marked Playing or Played. Each type expands to show the games behind its count. A game saved to multiple personal collections counts once, research collections are excluded, and an explicit dislike overrides collection-based interest. Players can edit preferred and avoided types. These are manually recorded preferences and game counts, not imported Steam playtime or AI-inferred personality scores.
 
 The player homepage now uses that profile. Want-to-play games and explicit preferred types take precedence, followed by related personal interests and play history. Recommendations exclude avoided types, disliked games, and Playing/Played records; other known favorites stay in the library unless marked Want to play. Each recommendation gives a concrete reason in either language. Changes apply when returning from the library/profile, and explicit search still covers the full catalog. A new account receives general picks. Preference-loading failures show general picks with a retry action instead of claiming personalization. See [the ranking rules and verification](docs/verification/personalized-recommendations-2026-10-15.md).
@@ -141,6 +143,7 @@ Each database suite creates and removes only its own UUID-named schema. Existing
 
 Verification records separate the executed checks from their limitations:
 
+- [Personal-record conflicts, task continuity, library management and Computer Use evidence](docs/verification/record-continuity-2026-10-29.md)
 - [Session, input, concurrency and data-trust boundaries; Computer Use and performance evidence](docs/verification/boundaries-trust-2026-10-24.md)
 - [Personalized recommendations, account transitions, and bilingual evidence](docs/verification/personalized-recommendations-2026-10-15.md)
 - [Personal library, evidence-based profile, catalog corrections, and migration](docs/verification/player-library-2026-10-08.md)

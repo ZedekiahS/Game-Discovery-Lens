@@ -76,8 +76,9 @@ describe("language switching in the actual application", () => {
     first.unmount();
     render(<App />);
     await screen.findByRole("option", { name: "周末 Co-op" });
-    expect(screen.getByRole("heading", { name: "为你推荐" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "搜索游戏", exact: true })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Celeste", level: 2 })).toBeTruthy();
+    // Only the submitted search is in the URL; the later unsubmitted text is a tab-local draft.
+    expect((screen.getByRole("textbox", { name: "搜索游戏", exact: true }) as HTMLTextAreaElement).value).toBe('Celeste');
     expect(document.documentElement.lang).toBe("zh-CN");
     expect(document.title).toContain("游戏探索");
   });

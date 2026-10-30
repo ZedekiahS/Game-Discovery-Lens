@@ -41,8 +41,8 @@ describe("player library persistence adapters", () => {
   it("keeps local accounts separate, persists edits, and leaves corrupt records untouched", async () => {
     vi.stubEnv("VITE_DATA_MODE", "demo");
     const { playerLibrary } = await import("../src/services/playerLibrary");
-    await playerLibrary.saveRecord("a", 2, draft);
-    await playerLibrary.saveRecord("a", 2, { ...draft, status: "playing" });
+    const first = await playerLibrary.saveRecord("a", 2, draft);
+    await playerLibrary.saveRecord("a", 2, { ...draft, status: "playing" }, first.updatedAt);
     expect(await playerLibrary.getRecords("a")).toMatchObject([{ gameId: 2, status: "playing" }]);
     expect(await playerLibrary.getRecords("b")).toEqual([]);
     window.localStorage.setItem("game-discovery-lens.demo.player.a.games", "broken");
@@ -61,7 +61,7 @@ describe("player library persistence adapters", () => {
     const [url, init] = request.mock.calls[0];
     expect(url).toMatch(/\/me\/games\/2$/);
     expect(init.headers.Authorization).toBe("Bearer a-token");
-    expect(JSON.parse(init.body)).toEqual(draft);
+    expect(JSON.parse(init.body)).toEqual({ ...draft, expectedUpdatedAt: null });
     expect(writes).not.toHaveBeenCalled();
   });
 });

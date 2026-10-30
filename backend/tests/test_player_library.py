@@ -26,6 +26,55 @@ class PlayerLibraryAuthTests(unittest.TestCase):
 
 
 class PlayerLibraryPostgresTests(SavedGamesPostgresFixture):
+    def test_stale_full_save_and_delete_cannot_erase_new_note_or_recreate_deleted_record(self):
+        a = self.headers(self.a)
+        path = '/api/me/games/1'
+        original = self.client.put(path, headers=a, json={'notes': 'Original', 'expectedUpdatedAt': None}).json()
+        newer = self.client.put(path, headers=a, json={'notes': 'Newer note', 'expectedUpdatedAt': original['updatedAt']})
+        self.assertEqual(newer.status_code, 200, newer.text)
+        self.assertNotEqual(newer.json()['updatedAt'], original['updatedAt'])
+        stale = {'status': 'playing', 'notes': 'Original', 'expectedUpdatedAt': original['updatedAt']}
+        self.assertEqual(self.client.put(path, headers=a, json=stale).status_code, 409)
+        self.assertEqual(self.client.delete(path, headers=a, params={'expectedUpdatedAt': original['updatedAt']}).status_code, 409)
+        self.assertEqual(self.client.get('/api/me/games', headers=a).json()[0]['notes'], 'Newer note')
+        self.assertEqual(self.client.put(path, headers=a, json={'notes': 'Missing precondition'}).status_code, 422)
+        self.assertEqual(self.client.delete(path, headers=a, params={'expectedUpdatedAt': newer.json()['updatedAt']}).status_code, 204)
+        self.assertEqual(self.client.put(path, headers=a, json=stale).status_code, 409)
+        self.assertEqual(self.client.get('/api/me/games', headers=a).json(), [])
+
+    def test_quick_write_invalidates_full_editor_version_without_touching_notes(self):
+        a = self.headers(self.a)
+        original = self.client.put('/api/me/games/1', headers=a, json={'notes': 'Keep', 'expectedUpdatedAt': None}).json()
+        quick = self.client.patch('/api/me/games/1', headers=a, json={'affinity': 'like'}).json()
+        self.assertNotEqual(quick['updatedAt'], original['updatedAt'])
+        self.assertEqual(self.client.put('/api/me/games/1', headers=a, json={'notes': 'Stale', 'expectedUpdatedAt': original['updatedAt']}).status_code, 409)
+        self.assertEqual(quick['notes'], 'Keep')
+
+    def test_simultaneous_creates_and_edits_have_one_winner(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Barrier
+        from sqlalchemy import event
+        a = self.headers(self.a)
+        expected = None
+        for operation in ('INSERT INTO player_games', 'UPDATE player_games'):
+            barrier = Barrier(2)
+            def synchronize(_conn, _cursor, statement, _params, _context, _many):
+                if statement.startswith(operation):
+                    barrier.wait(timeout=10)
+            event.listen(self.engine, 'before_cursor_execute', synchronize)
+            try:
+                def write(note):
+                    with TestClient(app) as client:
+                        return client.put('/api/me/games/1', headers=a, json={'notes': note, 'expectedUpdatedAt': expected})
+                with ThreadPoolExecutor(max_workers=2) as pool:
+                    responses = list(pool.map(write, ['First note', 'Second note']))
+            finally:
+                event.remove(self.engine, 'before_cursor_execute', synchronize)
+            self.assertEqual(sorted(r.status_code for r in responses), [200, 409])
+            winner = next(r.json() for r in responses if r.status_code == 200)
+            self.assertEqual(self.client.get('/api/me/games', headers=a).json(), [winner])
+            expected = winner['updatedAt']
+
     def test_tag_family_preferences_preserve_legacy_reads_and_reject_new_conflicts(self):
         from app.db.models import Game, PlayerPreference
         a = self.headers(self.a)
@@ -48,7 +97,7 @@ class PlayerLibraryPostgresTests(SavedGamesPostgresFixture):
 
     def test_quick_changes_preserve_other_fields_and_account_ownership(self):
         a = self.headers(self.a)
-        self.client.put("/api/me/games/1", headers=a, json={"status": "playing", "notes": "Keep this note"})
+        self.client.put("/api/me/games/1", headers=a, json={"status": "playing", "notes": "Keep this note", "expectedUpdatedAt": None})
         response = self.client.patch("/api/me/games/1", headers=a, json={"affinity": "like"})
         self.assertEqual(response.status_code, 200, response.text)
         self.assertEqual((response.json()["status"], response.json()["notes"]), ("playing", "Keep this note"))
@@ -94,29 +143,30 @@ class PlayerLibraryPostgresTests(SavedGamesPostgresFixture):
     def test_records_survive_reload_and_stay_private_even_with_forged_query(self):
         a = self.headers(self.a)
         b = self.headers(self.b)
-        body = {"status": "playing", "affinity": "like", "notes": "  Finish the next chapter  "}
+        body = {"status": "playing", "affinity": "like", "notes": "  Finish the next chapter  ", "expectedUpdatedAt": None}
         for _ in range(2):
             response = self.client.put("/api/me/games/1", headers=a, json=body)
             self.assertEqual(response.status_code, 200, response.text)
+            body["expectedUpdatedAt"] = response.json()["updatedAt"]
         with TestClient(app) as refreshed:
             rows = refreshed.get("/api/me/games", headers=a).json()
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["notes"], "Finish the next chapter")
         self.assertEqual(rows[0]["status"], "playing")
         self.assertEqual(self.client.get(f"/api/me/games?userId={self.a['user']['id']}", headers=b).json(), [])
-        self.client.put("/api/me/games/1", headers=b, json={"affinity": "dislike"})
-        self.client.delete("/api/me/games/1", headers=b)
+        other = self.client.put("/api/me/games/1", headers=b, json={"affinity": "dislike", "expectedUpdatedAt": None}).json()
+        self.client.delete("/api/me/games/1", headers=b, params={"expectedUpdatedAt": other["updatedAt"]})
         self.assertEqual(len(self.client.get("/api/me/games", headers=a).json()), 1)
         saved = self.save(self.a, 1)
-        self.client.delete("/api/me/games/1", headers=a)
+        self.client.delete("/api/me/games/1", headers=a, params={"expectedUpdatedAt": rows[0]["updatedAt"]})
         self.assertEqual(self.client.get("/api/me/games", headers=a).json(), [])
         self.assertEqual(self.client.get("/api/saved-games", headers=a).json()[0]["id"], saved["id"])
 
     def test_invalid_records_and_forged_body_cannot_write(self):
         for body in [{"status": "finished"}, {"affinity": "love"}, {"notes": "x" * 501}, {"userId": self.b["user"]["id"]}]:
-            response = self.client.put("/api/me/games/1", headers=self.headers(self.a), json=body)
+            response = self.client.put("/api/me/games/1", headers=self.headers(self.a), json={**body, "expectedUpdatedAt": None})
             self.assertEqual(response.status_code, 422, response.text)
-        self.assertEqual(self.client.put("/api/me/games/9999", headers=self.headers(self.a), json={}).status_code, 404)
+        self.assertEqual(self.client.put("/api/me/games/9999", headers=self.headers(self.a), json={"expectedUpdatedAt": None}).status_code, 404)
         self.assertEqual(self.client.get("/api/me/games", headers=self.headers(self.a)).json(), [])
 
     def test_preferences_can_be_changed_cleared_and_not_read_by_other_account(self):

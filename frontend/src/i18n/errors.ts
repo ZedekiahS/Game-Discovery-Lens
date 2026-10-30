@@ -1,4 +1,5 @@
 const chineseErrors: Record<string, string> = {
+  "This game record changed elsewhere. Reload it to review the latest changes.": "这条游戏记录已在别处更改，请重新加载并核对最新内容。",
   "Only game-type exclusions are supported. Try 'without multiplayer' or edit Filters.": "目前支持排除游戏类型。试试“不要多人”，或直接编辑筛选条件。",
   "A type cannot be both required and excluded. Revise the query.": "必选类型与排除范围冲突，请修改搜索条件。",
   "A preferred type is excluded by an avoided type. Remove one of the conflicting choices.": "偏爱类型属于已排除的范围，请移除其中一个冲突选项。",
@@ -53,9 +54,9 @@ const chineseErrors: Record<string, string> = {
 export function translateError(message: string, language: "en" | "zh"): string {
   if (language === "en" || !message) return message;
   if (chineseErrors[message]) return chineseErrors[message];
-  const length = /^(query|name|description|email|displayName|password): String should have at (most|least) (\d+) characters$/.exec(message);
+  const length = /^(query|name|description|email|displayName|password|notes): String should have at (most|least) (\d+) characters$/.exec(message);
   if (length) {
-    const fields: Record<string, string> = { query: "搜索内容", name: "收藏夹名称", description: "描述", email: "邮箱", displayName: "昵称", password: "密码" };
+    const fields: Record<string, string> = { query: "搜索内容", name: "收藏夹名称", description: "描述", email: "邮箱", displayName: "昵称", password: "密码", notes: '个人笔记' };
     return `${fields[length[1]]}${length[2] === "most" ? "最多" : "至少"} ${length[3]} 个字符。`;
   }
   const mutation = /^The change could not be confirmed\. ([\s\S]+) Reload collections before retrying\.$/.exec(message);

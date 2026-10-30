@@ -2,18 +2,26 @@ import type { PlayerGameInput, PlayerGameRecord, PlayerGameUpdate, PlayerPrefere
 import { DATA_MODE } from "./runtime";
 import { requestAccount } from "./users";
 import { conflictsWithExclusions } from '../lib/tagSemantics';
+import { ApiError } from './http';
+
+export const recordConflict = "This game record changed elsewhere. Reload it to review the latest changes.";
+const nextTime = (previous?: PlayerGameRecord) => new Date(Math.max(Date.now(), (Date.parse(previous?.updatedAt ?? '') || 0) + 1)).toISOString();
 
 export const emptyPreferences = (): PlayerPreferences => ({ preferredTags: [], avoidedTags: [] });
 interface PlayerLibraryService {
   getRecords(userId: string): Promise<PlayerGameRecord[]>;
-  saveRecord(userId: string, gameId: number, input: PlayerGameInput): Promise<PlayerGameRecord>;
+  saveRecord(userId: string, gameId: number, input: PlayerGameInput, expectedUpdatedAt?: string | null): Promise<PlayerGameRecord>;
   updateRecord(userId: string, gameId: number, input: PlayerGameUpdate): Promise<PlayerGameRecord>;
-  removeRecord(userId: string, gameId: number): Promise<void>;
+  removeRecord(userId: string, gameId: number, expectedUpdatedAt: string): Promise<void>;
   getPreferences(userId: string): Promise<PlayerPreferences>;
   savePreferences(userId: string, input: PlayerPreferences): Promise<PlayerPreferences>;
 }
 
 const key = (userId: string, type: string) => `game-discovery-lens.demo.player.${encodeURIComponent(userId)}.${type}`;
+function mutateDemoRecords<T>(userId: string, write: () => T): Promise<T> {
+  // The entire per-user list shares a lock, including writes to different games.
+  return navigator.locks ? navigator.locks.request(key(userId, 'games'), write) : Promise.resolve().then(write);
+}
 function readRecords(userId: string): PlayerGameRecord[] {
   const raw = window.localStorage.getItem(key(userId, "games"));
   if (raw === null) return [];
@@ -34,22 +42,33 @@ function checkPreferences(input: PlayerPreferences) {
 }
 const demo: PlayerLibraryService = {
   async getRecords(userId) { return readRecords(userId); },
-  async saveRecord(userId, gameId, input) {
-    const rows = readRecords(userId);
-    const row = { ...input, notes: input.notes.trim(), gameId, updatedAt: new Date().toISOString() };
-    window.localStorage.setItem(key(userId, "games"), JSON.stringify([...rows.filter((r) => r.gameId !== gameId), row]));
-    return row;
+  async saveRecord(userId, gameId, input, expectedUpdatedAt = null) {
+    return mutateDemoRecords(userId, () => {
+      const rows = readRecords(userId);
+      const previous = rows.find(r => r.gameId === gameId);
+      if ((previous?.updatedAt ?? null) !== expectedUpdatedAt) throw new ApiError(409, recordConflict);
+      if (input.notes.length > 500) throw new ApiError(422, 'notes: String should have at most 500 characters');
+      const row = { ...input, notes: input.notes.trim(), gameId, updatedAt: nextTime(previous) };
+      window.localStorage.setItem(key(userId, "games"), JSON.stringify([...rows.filter((r) => r.gameId !== gameId), row]));
+      return row;
+    });
   },
   async updateRecord(userId, gameId, input) {
-    const rows = readRecords(userId);
-    const previous = rows.find((r) => r.gameId === gameId);
-    const row = { status: null, affinity: "neutral" as const, notes: "", ...previous, ...input, gameId, updatedAt: new Date().toISOString() };
-    window.localStorage.setItem(key(userId, "games"), JSON.stringify([...rows.filter((r) => r.gameId !== gameId), row]));
-    return row;
+    return mutateDemoRecords(userId, () => {
+      const rows = readRecords(userId);
+      const previous = rows.find((r) => r.gameId === gameId);
+      const row = { status: null, affinity: "neutral" as const, notes: "", ...previous, ...input, gameId, updatedAt: nextTime(previous) };
+      window.localStorage.setItem(key(userId, "games"), JSON.stringify([...rows.filter((r) => r.gameId !== gameId), row]));
+      return row;
+    });
   },
-  async removeRecord(userId, gameId) {
-    const rows = readRecords(userId);
-    window.localStorage.setItem(key(userId, "games"), JSON.stringify(rows.filter((r) => r.gameId !== gameId)));
+  async removeRecord(userId, gameId, expectedUpdatedAt) {
+    return mutateDemoRecords(userId, () => {
+      const rows = readRecords(userId);
+      const previous = rows.find(r => r.gameId === gameId);
+      if (previous && previous.updatedAt !== expectedUpdatedAt) throw new ApiError(409, recordConflict);
+      window.localStorage.setItem(key(userId, "games"), JSON.stringify(rows.filter((r) => r.gameId !== gameId)));
+    });
   },
   async getPreferences(userId) {
     const raw = window.localStorage.getItem(key(userId, "preferences"));
@@ -69,13 +88,13 @@ const demo: PlayerLibraryService = {
 };
 const api: PlayerLibraryService = {
   getRecords: (userId) => requestAccount("/me/games", userId),
-  saveRecord: (userId, id, input) => requestAccount(`/me/games/${id}`, userId, {
-    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),
+  saveRecord: (userId, id, input, expectedUpdatedAt = null) => requestAccount(`/me/games/${id}`, userId, {
+    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...input, expectedUpdatedAt }),
   }),
   updateRecord: (userId, id, input) => requestAccount(`/me/games/${id}`, userId, {
     method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),
   }),
-  removeRecord: (userId, id) => requestAccount(`/me/games/${id}`, userId, { method: "DELETE" }),
+  removeRecord: (userId, id, expectedUpdatedAt) => requestAccount(`/me/games/${id}?expectedUpdatedAt=${encodeURIComponent(expectedUpdatedAt)}`, userId, { method: "DELETE" }),
   getPreferences: (userId) => requestAccount("/me/preferences", userId),
   savePreferences: (userId, input) => requestAccount("/me/preferences", userId, {
     method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),

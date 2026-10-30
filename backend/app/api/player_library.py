@@ -3,9 +3,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import BaseModel, ConfigDict, Field, model_validator
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, select, text, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
@@ -28,6 +28,19 @@ class GameRecordOut(GameRecordInput):
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
     game_id: int = Field(alias="gameId")
     updated_at: datetime = Field(alias="updatedAt")
+
+
+class GameRecordWrite(GameRecordInput):
+    # null means the editor started with no record; existing edits echo updatedAt exactly.
+    expected_updated_at: datetime | None = Field(alias="expectedUpdatedAt")
+
+
+RECORD_CONFLICT = "This game record changed elsewhere. Reload it to review the latest changes."
+
+
+def next_record_time():
+    # PostgreSQL now() is transaction-start time, which can predate a concurrent writer.
+    return func.greatest(func.clock_timestamp(), PlayerGame.updated_at + text("INTERVAL '1 microsecond'"))
 
 
 class GameQuickUpdate(BaseModel):
@@ -62,23 +75,35 @@ def list_records(user: User = Depends(get_current_user), db: Session = Depends(g
 
 
 @router.put("/games/{game_id}", response_model=GameRecordOut)
-def save_record(game_id: int, request: GameRecordInput, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def save_record(game_id: int, request: GameRecordWrite, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if db.get(Game, game_id) is None:
         raise HTTPException(404, "Game not found")
-    values = request.model_dump()
+    values = request.model_dump(exclude={"expected_updated_at"})
     values["notes"] = values["notes"].strip()
-    # A user/game key is independent of collection membership; concurrent retries cannot duplicate records.
-    stmt = insert(PlayerGame).values(user_id=user.id, game_id=game_id, **values)
-    db.execute(stmt.on_conflict_do_update(
-        index_elements=[PlayerGame.user_id, PlayerGame.game_id], set_={**values, "updated_at": func.now()},
-    ))
+    if request.expected_updated_at is None:
+        stmt = insert(PlayerGame).values(user_id=user.id, game_id=game_id, **values).on_conflict_do_nothing(
+            index_elements=[PlayerGame.user_id, PlayerGame.game_id])
+    else:
+        stmt = update(PlayerGame).where(
+            PlayerGame.user_id == user.id, PlayerGame.game_id == game_id,
+            PlayerGame.updated_at == request.expected_updated_at,
+        ).values(**values, updated_at=next_record_time())
+    if db.execute(stmt.returning(PlayerGame.game_id)).scalar_one_or_none() is None:
+        db.rollback()
+        raise HTTPException(409, RECORD_CONFLICT)
     db.commit()
     return db.get(PlayerGame, (user.id, game_id))
 
 
 @router.delete("/games/{game_id}", status_code=204)
-def remove_record(game_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    db.execute(delete(PlayerGame).where(PlayerGame.user_id == user.id, PlayerGame.game_id == game_id))
+def remove_record(game_id: int, expectedUpdatedAt: datetime = Query(), user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    removed = db.execute(delete(PlayerGame).where(
+        PlayerGame.user_id == user.id, PlayerGame.game_id == game_id,
+        PlayerGame.updated_at == expectedUpdatedAt,
+    ).returning(PlayerGame.game_id)).scalar_one_or_none()
+    if removed is None and db.get(PlayerGame, (user.id, game_id)) is not None:
+        db.rollback()
+        raise HTTPException(409, RECORD_CONFLICT)
     db.commit()
     return Response(status_code=204)
 
@@ -91,7 +116,7 @@ def update_game_preference(game_id: int, request: GameQuickUpdate, user: User = 
     # Update only the chosen fields, including when another tab has changed the note.
     stmt = insert(PlayerGame).values(user_id=user.id, game_id=game_id, **changes)
     db.execute(stmt.on_conflict_do_update(
-        index_elements=[PlayerGame.user_id, PlayerGame.game_id], set_={**changes, "updated_at": func.now()},
+        index_elements=[PlayerGame.user_id, PlayerGame.game_id], set_={**changes, "updated_at": next_record_time()},
     ))
     db.commit()
     return db.get(PlayerGame, (user.id, game_id))

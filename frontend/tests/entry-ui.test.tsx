@@ -71,6 +71,8 @@ describe("audience entry and navigation", () => {
     expect(screen.queryByRole("region", { name: "Research metrics" })).toBeNull();
 
     await act(async () => { window.history.back(); });
+    await screen.findByRole('heading', { name: 'Recommended games', exact: true });
+    await act(async () => { window.history.back(); });
     await screen.findByRole("link", { name: "Enter as developer" });
     expect(screen.queryByRole("textbox", { name: "Search games" })).toBeNull();
   });
@@ -85,8 +87,9 @@ describe("audience entry and navigation", () => {
 
     first.unmount();
     render(<App />);
-    await screen.findByRole("heading", { name: "Research overview", exact: true });
-    expect(screen.queryByRole("region", { name: "Research metrics" })).toBeNull();
+    await screen.findByRole("heading", { name: "Catalog analysis", exact: true });
+    expect(screen.getByRole('textbox', { name: 'Research the catalog' }).textContent).toBe('Celeste');
+    expect(screen.getByRole("region", { name: "Research metrics" })).toBeTruthy();
     expect(screen.queryByRole("link", { name: "Enter as developer" })).toBeNull();
   });
 

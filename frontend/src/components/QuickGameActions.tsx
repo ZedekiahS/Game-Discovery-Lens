@@ -10,7 +10,7 @@ export function QuickGameActions({ gameId, library, onAction }: {
   library: ReturnType<typeof usePlayerLibrary>;
   onAction: () => void;
 }) {
-  const { t } = useI18n();
+  const { t, error } = useI18n();
   const record = library.records.find((r) => r.gameId === gameId);
   const [feedback, setFeedback] = useState<"saving" | "saved" | null>(null);
   const locked = useRef(false);
@@ -41,5 +41,6 @@ export function QuickGameActions({ gameId, library, onAction }: {
     <p className="quick-game-feedback" role="status" aria-atomic="true">{feedback === "saving" ? t("Saving preference…", "正在保存偏好…")
       : feedback === "saved" ? t("Preference saved", "偏好已保存") : ""}</p>
     {library.error && <ErrorNotice message={library.error} onRetry={library.retry} disabled={library.busy || library.loading} />}
+    {library.rejection && <p role="alert">{error(library.rejection)}</p>}
   </div>;
 }

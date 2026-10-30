@@ -1,4 +1,5 @@
 import type { Game } from "../types";
+import { availableTagChoices } from './tagSemantics';
 
 export interface CatalogOverview {
   gameCount: number;
@@ -20,7 +21,7 @@ export function summarizeCatalog(catalog: readonly Game[]): CatalogOverview {
     if (developer) developers.add(developer);
     totalPrice += game.price;
     totalRating += game.rating;
-    for (const tag of new Set(game.tags)) {
+    for (const tag of availableTagChoices(game.tags)) {
       tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
     }
   }

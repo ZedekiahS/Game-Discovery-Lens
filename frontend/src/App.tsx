@@ -96,7 +96,7 @@ function WorkspaceSession({ view, page }: { view: WorkspaceView; page: AppPage }
   } : playerDiscovery;
 
   useEffect(() => {
-    if (page === "library") setRecordGameId(null);
+    if (page !== "library") setRecordGameId(null);
     if (page !== "player" && page !== "developer") {
       setPendingSaveGameId(null);
       setResumeSaveGameId(null);
@@ -114,8 +114,8 @@ function WorkspaceSession({ view, page }: { view: WorkspaceView; page: AppPage }
     view, discovery.isBrowsing, discovery.selectGame, recommendations, sessionKey, library.records, library.preferences]);
   const accountPanel = <AccountPanel account={account}
     compact={page === "library" || page === "profile"}
-    loginRequest={pendingSaveGameId === null ? 0 : loginRequest}
-    onCancelSignIn={() => { setPendingSaveGameId(null); setResumeSaveGameId(null); }} />;
+    loginRequest={pendingSaveGameId === null && recordGameId === null ? 0 : loginRequest}
+    onCancelSignIn={() => { setPendingSaveGameId(null); setResumeSaveGameId(null); setRecordGameId(null); }} />;
 
   return <>
       <nav className="workspace-navigation" aria-label={t("Page navigation", "页面导航")}>
@@ -130,7 +130,7 @@ function WorkspaceSession({ view, page }: { view: WorkspaceView; page: AppPage }
       </nav>
       {(page === "library" || page === "profile") ? <div key={sessionKey}>
         {DATA_MODE === "api" && <div className="player-account">{accountPanel}</div>}
-        {page === "library" ? <PlayerLibraryPage catalog={discovery.catalog} catalogLoading={discovery.catalogLoading} catalogError={discovery.catalogError} retryCatalog={discovery.retryCatalog} library={library} collections={collections} userId={sessionUserId} startGameId={recordGameId} memory={libraryMemory.current.value} />
+        {page === "library" ? <PlayerLibraryPage catalog={discovery.catalog} catalogLoading={discovery.catalogLoading} catalogError={discovery.catalogError} retryCatalog={discovery.retryCatalog} library={library} collections={collections} userId={sessionUserId} startGameId={recordGameId} onStartConsumed={() => setRecordGameId(null)} memory={libraryMemory.current.value} />
           : <PlayerProfilePage catalog={discovery.catalog} catalogLoading={discovery.catalogLoading} catalogError={discovery.catalogError} retryCatalog={discovery.retryCatalog} library={library} collections={collections} userId={sessionUserId} />}
       </div> : <GameWorkspace
         discovery={visibleDiscovery}
@@ -148,7 +148,7 @@ function WorkspaceSession({ view, page }: { view: WorkspaceView; page: AppPage }
           onSignIn={account.status === "checking" ? undefined : () => { setPendingSaveGameId(game.id); setLoginRequest((current) => current + 1); }}
           resumeSave={resumeSaveGameId === game.id}
           onOpen={() => { visibleDiscovery.selectGame(game.id); setPendingSaveGameId(null); setResumeSaveGameId(null); }}
-        />{view === "player" && <button type="button" className="small-button" onClick={() => { setRecordGameId(game.id); window.location.hash = "#player/library"; }}>{t("Track this game", "记录这款游戏")}</button>}</>}
+        />{view === "player" && <button type="button" className="small-button" onClick={() => { setRecordGameId(game.id); if (!sessionUserId) setLoginRequest(n => n + 1); window.location.hash = "#player/library"; }}>{t("Track this game", "记录这款游戏")}</button>}</>}
         collectionPanel={<aside className="sidebar" aria-label={t("Your account and collections", "你的账号与收藏")}>
           {DATA_MODE === "api" && accountPanel}
           <CollectionsPanel
