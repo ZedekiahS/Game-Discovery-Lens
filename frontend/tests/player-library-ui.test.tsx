@@ -85,6 +85,76 @@ describe("library to profile journey", () => {
 
 
 describe("protecting player changes", () => {
+  it('reconciles preferences after a committed save loses its response without replaying the write', async () => {
+    window.history.replaceState(null, '', '/?mode=demo#player/profile');
+    render(<App />);
+    fireEvent.change(await screen.findByLabelText('More of this'), { target: { value: 'Puzzle' } });
+    const save = playerLibrary.savePreferences.bind(playerLibrary);
+    const writes = vi.spyOn(playerLibrary, 'savePreferences').mockImplementationOnce(async (...args) => {
+      await save(...args); throw new Error('Response lost after commit');
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save preferences', exact: true }));
+    await screen.findByText('Your preference changes could not be confirmed. Reload preferences before trying again.');
+    expect(screen.getByRole('button', { name: 'Save preferences', exact: true }).hasAttribute('disabled')).toBe(true);
+    expect(screen.getByRole('button', { name: 'Remove Puzzle from preferred types' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Reload preferences' }));
+    await waitFor(() => expect(screen.queryByText('Your preference changes could not be confirmed. Reload preferences before trying again.')).toBeNull());
+    expect(screen.getByRole('button', { name: 'Save preferences', exact: true }).hasAttribute('disabled')).toBe(true);
+    expect(screen.queryByRole('button', { name: 'Cancel changes' })).toBeNull();
+    expect(writes).toHaveBeenCalledTimes(1);
+  });
+
+  it('retains preference choices after an uncommitted failure and can accept a newer saved selection', async () => {
+    window.history.replaceState(null, '', '/?mode=demo#player/profile');
+    render(<App />);
+    fireEvent.change(await screen.findByLabelText('More of this'), { target: { value: 'Puzzle' } });
+    vi.spyOn(playerLibrary, 'savePreferences').mockRejectedValueOnce(new Error('Offline'));
+    fireEvent.click(screen.getByRole('button', { name: 'Save preferences', exact: true }));
+    await screen.findByText('Your preference changes could not be confirmed. Reload preferences before trying again.');
+    expect(screen.getByRole('button', { name: 'Save preferences', exact: true }).hasAttribute('disabled')).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Reload preferences' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Save preferences', exact: true }).hasAttribute('disabled')).toBe(false));
+    expect(screen.getByRole('button', { name: 'Remove Puzzle from preferred types' })).toBeTruthy();
+    await playerLibrary.savePreferences('demo-user', { preferredTags: ['Co-op'], avoidedTags: [] });
+    fireEvent(window, new Event('focus'));
+    await screen.findByText('Your preferences changed elsewhere. Your unsaved choices are still here.');
+    fireEvent.click(screen.getByRole('button', { name: 'Use saved preferences' }));
+    expect(screen.queryByRole('button', { name: 'Remove Puzzle from preferred types' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Remove Co-op from preferred types' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Save preferences', exact: true }).hasAttribute('disabled')).toBe(true);
+  });
+
+  it('refreshes a clean preferences editor without making it dirty', async () => {
+    window.history.replaceState(null, '', '/?mode=demo#player/profile');
+    render(<App />);
+    await screen.findByLabelText('More of this');
+    await playerLibrary.savePreferences('demo-user', { preferredTags: ['Puzzle'], avoidedTags: [] });
+    fireEvent(window, new Event('focus'));
+    await screen.findByRole('button', { name: 'Remove Puzzle from preferred types' });
+    expect(screen.getByRole('button', { name: 'Save preferences', exact: true }).hasAttribute('disabled')).toBe(true);
+    const unload = new Event('beforeunload', { cancelable: true });
+    window.dispatchEvent(unload);
+    expect(unload.defaultPrevented).toBe(false);
+  });
+
+  it('keeps a dirty preferences draft on conflict and requires explicit review before replacing saved choices', async () => {
+    window.history.replaceState(null, '', '/?mode=demo#player/profile');
+    render(<App />);
+    fireEvent.change(await screen.findByLabelText('More of this'), { target: { value: 'Puzzle' } });
+    await playerLibrary.savePreferences('demo-user', { preferredTags: [], avoidedTags: ['Horror'] });
+    // No focus/storage notification: the write itself must detect the stale version.
+    fireEvent.click(screen.getByRole('button', { name: 'Save preferences', exact: true }));
+    await screen.findByText('Your preferences changed elsewhere. Your unsaved choices are still here.');
+    expect(screen.getByRole('button', { name: 'Remove Puzzle from preferred types' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Save preferences', exact: true }).hasAttribute('disabled')).toBe(true);
+    expect((await playerLibrary.getPreferences('demo-user')).avoidedTags).toEqual(['Horror']);
+    fireEvent.click(screen.getByRole('button', { name: 'Keep my choices' }));
+    expect((await playerLibrary.getPreferences('demo-user')).avoidedTags).toEqual(['Horror']);
+    fireEvent.click(screen.getByRole('button', { name: 'Save preferences', exact: true }));
+    await screen.findByText('Preferences saved');
+    expect(await playerLibrary.getPreferences('demo-user')).toMatchObject({ preferredTags: ['Puzzle'], avoidedTags: [] });
+  });
+
   it('preserves a dirty old editor and merges only its edited fields with a newer saved note', async () => {
     const original = await playerLibrary.saveRecord('demo-user', 2, { status: 'want_to_play', affinity: 'neutral', notes: 'Original' });
     render(<App />);

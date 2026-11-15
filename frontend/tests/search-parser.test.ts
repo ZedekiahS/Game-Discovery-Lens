@@ -6,8 +6,25 @@ import boundaries from "../../tests/fixtures/search-evaluation-boundaries.json";
 import unseen from "../../tests/fixtures/search-evaluation-unseen.json";
 import negation from "../../tests/fixtures/search-negation.json";
 import semantics from "../../tests/fixtures/tag-semantics.json";
+import phrases from "../../tests/fixtures/search-phrases.json";
+import { readDiscoveryLocation, writeDiscoveryLocation } from '../src/lib/discoveryLocation';
 
 const tags = [...new Set(games.flatMap((game) => game.tags))];
+
+describe('complete type phrases across parsing, local filters and restored URL conditions', () => {
+  it.each(phrases.cases)('$query', ({ query, expected, gameIds }) => {
+    const intent = parseSearchIntent(query, phrases.availableTags, phrases.games.map(g => g.name));
+    expect(intent).toMatchObject(expected);
+    expect(filterGames(phrases.games, intent).map(g => g.id)).toEqual(gameIds);
+    writeDiscoveryLocation('player', { query, intent, selectedId: gameIds[0] ?? null, edited: true });
+    const restored = readDiscoveryLocation('player')!;
+    expect(filterGames(phrases.games, restored.intent).map(g => g.id)).toEqual(gameIds);
+    writeDiscoveryLocation('player', null, true);
+  });
+  it.each(phrases.unsupported)('rejects unsupported or contradictory condition: %s', query => {
+    expect(() => parseSearchIntent(query, phrases.availableTags)).toThrow();
+  });
+});
 
 describe("shared directional tag families", () => {
   it.each(semantics.cases)("$query", ({ query, expected, gameIds }) => {

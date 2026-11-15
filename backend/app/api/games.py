@@ -91,7 +91,8 @@ def apply_intent_filters(stmt: Select[tuple[Game]], intent: SearchIntent) -> Sel
         stmt = stmt.where(~or_(*(Game.tags.contains([member]) for member in matching_tags(tag))))
 
     sort_columns = {
-        "name": Game.name,
+        # Match the local/URL search contract independently of the database locale.
+        "name": Game.name.collate("C"),
         "price": Game.price,
         "rating": Game.rating,
         "review_count": Game.review_count,
@@ -99,9 +100,9 @@ def apply_intent_filters(stmt: Select[tuple[Game]], intent: SearchIntent) -> Sel
         "revenue": Game.revenue,
         "ownership": Game.ownership,
     }
-    sort_column = sort_columns.get(intent["sort_by"] or "name", Game.name)
+    sort_column = sort_columns.get(intent["sort_by"] or "name", Game.name.collate("C"))
     primary_sort = sort_column.desc() if intent["sort_direction"] == "desc" else sort_column.asc()
-    stmt = stmt.order_by(primary_sort, Game.name.asc())
+    stmt = stmt.order_by(primary_sort, Game.name.collate("C").asc())
 
     if intent["offset"] > 0:
         stmt = stmt.offset(intent["offset"])

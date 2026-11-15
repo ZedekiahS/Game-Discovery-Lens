@@ -1,4 +1,4 @@
-import type { PlayerGameInput, PlayerGameRecord, PlayerGameUpdate, PlayerPreferences } from "../types";
+import type { PlayerGameInput, PlayerGameRecord, PlayerGameUpdate, PlayerPreferences, PlayerPreferencesSnapshot } from "../types";
 import { DATA_MODE } from "./runtime";
 import { requestAccount } from "./users";
 import { conflictsWithExclusions } from '../lib/tagSemantics';
@@ -7,14 +7,14 @@ import { ApiError } from './http';
 export const recordConflict = "This game record changed elsewhere. Reload it to review the latest changes.";
 const nextTime = (previous?: PlayerGameRecord) => new Date(Math.max(Date.now(), (Date.parse(previous?.updatedAt ?? '') || 0) + 1)).toISOString();
 
-export const emptyPreferences = (): PlayerPreferences => ({ preferredTags: [], avoidedTags: [] });
+export const emptyPreferences = (): PlayerPreferencesSnapshot => ({ preferredTags: [], avoidedTags: [], version: 0 });
 interface PlayerLibraryService {
   getRecords(userId: string): Promise<PlayerGameRecord[]>;
   saveRecord(userId: string, gameId: number, input: PlayerGameInput, expectedUpdatedAt?: string | null): Promise<PlayerGameRecord>;
   updateRecord(userId: string, gameId: number, input: PlayerGameUpdate): Promise<PlayerGameRecord>;
   removeRecord(userId: string, gameId: number, expectedUpdatedAt: string): Promise<void>;
-  getPreferences(userId: string): Promise<PlayerPreferences>;
-  savePreferences(userId: string, input: PlayerPreferences): Promise<PlayerPreferences>;
+  getPreferences(userId: string): Promise<PlayerPreferencesSnapshot>;
+  savePreferences(userId: string, input: PlayerPreferences, expectedVersion?: number): Promise<PlayerPreferencesSnapshot>;
 }
 
 const key = (userId: string, type: string) => `game-discovery-lens.demo.player.${encodeURIComponent(userId)}.${type}`;
@@ -73,17 +73,26 @@ const demo: PlayerLibraryService = {
   async getPreferences(userId) {
     const raw = window.localStorage.getItem(key(userId, "preferences"));
     if (raw === null) return emptyPreferences();
-    const prefs: PlayerPreferences = JSON.parse(raw);
+    const prefs: PlayerPreferencesSnapshot = JSON.parse(raw);
     checkPreferences(prefs);
-    return prefs;
+    // Pre-version browser data stays readable; the first guarded edit advances it to 1.
+    const version = prefs.version ?? 0;
+    if (!Number.isSafeInteger(version) || version < 0) throw new Error('Your preferences could not be loaded.');
+    return { ...prefs, version };
   },
-  async savePreferences(userId, input) {
+  async savePreferences(userId, input, expectedVersion = 0) {
     checkPreferences(input);
     if (input.preferredTags.some(tag => conflictsWithExclusions(tag, input.avoidedTags))) {
       throw new Error('A preferred type is excluded by an avoided type. Remove one of the conflicting choices.');
     }
-    window.localStorage.setItem(key(userId, "preferences"), JSON.stringify(input));
-    return input;
+    const write = async () => {
+      const latest = await demo.getPreferences(userId);
+      if (latest.version !== expectedVersion) throw new ApiError(409, 'Your preferences changed elsewhere. Reload them to review the latest choices.');
+      const saved = { preferredTags: input.preferredTags, avoidedTags: input.avoidedTags, version: latest.version + 1 };
+      window.localStorage.setItem(key(userId, "preferences"), JSON.stringify(saved));
+      return saved;
+    };
+    return navigator.locks ? navigator.locks.request(key(userId, 'preferences'), write) : write();
   },
 };
 const api: PlayerLibraryService = {
@@ -96,8 +105,8 @@ const api: PlayerLibraryService = {
   }),
   removeRecord: (userId, id, expectedUpdatedAt) => requestAccount(`/me/games/${id}?expectedUpdatedAt=${encodeURIComponent(expectedUpdatedAt)}`, userId, { method: "DELETE" }),
   getPreferences: (userId) => requestAccount("/me/preferences", userId),
-  savePreferences: (userId, input) => requestAccount("/me/preferences", userId, {
-    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),
+  savePreferences: (userId, input, expectedVersion = 0) => requestAccount("/me/preferences", userId, {
+    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ preferredTags: input.preferredTags, avoidedTags: input.avoidedTags, expectedVersion }),
   }),
 };
 export const playerLibrary = DATA_MODE === "api" ? api : demo;

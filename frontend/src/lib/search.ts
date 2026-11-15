@@ -56,7 +56,9 @@ export function parseSearchIntent(query: string, availableTags: string[], availa
   const protectedTitle = extractTitle(query, availableTitles);
   const title = protectedTitle.title;
   const { excluded, remaining } = extractExcludedTags(protectedTitle.remaining, availableTags);
-  const text = remaining.toLowerCase();
+  const originalText = remaining.toLowerCase();
+  const positive = extractPositiveTags(originalText, availableTags);
+  const text = positive.remaining;
   const intent: SearchIntent = { ...defaultIntent, tags: [] };
 
   const explicitPrice = pricePatterns.map((pattern) => text.match(pattern)).find(Boolean);
@@ -81,20 +83,12 @@ export function parseSearchIntent(query: string, availableTags: string[], availa
 
   applyRankingIntent(text, intent);
 
-  const tags = new Set<string>();
-  for (const tag of availableTags) if (tagPattern(tag).test(text)) tags.add(tag);
-
-  if (tagPattern("story").test(text) && availableTags.includes("Story Rich")) tags.add("Story Rich");
-  if (tagPattern("horror").test(text) && availableTags.includes("Horror")) tags.add("Horror");
-
-  addAliasTags(text, tags, availableTags);
-
-  intent.tags = prioritizeTags([...tags].sort(), text);
+  intent.tags = prioritizeTags([...positive.tags].sort(), originalText);
   if (excluded.length) {
     if (intent.tags.some(tag => conflictsWithExclusions(tag, excluded))) throw new Error("A type cannot be both required and excluded. Revise the query.");
     intent.excludedTags = excluded;
   }
-  intent.titleQuery = normalizeTitle([title, remainingTitle(text, availableTags, intent)].filter(Boolean).join(" "));
+  intent.titleQuery = normalizeTitle([title, remainingTitle(text, intent)].filter(Boolean).join(" "));
   return intent;
 }
 
@@ -171,21 +165,9 @@ function extractTitle(query: string, availableTitles: string[]) {
   return { title: null, remaining: query };
 }
 
-function remainingTitle(text: string, availableTags: string[], intent: SearchIntent): string {
+function remainingTitle(text: string, intent: SearchIntent): string {
   let remaining = text.replace(new RegExp(freePricePattern.source, "g"), " ");
   for (const pattern of pricePatterns) remaining = remaining.replace(new RegExp(pattern.source, "g"), " ");
-  for (const tag of [...availableTags].sort((first, second) => second.length - first.length)) {
-    remaining = remaining.replace(tagPattern(tag, true), " ");
-  }
-  for (const [canonical, aliases] of Object.entries(tagAliases)) {
-    if (!availableTags.includes(canonical)) continue;
-    for (const alias of [...aliases].sort((first, second) => second.length - first.length)) {
-      remaining = remaining.split(alias).join(" ");
-    }
-  }
-  if (availableTags.includes("Story Rich")) remaining = remaining.replace(tagPattern("story", true), " ");
-  if (availableTags.includes("Survival Horror")) remaining = remaining.replace(tagPattern("horror", true), " ");
-
   remaining = remaining.replace(/(?<![a-z0-9])(?:most expensive|highest price|priciest|cheapest|lowest price|least expensive|highest rated|top rated|best rated|highly rated|most reviewed|review volume|most reviews|most recent|highest revenue|most revenue|top revenue|most owned|highest ownership|good reviews|cheap|deal|best|newest|latest|oldest|reviews?|rated)(?![a-z0-9])/g, " ");
   remaining = remaining.replace(/\btop\s+\d{1,2}\b|\b(?:show|find|give me|list)\s+(?:the\s+)?\d{1,2}\b/g, " ");
   remaining = remaining.replace(/\b(?:first|1st|second|2nd|third|3rd|fourth|4th|fifth|5th)\b|第[一二三四五]\s*贵|最便宜|最贵|便宜|第[一二三四五]/g, " ");
@@ -195,7 +177,7 @@ function remainingTitle(text: string, availableTags: string[], intent: SearchInt
   remaining = remaining.replace(/\b(?:show|find|give\s+me|list|all|the|a|an|me|games?|please|with|and|for|of|dollars?|usd|premium)\b/g, " ");
   if (intent.tags.length > 0 || intent.excludedTags?.length || intent.sortBy !== null || intent.maxPrice !== null || intent.hasReviews || intent.mode === "developer") {
     // Only consume connector segments separated by recognized conditions, preserving unknown words.
-    remaining = remaining.replace(/(^|[\s,，])(?:找|为|且|的|类|游戏)+(?=[\s,，]|$)/g, " ");
+    remaining = remaining.replace(/(^|[\s,，])(?:找|为|且|和|的|类|游戏)+(?=[\s,，]|$)/g, " ");
   }
   return remaining.replace(/^[\s,;:!?，；：！？]+|[\s,;:!?，；：！？]+$/g, "");
 }
@@ -285,7 +267,7 @@ function shouldLimitSuperlative(text: string) {
 function rankGames(games: Game[], intent: SearchIntent): Game[] {
   const sortedGames = [...games].sort((first, second) => {
     const comparison = compareGames(first, second, intent);
-    return comparison === 0 ? first.name.localeCompare(second.name) : comparison;
+    return comparison === 0 ? compareSearchTitles(first.name, second.name) : comparison;
   });
   const offset = Math.max(0, intent.offset);
   const end = intent.limit === null ? undefined : offset + Math.max(1, intent.limit);
@@ -299,9 +281,20 @@ function compareGames(first: Game, second: Game, intent: SearchIntent) {
   const direction = intent.sortDirection === "desc" ? -1 : 1;
 
   if (typeof firstValue === "string" && typeof secondValue === "string") {
-    return firstValue.localeCompare(secondValue) * direction;
+    return compareSearchTitles(firstValue, secondValue) * direction;
   }
   return (Number(firstValue) - Number(secondValue)) * direction;
+}
+
+function compareSearchTitles(first: string, second: string): number {
+  // Unicode code-point order matches PostgreSQL C collation on UTF-8, including
+  // punctuation, case, accents and supplementary characters (not UTF-16 unit order).
+  const a = Array.from(first), b = Array.from(second);
+  for (let i = 0; i < Math.min(a.length, b.length); i++) {
+    const difference = a[i].codePointAt(0)! - b[i].codePointAt(0)!;
+    if (difference) return difference;
+  }
+  return a.length - b.length;
 }
 
 function getSortValue(game: Game, sortBy: NonNullable<SearchIntent["sortBy"]>) {
@@ -353,12 +346,18 @@ function hasAny(text: string, phrases: string[]) {
   return phrases.some((phrase) => new RegExp(`(?<![a-z0-9])${escapePattern(phrase)}(?![a-z0-9])`).test(text));
 }
 
-function addAliasTags(text: string, tags: Set<string>, availableTags: string[]) {
-  const availableTagLookup = new Map(availableTags.map((tag) => [tag.toLowerCase(), tag]));
-  for (const [canonicalTag, aliases] of Object.entries(tagAliases)) {
-    const tag = availableTagLookup.get(canonicalTag.toLowerCase());
-    if (tag && aliases.some((alias) => text.includes(alias))) {
-      tags.add(tag);
+function extractPositiveTags(text: string, availableTags: string[]) {
+  // Longest complete phrases take precedence over their nested tags and ordinal words.
+  const phrases = new Map(availableTags.map(tag => [tag.toLowerCase(), tag]));
+  for (const tag of availableTags) for (const alias of tagAliases[tag] ?? []) phrases.set(alias, tag);
+  for (const [alias, tag] of [['story', 'Story Rich'], ['horror', 'Horror']]) if (availableTags.includes(tag)) phrases.set(alias, tag);
+  const tags = new Set<string>();
+  for (const phrase of [...phrases.keys()].sort((a, b) => b.length - a.length || a.localeCompare(b))) {
+    const pattern = /[a-z0-9]/i.test(phrase) ? tagPattern(phrase, true) : new RegExp(escapePattern(phrase), 'g');
+    if (pattern.test(text)) {
+      tags.add(phrases.get(phrase)!);
+      text = text.replace(pattern, ' ');
     }
   }
+  return { tags, remaining: text };
 }

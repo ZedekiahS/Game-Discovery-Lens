@@ -69,6 +69,15 @@ class PreferencesInput(BaseModel):
         return self
 
 
+class PreferencesOut(PreferencesInput):
+    version: int = 0
+
+
+class PreferencesWrite(PreferencesInput):
+    # Zero means no stored preferences. Existing editors must echo the read version.
+    expected_version: int = Field(alias="expectedVersion", ge=0, strict=True)
+
+
 @router.get("/games", response_model=list[GameRecordOut])
 def list_records(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     return list(db.scalars(select(PlayerGame).where(PlayerGame.user_id == user.id).order_by(PlayerGame.game_id)))
@@ -122,21 +131,29 @@ def update_game_preference(game_id: int, request: GameQuickUpdate, user: User = 
     return db.get(PlayerGame, (user.id, game_id))
 
 
-@router.get("/preferences", response_model=PreferencesInput)
+@router.get("/preferences", response_model=PreferencesOut)
 def get_preferences(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    return db.get(PlayerPreference, user.id) or PreferencesInput()
+    return db.get(PlayerPreference, user.id) or PreferencesOut()
 
 
-@router.put("/preferences", response_model=PreferencesInput)
-def save_preferences(request: PreferencesInput, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+@router.put("/preferences", response_model=PreferencesOut)
+def save_preferences(request: PreferencesWrite, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     # Enforce new family conflicts on writes only; legacy preferences must remain readable.
     if any(conflicts_with_exclusions(tag, request.avoided_tags) for tag in request.preferred_tags):
         raise HTTPException(422, "A preferred type is excluded by an avoided type. Remove one of the conflicting choices.")
     known = set(available_tag_choices(tag for tags in db.scalars(select(Game.tags)) for tag in tags))
     if not set(request.preferred_tags + request.avoided_tags) <= known:
         raise HTTPException(400, "Choose tags from the game catalog")
-    values = request.model_dump()
-    stmt = insert(PlayerPreference).values(user_id=user.id, **values)
-    db.execute(stmt.on_conflict_do_update(index_elements=[PlayerPreference.user_id], set_=values))
+    values = request.model_dump(exclude={"expected_version"})
+    if request.expected_version == 0:
+        stmt = insert(PlayerPreference).values(user_id=user.id, **values).on_conflict_do_nothing(
+            index_elements=[PlayerPreference.user_id])
+    else:
+        stmt = update(PlayerPreference).where(
+            PlayerPreference.user_id == user.id, PlayerPreference.version == request.expected_version,
+        ).values(**values, version=PlayerPreference.version + 1)
+    if db.execute(stmt.returning(PlayerPreference.user_id)).scalar_one_or_none() is None:
+        db.rollback()
+        raise HTTPException(409, "Your preferences changed elsewhere. Reload them to review the latest choices.")
     db.commit()
-    return request
+    return db.get(PlayerPreference, user.id)

@@ -83,7 +83,9 @@ def parse_search_intent(
     available_tags = available_tag_choices(available_tags)
     title, remainder = extract_title(query, available_titles or [])
     excluded, remainder = extract_excluded_tags(remainder, available_tags)
-    text = remainder.lower()
+    original_text = remainder.lower()
+    matched_tags, remainder = extract_positive_tags(original_text, available_tags)
+    text = remainder
     intent = default_search_intent()
 
     apply_product_constraints(text, intent)
@@ -95,28 +97,7 @@ def parse_search_intent(
 
     apply_ranking_intent(text, intent)
 
-    matched_tags: set[str] = set()
-    for tag in sorted(available_tags, key=len, reverse=True):
-        pattern = phrase_pattern(tag, allow_game_suffix=True)
-        if re.search(pattern, text, re.IGNORECASE):
-            matched_tags.add(tag)
-            remainder = re.sub(pattern, " ", remainder, flags=re.IGNORECASE)
-
-    available_tag_lookup = {tag.lower(): tag for tag in available_tags}
-    for word, canonical in (("story", "Story Rich"), ("horror", "Horror")):
-        if canonical.lower() in available_tag_lookup and has_any(text, [word]):
-            matched_tags.add(available_tag_lookup[canonical.lower()])
-            remainder = re.sub(phrase_pattern(word), " ", remainder, flags=re.IGNORECASE)
-
-    for canonical, aliases in TAG_ALIASES.items():
-        tag = available_tag_lookup.get(canonical.lower())
-        if tag:
-            for alias in sorted(aliases, key=len, reverse=True):
-                if alias in text:
-                    matched_tags.add(tag)
-                    remainder = remainder.replace(alias, " ")
-
-    intent["tags"] = prioritize_tags(sorted(matched_tags), text)
+    intent["tags"] = prioritize_tags(sorted(matched_tags), original_text)
     if excluded:
         if any(conflicts_with_exclusions(tag, excluded) for tag in intent["tags"]):
             raise SearchQueryError("A type cannot be both required and excluded. Revise the query.")
@@ -124,6 +105,25 @@ def parse_search_intent(
     remainder = remove_filter_words(remainder, intent)
     intent["title_query"] = normalize_title(f"{title or ''} {remainder}")
     return intent
+
+
+def extract_positive_tags(text: str, available_tags: list[str]) -> tuple[set[str], str]:
+    # Consume complete phrases longest first, so nested words cannot add constraints
+    # or ordinals (e.g. 第一 in 第一人称射击). Separate repeated terms still count.
+    phrases = {tag.lower(): tag for tag in available_tags}
+    for tag in available_tags:
+        for alias in TAG_ALIASES.get(tag, []):
+            phrases[alias] = tag
+    for alias, tag in (("story", "Story Rich"), ("horror", "Horror")):
+        if tag in available_tags:
+            phrases[alias] = tag
+    matched = set()
+    for phrase in sorted(phrases, key=lambda p: (-len(p), p)):
+        pattern = phrase_pattern(phrase, allow_game_suffix=True) if re.search(r"[a-z0-9]", phrase) else re.escape(phrase)
+        if re.search(pattern, text, re.IGNORECASE):
+            matched.add(phrases[phrase])
+            text = re.sub(pattern, " ", text, flags=re.IGNORECASE)
+    return matched, text
 
 
 class SearchQueryError(ValueError):
@@ -230,7 +230,7 @@ def remove_filter_words(text: str, intent: SearchIntent) -> str:
     text = re.sub(r"\b(?:show|find|give\s+me|list|all|the|a|an|me|games?|please|with|and|for|of|dollars?|usd|premium)\b", " ", text, flags=re.IGNORECASE)
     if intent["tags"] or intent.get("excluded_tags") or intent["sort_by"] is not None or intent["max_price"] is not None or intent["has_reviews"] or intent["mode"] == "developer":
         # Only consume connector segments separated by recognized conditions, preserving unknown words.
-        text = re.sub(r"(^|[\s,，])(?:找|为|且|的|类|游戏)+(?=[\s,，]|$)", " ", text)
+        text = re.sub(r"(^|[\s,，])(?:找|为|且|和|的|类|游戏)+(?=[\s,，]|$)", " ", text)
     return text.strip(" \t\r\n,;:!?，；：！？")
 
 

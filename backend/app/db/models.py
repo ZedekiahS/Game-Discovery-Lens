@@ -104,3 +104,4 @@ class PlayerPreference(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     preferred_tags: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False, default=list)
     avoided_tags: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False, default=list)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")

@@ -26,6 +26,67 @@ class PlayerLibraryAuthTests(unittest.TestCase):
 
 
 class PlayerLibraryPostgresTests(SavedGamesPostgresFixture):
+    def test_preference_migration_preserves_legacy_choices(self):
+        schema = f"gdl_preference_migration_{uuid4().hex}"
+        with self.admin_engine.begin() as connection:
+            connection.execute(CreateSchema(schema))
+        engine = create_engine(self.database_url, connect_args={"options": f"-csearch_path={schema}"})
+        env = {**os.environ, "GDL_DATABASE_URL": self.database_url.render_as_string(hide_password=False), "PGOPTIONS": f"-csearch_path={schema}"}
+        try:
+            for revision in ["0005_player_library", "head"]:
+                result = subprocess.run([sys.executable, "-m", "alembic", "upgrade", revision], cwd=Path(__file__).parents[1], env=env, capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                if revision == "0005_player_library":
+                    with engine.begin() as db:
+                        db.execute(text("INSERT INTO users (id, display_name, role, is_active) VALUES ('legacy', 'Legacy player', 'player', true)"))
+                        db.execute(text("INSERT INTO player_preferences (user_id, preferred_tags, avoided_tags) VALUES ('legacy', ARRAY['Co-op'], ARRAY['Multiplayer'])"))
+            with engine.connect() as db:
+                row = db.execute(text("SELECT preferred_tags, avoided_tags, version FROM player_preferences WHERE user_id='legacy'")).one()
+                self.assertEqual(tuple(row), (['Co-op'], ['Multiplayer'], 1))
+        finally:
+            engine.dispose()
+            with self.admin_engine.begin() as connection:
+                connection.execute(DropSchema(schema, cascade=True))
+
+    def test_preferences_reject_stale_writes_even_without_tab_notifications(self):
+        headers = self.headers(self.a)
+        path = '/api/me/preferences'
+        first = self.client.put(path, headers=headers, json={'preferredTags': ['Adventure'], 'expectedVersion': 0})
+        self.assertEqual(first.status_code, 200, first.text)
+        newer = self.client.put(path, headers=headers, json={'avoidedTags': ['Indie'], 'expectedVersion': first.json()['version']})
+        self.assertEqual(newer.status_code, 200, newer.text)
+        stale = self.client.put(path, headers=headers, json={'preferredTags': ['Adventure'], 'expectedVersion': first.json()['version']})
+        self.assertEqual(stale.status_code, 409, stale.text)
+        self.assertEqual(self.client.get(path, headers=headers).json(), newer.json())
+        self.assertEqual(self.client.put(path, headers=headers, json={'preferredTags': []}).status_code, 422)
+        other = self.client.put(f'{path}?userId={self.a["user"]["id"]}', headers=self.headers(self.b), json={'expectedVersion': 0, 'preferredTags': ['Indie']})
+        self.assertEqual(other.status_code, 200, other.text)
+        self.assertEqual(self.client.get(path, headers=headers).json(), newer.json())
+
+    def test_simultaneous_preference_creates_and_edits_have_one_winner(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Barrier
+        from sqlalchemy import event
+        expected = 0
+        for operation in ('INSERT INTO player_preferences', 'UPDATE player_preferences'):
+            barrier = Barrier(2)
+            def synchronize(_conn, _cursor, statement, _params, _context, _many):
+                if statement.startswith(operation):
+                    barrier.wait(timeout=10)
+            event.listen(self.engine, 'before_cursor_execute', synchronize)
+            try:
+                def write(tag):
+                    with TestClient(app) as client:
+                        return client.put('/api/me/preferences', headers=self.headers(self.a), json={'preferredTags': [tag], 'expectedVersion': expected})
+                with ThreadPoolExecutor(max_workers=2) as pool:
+                    responses = list(pool.map(write, ['Adventure', 'Indie']))
+            finally:
+                event.remove(self.engine, 'before_cursor_execute', synchronize)
+            self.assertEqual(sorted(r.status_code for r in responses), [200, 409])
+            winner = next(r.json() for r in responses if r.status_code == 200)
+            self.assertEqual(self.client.get('/api/me/preferences', headers=self.headers(self.a)).json(), winner)
+            expected = winner['version']
+
     def test_stale_full_save_and_delete_cannot_erase_new_note_or_recreate_deleted_record(self):
         a = self.headers(self.a)
         path = '/api/me/games/1'
@@ -84,15 +145,15 @@ class PlayerLibraryPostgresTests(SavedGamesPostgresFixture):
         legacy = self.client.get('/api/me/preferences', headers=a)
         self.assertEqual(legacy.status_code, 200, legacy.text)
         self.assertEqual(legacy.json()['preferredTags'], ['Co-op'])
-        for body in [legacy.json(), {'preferredTags': ['Survival Horror'], 'avoidedTags': ['Horror']}]:
+        for body in [{'preferredTags': legacy.json()['preferredTags'], 'avoidedTags': legacy.json()['avoidedTags'], 'expectedVersion': legacy.json()['version']}, {'preferredTags': ['Survival Horror'], 'avoidedTags': ['Horror'], 'expectedVersion': legacy.json()['version']}]:
             response = self.client.put('/api/me/preferences', headers=a, json=body)
             self.assertEqual(response.status_code, 422, response.text)
         self.assertEqual(self.client.get('/api/me/preferences', headers=a).json(), legacy.json())
         # A broad preferred family can still exclude its narrower child.
         body = {'preferredTags': ['Multiplayer'], 'avoidedTags': ['Co-op']}
-        response = self.client.put('/api/me/preferences', headers=a, json=body)
+        response = self.client.put('/api/me/preferences', headers=a, json={**body, 'expectedVersion': legacy.json()['version']})
         self.assertEqual(response.status_code, 200, response.text)
-        self.assertEqual(response.json(), body)
+        self.assertEqual(response.json(), {**body, 'version': legacy.json()['version'] + 1})
         self.assertEqual(self.client.get('/api/me/preferences', headers=self.headers(self.b)).json()['preferredTags'], [])
 
     def test_quick_changes_preserve_other_fields_and_account_ownership(self):
@@ -171,14 +232,14 @@ class PlayerLibraryPostgresTests(SavedGamesPostgresFixture):
 
     def test_preferences_can_be_changed_cleared_and_not_read_by_other_account(self):
         a = self.headers(self.a)
-        body = {"preferredTags": ["Adventure", "Adventure"], "avoidedTags": ["Indie"]}
+        body = {"preferredTags": ["Adventure", "Adventure"], "avoidedTags": ["Indie"], "expectedVersion": 0}
         response = self.client.put("/api/me/preferences", headers=a, json=body)
         self.assertEqual(response.status_code, 200, response.text)
         self.assertEqual(self.client.get("/api/me/preferences", headers=a).json()["preferredTags"], ["Adventure"])
         self.assertEqual(self.client.get("/api/me/preferences", headers=self.headers(self.b)).json()["preferredTags"], [])
         for invalid, status in [({"preferredTags": ["Unknown"]}, 400), ({"preferredTags": ["Indie"], "avoidedTags": ["Indie"]}, 422), ({"userId": "someone"}, 422)]:
-            self.assertEqual(self.client.put("/api/me/preferences", headers=a, json=invalid).status_code, status)
-        self.assertEqual(self.client.put("/api/me/preferences", headers=a, json={}).status_code, 200)
+            self.assertEqual(self.client.put("/api/me/preferences", headers=a, json={**invalid, 'expectedVersion': response.json()['version']}).status_code, status)
+        self.assertEqual(self.client.put("/api/me/preferences", headers=a, json={'expectedVersion': response.json()['version']}).status_code, 200)
         self.assertEqual(self.client.get("/api/me/preferences", headers=a).json()["preferredTags"], [])
 
     def test_collection_purpose_is_explicit_and_can_change_without_losing_saves(self):

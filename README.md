@@ -44,7 +44,7 @@ Signed-in players can toggle **Like**, **Want to play**, and **Not for me** dire
 
 Full record edits and removals check the version opened by the editor. If another tab saves first, the old draft stays available for comparison; merging preserves newer values in fields the player did not edit, and still requires an explicit save. The library includes a **Not for me** shelf, note search and note indicators. Signing in after **Track this game** resumes that game's editor. Applied searches and selected results survive refresh and browser Back through public URL state, without repeating an AI interpretation request.
 
-The taste profile separates games of interest from games marked Playing or Played. Each type expands to show the games behind its count. A game saved to multiple personal collections counts once, research collections are excluded, and an explicit dislike overrides collection-based interest. Players can edit preferred and avoided types. These are manually recorded preferences and game counts, not imported Steam playtime or AI-inferred personality scores.
+The taste profile separates games of interest from games marked Playing or Played. Each type expands to show the games behind its count. A game saved to multiple personal collections counts once, research collections are excluded, and an explicit dislike overrides collection-based interest. Players can edit preferred and avoided types. Each edit checks the saved version: unchanged forms follow updates from another tab; unsaved choices stay available for review if another save wins. Choosing to keep a draft does not submit it until Save is pressed. These are manually recorded preferences and game counts, not imported Steam playtime or AI-inferred personality scores.
 
 The player homepage now uses that profile. Want-to-play games and explicit preferred types take precedence, followed by related personal interests and play history. Recommendations exclude avoided types, disliked games, and Playing/Played records; other known favorites stay in the library unless marked Want to play. Each recommendation gives a concrete reason in either language. Changes apply when returning from the library/profile, and explicit search still covers the full catalog. A new account receives general picks. Preference-loading failures show general picks with a retry action instead of claiming personalization. See [the ranking rules and verification](docs/verification/personalized-recommendations-2026-10-15.md).
 
@@ -87,7 +87,7 @@ The URL or environment selects the data mode; setup controls are kept out of the
 Start PostgreSQL and the backend with Docker, then migrate and seed the local database. Run these commands from the repository root while the frontend remains open in another terminal:
 
 ```powershell
-docker compose up -d postgres backend
+docker compose up -d --build postgres backend
 docker compose exec backend alembic upgrade head
 docker compose exec backend python -m app.scripts.seed
 ```
@@ -104,9 +104,9 @@ The frontend defaults to `http://localhost:8000/api`. To change it, copy `fronte
 - **Concurrent requests:** an older search, game insight, or account response cannot replace a newer selection or session.
 - **Session boundaries:** verified identity, token and session version travel together. Private requests check the session before sending and after receiving; cross-tab account changes invalidate the old view. Unsaved notes/preferences and collection-name drafts stay in the original account's memory in that tab and can be recovered after sign-in. Reloading or closing the tab ends that temporary recovery; uncertain writes are never replayed automatically.
 - **Source boundaries:** game details expose the catalog's gameplay source and check date. Synthetic prices, ratings, review counts, ownership and revenue are marked in both demo and seeded API mode; gameplay sources do not verify those metrics. Missing provenance stays unknown.
-- **Search consistency:** literal title search combines with price, required/excluded tags, and review-count filters. Frontend rules and PostgreSQL search tests share `tests/fixtures/search-contract.json` and `search-negation.json`.
+- **Search consistency:** literal title search combines with price, required/excluded tags, and review-count filters. Frontend rules, restored URL conditions and PostgreSQL search tests share contract fixtures, including complete bilingual type phrases and stable ordering in `tests/fixtures/search-phrases.json`.
 - **Clear module boundaries:** page composition, discovery, selected-game details, account/collection state, and API/demo adapters have separate responsibilities.
-- **Reproducible verification:** unit and UI tests, isolated PostgreSQL integration tests, TypeScript/build checks, and desktop/mobile browser journeys run in GitHub Actions. The browser suite registers accounts through the UI and exercises the real API, including recovery after a committed save loses its response. See [browser test setup](frontend/README.md#browser-tests-with-the-real-api).
+- **Reproducible verification:** unit and UI tests, isolated PostgreSQL integration tests, TypeScript/build checks, and desktop/mobile browser journeys run in GitHub Actions. The browser suite registers accounts through the UI and exercises the real API, including recovery after a committed save loses its response. A separate Docker delivery smoke check also exercises the built frontend against the packaged API. See [browser test setup](frontend/README.md#browser-tests-with-the-real-api).
 
 ## AI Behavior and Boundaries
 
@@ -141,8 +141,17 @@ python -m unittest discover -s backend/tests -t backend
 
 Each database suite creates and removes only its own UUID-named schema. Existing application tables are not used. Without the explicit URL, database tests are skipped. Provider responses are controlled in automated AI tests; the suite does not call a paid provider. [GitHub Actions](.github/workflows/ci.yml) configures PostgreSQL for the backend tests and runs the frontend tests and build.
 
+To verify the actual Docker image and frontend build, with Docker running and frontend dependencies/Chromium installed:
+
+```powershell
+python scripts/verify-delivery.py --browser
+```
+
+This creates a disposable database and uses ports 8013/4193. It does not read the project's `.env` or migrate/seed an existing database. Upgrade an existing application database with `alembic upgrade head` (or the Compose command above) before using the new preference editor; migration 0006 preserves saved choices. Reload older browser clients because preference writes now require a version.
+
 Verification records separate the executed checks from their limitations:
 
+- [Packaged delivery, preference concurrency, search phrases/order and Computer Use evidence](docs/verification/delivery-preferences-search-2026-11-15.md)
 - [Personal-record conflicts, task continuity, library management and Computer Use evidence](docs/verification/record-continuity-2026-10-29.md)
 - [Session, input, concurrency and data-trust boundaries; Computer Use and performance evidence](docs/verification/boundaries-trust-2026-10-24.md)
 - [Personalized recommendations, account transitions, and bilingual evidence](docs/verification/personalized-recommendations-2026-10-15.md)

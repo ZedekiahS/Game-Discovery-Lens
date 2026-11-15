@@ -108,3 +108,7 @@ class TagFamilySearchPostgresTests(NegationSearchPostgresTests):
         self.assertEqual(response.status_code, 200, response.text)
         self.assertEqual({game['id'] for game in response.json()}, {2, 3, 6})
         self.assertEqual(next(game for game in response.json() if game['id'] == 2)['tags'], ['FPS', 'Co-op'])
+
+
+class PhraseSearchPostgresTests(NegationSearchPostgresTests):
+    fixture_filename = "search-phrases.json"

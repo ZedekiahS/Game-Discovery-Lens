@@ -8,7 +8,9 @@
 !backend/app/
 !backend/app/**
 !catalog/
+catalog/*
 !catalog/demo-catalog.json
+!catalog/tag-families.json
 **/.env
 **/.env.*
 **/__pycache__/**

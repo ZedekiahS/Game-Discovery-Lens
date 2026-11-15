@@ -98,6 +98,9 @@ export interface PlayerPreferences {
   preferredTags: string[];
   avoidedTags: string[];
 }
+export interface PlayerPreferencesSnapshot extends PlayerPreferences {
+  version: number;
+}
 
 export interface SavedGame {
   id: number;

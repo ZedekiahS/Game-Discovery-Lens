@@ -24,14 +24,14 @@ export interface PlayerPageProps {
   userId: string | null;
 }
 
-export function PlayerPageStatus({ catalogLoading, catalogError, retryCatalog, library, collections, userId }: PlayerPageProps) {
+export function PlayerPageStatus({ catalogLoading, catalogError, retryCatalog, library, collections, userId, libraryFeedback = true }: PlayerPageProps & { libraryFeedback?: boolean }) {
   const { t, error } = useI18n();
   return <>
     {!userId && <p className="player-empty">{t("Sign in above to keep your games and preferences together.", "登录后即可管理你的游戏与偏好。")}</p>}
     {(catalogLoading || library.loading || collections.loading) && <p role="status">{t("Loading your games…", "正在加载你的游戏…")}</p>}
     {catalogError && <ErrorNotice message={catalogError} onRetry={retryCatalog} />}
-    {library.error && <ErrorNotice message={library.error} onRetry={library.retry} retryLabel={t("Reload library", "重新加载游戏库")} disabled={library.busy} />}
-    {library.rejection && <p role="alert">{error(library.rejection)}</p>}
+    {libraryFeedback && library.error && <ErrorNotice message={library.error} onRetry={library.retry} retryLabel={t("Reload library", "重新加载游戏库")} disabled={library.busy} />}
+    {libraryFeedback && library.rejection && <p role="alert">{error(library.rejection)}</p>}
     {collections.error && <ErrorNotice message={collections.error} onRetry={collections.retry} disabled={collections.busy} />}
   </>;
 }

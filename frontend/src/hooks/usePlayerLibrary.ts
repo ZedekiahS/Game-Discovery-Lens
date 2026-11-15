@@ -47,7 +47,7 @@ export function usePlayerLibrary(userId: string | null, revision: number) {
     return () => { ++generation.current; };
   }, [scope, userId, reload]);
 
-  async function change<T>(action: () => Promise<T>, apply: (previous: typeof state, result: T) => typeof state): Promise<boolean> {
+  async function change<T>(action: () => Promise<T>, apply: (previous: typeof state, result: T) => typeof state, resource: 'records' | 'preferences' = 'records'): Promise<boolean> {
     if (!userId || visible.loading || visible.error || state.scope !== scope || pending.current) return false;
     if (!checkSession(session)) return false;
     const operation = Symbol();
@@ -65,8 +65,10 @@ export function usePlayerLibrary(userId: string | null, revision: number) {
       if (!current()) return false;
       if (error instanceof ApiError && error.status === 409) {
         try {
-          const records = await playerLibrary.getRecords(userId);
-          if (current()) setState(s => ({ ...s, records, busy: false }));
+          const latest = resource === 'preferences'
+            ? { preferences: await playerLibrary.getPreferences(userId) }
+            : { records: await playerLibrary.getRecords(userId) };
+          if (current()) setState(s => ({ ...s, ...latest, busy: false }));
           return false;
         } catch { /* Preserve the draft and require a read before another write. */ }
       } else if (error instanceof ApiError && [400, 404, 422, 428].includes(error.status)) {
@@ -89,8 +91,8 @@ export function usePlayerLibrary(userId: string | null, revision: number) {
       (s, record) => ({ ...s, records: [...s.records.filter((r) => r.gameId !== id), record] })),
     removeRecord: (id: number, expectedUpdatedAt: string) => change(() => playerLibrary.removeRecord(userId!, id, expectedUpdatedAt),
       (s) => ({ ...s, records: s.records.filter((r) => r.gameId !== id) })),
-    savePreferences: (input: PlayerPreferences) => change(() => playerLibrary.savePreferences(userId!, input),
-      (s, preferences) => ({ ...s, preferences })),
+    savePreferences: (input: PlayerPreferences, expectedVersion: number) => change(() => playerLibrary.savePreferences(userId!, input, expectedVersion),
+      (s, preferences) => ({ ...s, preferences }), 'preferences'),
     retry: () => { if (!pending.current) setReload((n) => n + 1); },
   };
 }

@@ -10,13 +10,13 @@ describe("player library persistence adapters", () => {
     const { playerLibrary } = await import("../src/services/playerLibrary");
     const legacy = { preferredTags: ["Co-op"], avoidedTags: ["Multiplayer"] };
     window.localStorage.setItem("game-discovery-lens.demo.player.a.preferences", JSON.stringify(legacy));
-    expect(await playerLibrary.getPreferences("a")).toEqual(legacy);
+    expect(await playerLibrary.getPreferences("a")).toEqual({ ...legacy, version: 0 });
     await expect(playerLibrary.savePreferences("a", legacy)).rejects.toThrow("excluded");
-    expect(await playerLibrary.getPreferences("a")).toEqual(legacy);
+    expect(await playerLibrary.getPreferences("a")).toEqual({ ...legacy, version: 0 });
     const valid = { preferredTags: ["Multiplayer"], avoidedTags: ["Co-op"] };
     await playerLibrary.savePreferences("a", valid);
-    expect(await playerLibrary.getPreferences("a")).toEqual(valid);
-    expect(await playerLibrary.getPreferences("b")).toEqual({ preferredTags: [], avoidedTags: [] });
+    expect(await playerLibrary.getPreferences("a")).toEqual({ ...valid, version: 1 });
+    expect(await playerLibrary.getPreferences("b")).toEqual({ preferredTags: [], avoidedTags: [], version: 0 });
   });
   it("patches only the selected preference, retaining the latest note and other fields", async () => {
     vi.stubEnv("VITE_DATA_MODE", "demo");
