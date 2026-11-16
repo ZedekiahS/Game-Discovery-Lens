@@ -66,6 +66,16 @@ Server access evidence from this session: one `POST /api/auth/register` → **20
 - The architecture's modern tag-calibration paragraph was moved out of Legacy Coursework. Migration/status documents end with accepted limits, not an active roadmap.
 - The existing review chat supplied documentation advice. Its read-only review of the starting commit is not evidence that it ran this new fix. GitHub supports the chosen disclosures: [official formatting reference](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/organizing-information-with-collapsed-sections).
 
+## GitHub page check after upload
+
+The implementation and initial documentation were uploaded as [`944275b`](https://github.com/ZedekiahS/Game-Discovery-Lens/commit/944275b7aa860c470802c53dcf629caf2a14efaf). Computer Use then opened the public repository homepage, verified the default English body, collapsed English and expanded Chinese, and navigated through the English anchor and disclosure again. Both complete language bodies rendered on the repository page; the URL remained the repository URL with only a fragment change, not a separate language file. Tables, code blocks and existing screenshot previews rendered. The checks below show the actual GitHub page, not a local Markdown preview.
+
+| Chinese expanded | English expanded |
+| --- | --- |
+| ![Chinese README on GitHub](../screenshots/freeze-readme-zh-20261116.jpg) | ![English README on GitHub](../screenshots/freeze-readme-en-20261116.jpg) |
+
+The [GitHub run for `944275b`](https://github.com/ZedekiahS/Game-Discovery-Lens/actions/runs/43870419974) passed all four jobs: Backend Tests (**123**), Frontend Tests and Build (**310**, build passed, audit found **0** vulnerabilities), Browser and Real API (**40**), and Packaged Delivery Smoke (**1** built-frontend journey with packaged API). This post-upload documentation addendum adds the actual GitHub screenshots and results; application/test code is unchanged from that verified implementation. The final documentation commit also triggers the same CI gates.
+
 ## Freeze and limits
 
 Feature development stops with this portfolio version. No public comments, additional providers, deployment, visual redesign or architecture replacement were added. The fixed catalog, synthetic market metrics, bounded language parser, authored recommendation diagnostics and optional model are disclosed in README. Computer Use here is Chromium desktop/narrow-viewport verification, not physical-phone or all-browser coverage. Closing/reloading a page does not persist an unsaved in-memory draft. No live paid model, real market-data collection or production operations claim is made.
