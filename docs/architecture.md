@@ -1,5 +1,7 @@
 # Game Discovery Lens Architecture
 
+**Portfolio scope frozen on 2026-11-16 / 作品集功能范围于 2026-11-16 冻结。** This describes the implemented system, not a further-development plan. Start with the [same-page bilingual README](../README.md) for the original/modern comparison, authorship, repository layout and setup. Earlier dated verification records retain their historical scope.
+
 Game Discovery Lens is a portfolio application demonstrating reliable search, account collections, personal game records, evidence-based profiles, and explicit AI integration. The current React/FastAPI/PostgreSQL application evolved from group coursework using Java Swing and SQL Server. The original implementation remains as project history.
 
 ## Current Application
@@ -122,7 +124,7 @@ Game and collection insight endpoints remain separate from search parsing. Curre
 
 The [first live provider evaluation](verification/ai-evaluation-2026-09-15.md) exposed missing product thresholds and the title guard's handling of `free`; its reports remain unchanged. The [subsequent contract fixes and live rerun](verification/search-fixes-2026-09-16.md) record 31/31 passing nonblank integration cases against the original 24/31 baseline. An eight-query independent formulation set extends the boundary catalog; its original 7/8 report is retained alongside a separately explained correction of one authored expectation and an offline 8/8 rescore. Neither set establishes general held-out model accuracy.
 
-The evaluation CLI uses the production resolver and SQL builder with isolated PostgreSQL schemas, separates fallbacks from provider successes, and caps explicit paid attempts. Search requests cap output at 1,024 tokens and disable thinking. The reports capture normalized, constrained intents and ordered SQL results, not raw response-quality metrics. Traceable review evidence and broader held-out evaluation remain future work.
+The evaluation CLI uses the production resolver and SQL builder with isolated PostgreSQL schemas, separates fallbacks from provider successes, and caps explicit paid attempts. Search requests cap output at 1,024 tokens and disable thinking. The reports capture normalized, constrained intents and ordered SQL results, not raw response-quality metrics. Traceable review evidence and broader held-out evaluation are outside the frozen portfolio scope.
 
 ## Backend and Persistence
 
@@ -176,6 +178,10 @@ Registration limits are email 255, display name 120, password 8–128 characters
 
 Native startup reads the repository-root `.env`, with process environment taking precedence. Compose forwards the documented authentication, administrator and AI variables at runtime. Docker build context excludes environment files, including nested ones. Sentinel-based configuration tests do not print configured values or invoke a provider. See [executed checks and limitations](verification/boundaries-trust-2026-10-24.md).
 
+## Tag semantics and recommendation calibration
+
+The [October 29 semantic calibration](verification/tag-semantics-recommendations-2026-10-29.md) updates ranking with a shared directional tag contract, concrete/contextual evidence tiers and equal-score diversity ties. The original labels remain unchanged; six additional frozen scenarios include independent forbidden-game checks. Raw catalog tags and source-check dates remain unchanged. Parent-family matching is covered through both the frontend parser and real PostgreSQL HTTP queries, including preferences written before the new conflict rule.
+
 ## Legacy Coursework
 
 ```text
@@ -185,8 +191,6 @@ Playwright scraper -> CSV seed data
 ```
 
 The legacy application contains marketplace behavior including users, reviews, purchases, bundles, vouchers, and folders. Its SQL Server migrations and stored procedures remain historical implementation evidence. Running the modern demo does not depend on the original school database or running the Java application.
-
-The [October 29 semantic calibration](verification/tag-semantics-recommendations-2026-10-29.md) updates ranking with a shared directional tag contract, concrete/contextual evidence tiers and equal-score diversity ties. The original labels remain unchanged; six additional frozen scenarios include independent forbidden-game checks. Raw catalog tags and source-check dates remain unchanged. Parent-family matching is covered through both the frontend parser and real PostgreSQL HTTP queries, including preferences written before the new conflict rule.
 
 ## Packaged delivery verification
 

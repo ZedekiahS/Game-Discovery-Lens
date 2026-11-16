@@ -67,7 +67,8 @@ export function AccountPanel({ account, loginRequest = 0, onCancelSignIn, compac
         touched[field] && validation[field] ? `${fieldId}-${field}-error` : "",
         field === "password" && authMode === "register" ? `${fieldId}-password-hint` : "",
       ].filter(Boolean).join(" ") || undefined,
-      onBlur: () => setTouched((current) => ({ ...current, [field]: true })),
+      // Validate on submit, then update visible errors as values change. Adding
+      // errors during blur can move the clicked button between press and release.
     };
   }
   function fieldError(field: AuthField) {

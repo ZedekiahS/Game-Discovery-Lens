@@ -2,6 +2,8 @@
 
 React + TypeScript portfolio application with explicit fixed-data and API modes.
 
+Feature development is frozen for portfolio use as of 2026-11-16. The [bilingual root README](../README.md) describes the original coursework, modern implementation and AI assistance. Account fields validate on submit and update displayed errors as values change; blur does not insert an error between pointer press/release, so registration, login and cancel buttons respond on the first click. Real-browser regression coverage is in `e2e/account-form.spec.ts`.
+
 ## Run
 
 From `frontend/`:

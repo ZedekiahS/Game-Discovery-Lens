@@ -1,71 +1,79 @@
-# Game Discovery Lens
+# Game Discovery Lens · 游戏棱镜
 
-**Discover your next game. Research the games behind your next idea.**
+**From a Java database course project to a reliable bilingual web application.**
 
-Game Discovery Lens is a bilingual game-discovery portfolio application built with React, TypeScript, FastAPI, and PostgreSQL. Its 80-game sample catalog demonstrates reliable software behavior through account-owned collections, a personal game library, an evidence-based taste profile, recoverable failures, and an optional AI search provider.
+**从 Java 数据库课程项目，到注重可靠性的中英文 Web 应用。**
 
-The project began as group coursework using Java Swing and SQL Server. The modern web application is a subsequent refactor; the original implementation remains in the repository as project history. The modern app runs independently of the original school database.
+React · TypeScript · FastAPI · PostgreSQL · optional DeepSeek / 可选 DeepSeek
 
-The portfolio was renamed from ArcadeIQ to Game Discovery Lens. Historical verification records retain the names and configuration identifiers used when those checks were captured.
+**Portfolio version — feature development frozen on 2026-11-16.**
 
-Read the [engineering case study](docs/case-study.md) for the problems, decisions, verification evidence, and remaining limits behind the refactor.
+**作品集版本——自 2026-11-16 起冻结功能开发。** 本项目用于展示重构、验证与问题处理能力，不继续扩展为正式商业产品。
 
-## Two Ways to Explore
+[CI / 自动检查](https://github.com/ZedekiahS/Game-Discovery-Lens/actions) · [Case study / 工程案例](docs/case-study.md) · [Architecture / 架构](docs/architecture.md) · [Final verification / 收尾验证](docs/verification/portfolio-freeze-2026-11-16.md)
 
-The homepage offers player and developer entry points. Each opens a distinct browsing experience before the user starts a search.
+## Read in your language / 选择阅读语言
 
-| Player discovery | Developer research |
+[中文](#gdl-zh) · [English](#gdl-en)
+
+Click a language heading below to expand or collapse it **on this page**. English is open initially.
+
+点击下方语言标题即可在**本页展开或收起**，无需打开另一个语言文件。英文默认展开；两种语言可以同时展开。
+
+<a name="gdl-zh"></a>
+<details>
+<summary><strong>中文 — 项目背景、重构过程、仓库结构与运行方式</strong></summary>
+
+## 这是什么项目
+
+游戏棱镜是一个中英文游戏发现作品集应用，包含 80 款样例游戏。玩家可以发现游戏、搜索、建立收藏夹、记录想玩／在玩／已玩、表达喜好并保存笔记；玩家画像和首页推荐依据这些明确记录生成。开发者视角提供目录概览和作品对照。两个入口是浏览视角，不会授予不同的账号权限。
+
+这不是实时商店或市场研究服务。目录价格、评分、评价数、拥有量和营收是已标识的合成演示值；玩法摘要和编辑标签另有来源与核对日期。应用内的中文／English 按钮可以直接切换界面语言并保留当前页面状态，与这里的 README 折叠阅读是两件事。
+
+## 原来怎么做，后来怎么改
+
+项目起点是 **Java Swing + SQL Server 的小组课程作业**，包含玩家／开发者界面、游戏数据、购买、评论、礼包和代金券等数据库业务。后续曾以 ArcadeIQ 整理为作品集，现名 Game Discovery Lens；历史资料中的 GameSniper、GameRate 和 ArcadeIQ 名称保留其当时语境。
+
+现代版沿用游戏领域和部分业务概念，重新实现了浏览器前端、HTTP API 与 PostgreSQL 数据模型。它独立运行，既不是简单改名，也不是将旧 Java 代码逐行自动翻译成网页。旧功能没有全部迁入现代版。
+
+| 方面 | 原课程实现（保留的历史代码） | 现代作品集实现 |
+| --- | --- | --- |
+| 页面与调用 | Java Swing 窗口，经 JDBC 调用数据库和存储过程 | React/TypeScript 页面，经服务适配器调用 FastAPI；另有不依赖后端的浏览器体验模式 |
+| 数据库 | SQL Server 表、视图、SQL 迁移和存储过程 | PostgreSQL、SQLAlchemy 与 Alembic 迁移；不是旧学校数据库的在线搬迁 |
+| 产品范围 | 游戏数据库／市场交易类课程业务 | 聚焦发现、搜索、个人收藏、游玩记录、笔记、偏好与研究参考 |
+| 私人数据边界 | 桌面服务连接数据库，业务逻辑分布在 Java 与 SQL 中 | 后端从 bearer token 确定 owner；旧账号响应、跨标签会话和私人草稿分别隔离 |
+| 搜索与推荐 | Java 界面和数据库查询 | 中英文有限规则搜索、可编辑条件、URL 恢复；推荐由明确记录推导；可选模型只解释查询 |
+| 保存与并发 | 原有课程业务及数据库过程 | 记录／偏好条件写入，拒绝陈旧覆盖；保留草稿，未知写入结果先读取核对，不自动重放 |
+| 交付验证 | 历史启动脚本、导入工具和课程资料 | 单元/UI 测试、隔离 PostgreSQL 集成测试、真实 API 浏览器流程、Docker 构建产物验证与 Computer Use |
+
+**实际改造顺序：**整理并保留旧实现 → 建立现代 Web 页面与 API → 补账号所有权、收藏与个人记录 → 统一搜索、标签语义和来源说明 → 完善状态恢复、并发保护与缓存 → 验证真实构建产物 → 修复注册点击问题并完成文档收尾。各阶段的错误、修正和证据保留在 [工程案例](docs/case-study.md)、[迁移状态](docs/migration-plan.md) 与 `docs/verification/`，不是每个阶段都只做了“重命名”。
+
+## 作者范围与 AI 的作用
+
+原课程部分是**小组成果**，归属原项目团队。作品集展示重点是维护者在其后的个人重构阶段主导需求、范围取舍、技术方案与验收，使用 Codex 等 AI 编码工具辅助分析、实现、测试、排错和文档，并通过可重复检查与交互复核核对结果。维护者对工程决策、变更复核、验证及最终交付负责；现代实现包含 AI 辅助编写的代码与测试。
+
+**AI 辅助开发**与**程序中的 AI 功能**不同：前者是上述开发方法；后者是可选 DeepSeek 搜索解释器，将自然语言转成受约束的查询条件，再由应用执行数据库查询。模型不直接执行 SQL、不修改私人记录，也不是所有推荐和洞察的来源。规则回退有明确来源标识。没有密钥也能体验并运行自动测试。
+
+## 仓库怎么读
+
+| 路径 | 用途 |
 | --- | --- |
-| Illustrated discovery, personal game shelves, play records, and an editable taste profile. | A catalog overview, frequent tags, research references, and selected-game opportunity insights. |
-| Recommendations use explicit preferences and game-library evidence; new players start with stable catalog picks. | Overview statistics describe the loaded catalog; ownership and revenue estimates are labelled. |
-| Search by title, genre, budget, or natural-language conditions. | Drill into a tag or search and sort games for comparison. |
+| `frontend/` | 当前 React/TypeScript 应用、UI、领域 hooks、API/demo 适配器及浏览器测试 |
+| `backend/` | 当前 FastAPI、认证与业务接口、SQLAlchemy 模型、测试；**`backend/alembic/` 是现代数据库迁移** |
+| `catalog/` | 前后端共用的 80 款样例目录与标签族约定 |
+| `tests/fixtures/` | 跨语言搜索合同与推荐诊断场景；不是实际玩家行为数据 |
+| `scripts/`、`.github/workflows/` | 启动与交付验证脚本、四项 CI 检查 |
+| `docs/` | 架构、工程案例、运行指南、验证记录和截图 |
+| `UI/`、根目录 `migrations/`、`Views/` | **旧 Java Swing / SQL Server 历史实现**；不是现代应用运行依赖 |
+| `PopulationScripts/`、`WebScrape/`、`data/` | 旧数据导入、抓取工具及数据文件；现代目录不在启动时联网抓取 |
+| `demo/` | 较早的静态原型；当前体验入口是 `frontend/` 的 `?mode=demo` |
+| `ER.vsdx` | 旧数据库设计资料，不代表现代 PostgreSQL 的完整模型 |
 
-These are viewing perspectives, independent of account permissions. Both support collections and return to the homepage to choose another perspective.
+现代 API 路径：浏览器页面 → hooks/服务适配器 → FastAPI → PostgreSQL。画像／推荐是基于已确认数据的纯函数；应用没有微服务、任务队列或向量检索。Compose 的 PostgreSQL 镜像名称包含 pgvector，不代表实现了向量搜索。详见 [架构说明](docs/architecture.md)。
 
-### Player / 玩家
+## 怎样运行
 
-| 中文 | English |
-| --- | --- |
-| ![Chinese personalized player discovery](docs/screenshots/personalized-recommendations-zh.png) | ![English personalized player discovery](docs/screenshots/personalized-recommendations-en.png) |
-
-### Developer / 开发者
-
-| 中文 | English |
-| --- | --- |
-| ![Chinese developer research overview](docs/screenshots/developer-zh.png) | ![English developer research overview](docs/screenshots/developer-en.png) |
-
-Screenshots show the fixed-data demo. The dark gaming interface includes locally bundled game artwork, responsive layouts, and an English/Chinese switch that preserves the current page state. Game names, user-created collection names, and external provider text remain unchanged. See [artwork sources](docs/verification/game-artwork-sources.md) and the [bilingual behavior](frontend/README.md#english-and-chinese).
-
-### Personal library and gaming taste / 游戏库与玩家画像
-
-Players can record **Want to play / Playing / Played**, mark **Like / Not for me**, and keep a short personal note. Collection membership remains independent of those records. New accounts and fresh browser profiles receive a personal default collection, so their first save can inform recommendations. Existing collections retain their recorded purpose, including unspecified; players can classify them as personal interests or research references.
-
-Signed-in players can toggle **Like**, **Want to play**, and **Not for me** directly on the featured game. These actions preserve notes and unrelated record fields. The library sorts by latest activity, collection date, or title; returning from discovery or the taste profile preserves its filters, search and scroll position within the current account session. [Interaction and request verification](docs/verification/quick-preferences-2026-10-23.md) covers the API behavior and desktop/mobile Computer Use review.
-
-Full record edits and removals check the version opened by the editor. If another tab saves first, the old draft stays available for comparison; merging preserves newer values in fields the player did not edit, and still requires an explicit save. The library includes a **Not for me** shelf, note search and note indicators. Signing in after **Track this game** resumes that game's editor. Applied searches and selected results survive refresh and browser Back through public URL state, without repeating an AI interpretation request.
-
-The taste profile separates games of interest from games marked Playing or Played. Each type expands to show the games behind its count. A game saved to multiple personal collections counts once, research collections are excluded, and an explicit dislike overrides collection-based interest. Players can edit preferred and avoided types. Each edit checks the saved version: unchanged forms follow updates from another tab; unsaved choices stay available for review if another save wins. Choosing to keep a draft does not submit it until Save is pressed. These are manually recorded preferences and game counts, not imported Steam playtime or AI-inferred personality scores.
-
-The player homepage now uses that profile. Want-to-play games and explicit preferred types take precedence, followed by related personal interests and play history. Recommendations exclude avoided types, disliked games, and Playing/Played records; other known favorites stay in the library unless marked Want to play. Each recommendation gives a concrete reason in either language. Changes apply when returning from the library/profile, and explicit search still covers the full catalog. A new account receives general picks. Preference-loading failures show general picks with a retry action instead of claiming personalization. See [the ranking rules and verification](docs/verification/personalized-recommendations-2026-10-15.md).
-
-| 游戏库 | 玩家画像 / Gaming taste |
-| --- | --- |
-| ![Personal library in Chinese](docs/screenshots/player-library-zh.png) | ![Personal gaming taste in Chinese](docs/screenshots/player-profile-zh.png) |
-| ![Personal library in English](docs/screenshots/player-library-en.png) | ![Personal gaming taste in English](docs/screenshots/player-profile-en.png) |
-
-These screenshots use six manually entered validation records, not a real player's activity. Fresh accounts start empty. The 80 catalog entries have bilingual gameplay summaries and curated tags linked to official store descriptions in each entry's `contentSource`. Prices, ratings, review counts, ownership, and revenue in the bundled catalog remain synthetic sample values; the source check does not validate those metrics. See [the implementation and verification record](docs/verification/player-library-2026-10-08.md).
-
-### Editable search / 可编辑搜索
-
-Applied conditions appear as removable chips. Expand **Filters / 筛选条件** to edit the title, included/excluded types, budget, minimum rating, review-count condition, ordering and result range. Edits reuse the loaded catalog without another search-provider request. Clearing conditions preserves the query draft; submitting that text again replaces the edited conditions.
-
-Type exclusions work in both languages: `FPS without multiplayer` or `找剧情游戏但不要恐怖`. The shared directional tag contract treats Co-op as Multiplayer and Survival Horror as Horror, consistently in search and preferences. Raw catalog tags remain intact. Singleplayer does not imply singleplayer-only, and missing tags are not a complete mode inventory. Unsupported negation (such as `not free` / `不要免费`) gives an actionable error and retains the input. This is bounded type filtering, not arbitrary Boolean search.
-
-The [2026-10-25 evaluation](docs/verification/search-controls-recommendations-2026-10-25.md) established 11 fixed editorial recommendation scenarios at macro precision@6 0.875 across eight scored cases. The [2026-10-29 calibration](docs/verification/tag-semantics-recommendations-2026-10-29.md) prioritizes concrete gameplay evidence and limits diversity to equal-score ties: the unchanged original labels score 0.896; four new scored scenarios improve from 0.583 to 0.958, and five exclusion violations drop to zero. The record includes an intermediate regression and the original space case falling from 4/6 to 3/6 when a Co-op game is correctly excluded. These coding-agent-authored labels are diagnostic fixtures, not independent user judgments or a held-out benchmark.
-
-## Run the Demo
-
-Use Node.js 24 LTS, matching `.nvmrc` and CI. From the repository root:
+**最快体验：**安装 Node.js 24（版本见 `.nvmrc`），从仓库根目录运行：
 
 ```powershell
 cd frontend
@@ -73,18 +81,9 @@ npm ci
 npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
-Open [Game Discovery Lens demo](http://127.0.0.1:5173/?mode=demo). No database or AI key is required.
+打开 [浏览器体验模式](http://127.0.0.1:5173/?mode=demo)。无需 Java、数据库或 AI 密钥。收藏、记录和偏好只保存在当前浏览器，不是服务端账号数据。
 
-| Mode | Catalog and search | Collections, play records, and preferences |
-| --- | --- | --- |
-| `?mode=demo` | Bundled 80-game sample catalog and local rules; no backend requests. | Saved in this browser only. |
-| `?mode=api` | FastAPI/PostgreSQL and the configured search provider. | Saved to the signed-in account. |
-
-The URL or environment selects the data mode; setup controls are kept out of the customer header. The browser-only persistence limitation is stated beside the relevant save controls. An API failure remains visible with recovery controls; it never becomes a sample result or a browser-only save. Demo and account data are separate.
-
-## Run with the API
-
-Start PostgreSQL and the backend with Docker, then migrate and seed the local database. Run these commands from the repository root while the frontend remains open in another terminal:
+**真实账号与持久化：**保持前端运行，在另一个终端回到仓库根目录。安装并启动 Docker 后：
 
 ```powershell
 docker compose up -d --build postgres backend
@@ -92,95 +91,144 @@ docker compose exec backend alembic upgrade head
 docker compose exec backend python -m app.scripts.seed
 ```
 
-Open [API mode](http://127.0.0.1:5173/?mode=api), choose a perspective, and register or sign in to save games. API documentation is available at [localhost:8000/docs](http://localhost:8000/docs). For an existing local PostgreSQL installation, use the [native Python setup](backend/README.md#local-postgresql--python-virtual-environment).
+这些是新本地环境的初始化步骤。打开 [API 模式](http://127.0.0.1:5173/?mode=api)，注册或登录后保存到 PostgreSQL。Compose 只启动这里指定的 PostgreSQL 和后端；前端独立运行，SQL Server 是可选历史复现。不要用默认本地口令公开部署。
 
-The frontend defaults to `http://localhost:8000/api`. To change it, copy `frontend/.env.example` to `frontend/.env.local` and set `VITE_API_BASE_URL`; restart Vite afterward. The URL's `mode` overrides `VITE_DATA_MODE`. Backend settings belong in the repository root `.env`; for a different frontend host or port, include its exact origin in `GDL_CORS_ORIGINS`. See the [frontend](frontend/README.md) and [backend](backend/README.md) configuration guides.
+已有安装更新时先备份需要保留的数据，执行迁移并刷新旧页面；迁移 `0006` 保留偏好。不要为了升级重新导入 seed：seed 是样例目录初始化／更新工具，不是迁移用户数据的方法。原生 Python 启动和配置细节见 [后端指南](backend/README.md)；前端生产构建、API 地址与语言规则见 [前端指南](frontend/README.md)。后端配置放根目录 `.env`，前端配置放 `frontend/.env.local`；AI 密钥只能放后端，不能放 `VITE_*`。
 
-## Engineering Focus
+## 可靠性证据与停止边界
 
-- **Account ownership:** collection, saved-game, play-record, and preference routes derive the owner from a signed bearer token. Missing or expired sessions are rejected, and another account's data is hidden.
-- **Explainable personal data:** the profile uses distinct games and explicit preferences, with inspectable evidence and separate interest/play-history counts. Migration `0005_player_library` adds storage without reclassifying or deleting old collections.
-- **Persistence and recovery:** API requests have a 30-second deadline and never automatically retry writes. An uncertain save locks further writes until a successful reload. Collection clear/delete actions require confirmation; unsaved game notes and preference edits are protected when closing or navigating away. Reloading a failed save preserves its draft.
-- **Concurrent requests:** an older search, game insight, or account response cannot replace a newer selection or session.
-- **Session boundaries:** verified identity, token and session version travel together. Private requests check the session before sending and after receiving; cross-tab account changes invalidate the old view. Unsaved notes/preferences and collection-name drafts stay in the original account's memory in that tab and can be recovered after sign-in. Reloading or closing the tab ends that temporary recovery; uncertain writes are never replayed automatically.
-- **Source boundaries:** game details expose the catalog's gameplay source and check date. Synthetic prices, ratings, review counts, ownership and revenue are marked in both demo and seeded API mode; gameplay sources do not verify those metrics. Missing provenance stays unknown.
-- **Search consistency:** literal title search combines with price, required/excluded tags, and review-count filters. Frontend rules, restored URL conditions and PostgreSQL search tests share contract fixtures, including complete bilingual type phrases and stable ordering in `tests/fixtures/search-phrases.json`.
-- **Clear module boundaries:** page composition, discovery, selected-game details, account/collection state, and API/demo adapters have separate responsibilities.
-- **Reproducible verification:** unit and UI tests, isolated PostgreSQL integration tests, TypeScript/build checks, and desktop/mobile browser journeys run in GitHub Actions. The browser suite registers accounts through the UI and exercises the real API, including recovery after a committed save loses its response. A separate Docker delivery smoke check also exercises the built frontend against the packaged API. See [browser test setup](frontend/README.md#browser-tests-with-the-real-api).
+账号所有权、版本冲突、跨标签切换、慢响应、断网和已提交但丢失响应都有对应验证。测试使用隔离 schema 或一次性数据库，不清空主库；CI 包括后端、前端测试与构建、真实 API 浏览器流程，以及实际 Docker 镜像＋前端产物流程。完整命令在本页末尾 [Verification](#verification)。最终结果见 [收尾记录](docs/verification/portfolio-freeze-2026-11-16.md)；前一轮的 [123/310/38 项及构建产物证据](docs/verification/delivery-preferences-search-2026-11-15.md)保留原时间，不冒充本轮新跑的数量。
 
-## AI Behavior and Boundaries
+本版本冻结功能开发，不再执行推荐质量、公开评论、支付、SSO、市场数据采集或生产运营路线图。保留这些限制：80 款样例目录；有限语言解析；未接入评论原文；推荐评测是固定编写的诊断场景，不是真实用户准确率；私人草稿仅在当前标签页内存中恢复，关闭／重载页面后不会持久保留；移动验证使用浏览器窄视口，不等于实体手机覆盖。旧版本的未来工作段落是历史背景，不是当前待办。
 
-Natural-language search supports a local rules parser and an optional DeepSeek provider. Provider output is normalized into the same search contract, with recognized product price/rating/review conditions enforced in code; PostgreSQL executes the resulting filters and ranking. Free games have a zero-price ceiling, `cheap` defaults to US$35 unless a budget is specified, and `highly rated` requires a rating of at least 4.4 and a positive review count. Known and quoted titles are separated from those conditions. Search responses identify their source as `rules` or `deepseek`. Configured fallback returns rules results when the provider fails; disabling fallback exposes the provider error.
+</details>
 
-Game and collection insight text currently uses catalog metadata and aggregate statistics; it is not a summary of review source text. Personal recommendations use deterministic rules over the player's records and preferences, with no additional model call or live-trending claim. Game insight labels distinguish game details from DeepSeek output; API responses retain the precise source identifiers. The Chinese interface translates recognized sample/rule content and preserves unrecognized provider text with an original-content note.
+<a name="gdl-en"></a>
+<details open>
+<summary><strong>English — background, refactoring, repository layout and setup</strong></summary>
 
-See the [optional provider configuration](backend/README.md#optional-ai-provider). Provider keys stay in backend environment variables, never in `VITE_*` variables or Git. The preserved [first live evaluation](docs/verification/ai-evaluation-2026-09-15.md) found 24/31 DeepSeek integration cases meeting both intent and ordered-result expectations. After the contract fixes, a [new live pass](docs/verification/search-fixes-2026-09-16.md) met both in 31/31 on the same queries, with no observed fallbacks. These are application-integration results, including deterministic constraints, not raw model accuracy. Eight independently formulated follow-up queries have a separately documented fixture correction and offline rescore; broader held-out evaluation and traceable review evidence remain future work.
+## What this project demonstrates
+
+Game Discovery Lens is a bilingual game-discovery portfolio application with an 80-game sample catalog. Players can search, collect games, record Want to play / Playing / Played, express preferences and keep notes. Taste profiles and homepage recommendations derive from those explicit records. The developer perspective provides catalog summaries and comparison references. Perspectives do not grant account permissions.
+
+This is not a live store or market-research service. Prices, ratings, review counts, ownership and revenue are labelled synthetic values. Gameplay summaries and editorial tags have separate sources/check dates. The app's Chinese/English control changes its interface in place while retaining page state; the README uses the language disclosures above.
+
+## Before and after
+
+The starting point was **group coursework using Java Swing and SQL Server**, with player/developer windows, game data and database workflows for purchases, reviews, bundles and vouchers. It was later presented as ArcadeIQ and renamed Game Discovery Lens. Historical GameSniper, GameRate and ArcadeIQ names retain their original context.
+
+The modern version carries forward the game domain and selected business concepts, with a new browser frontend, HTTP API and PostgreSQL model. It runs independently of the school database. This was a scoped reimplementation and refactor, not just a rename or a line-by-line automatic Java conversion; not every legacy feature was carried over.
+
+| Area | Retained coursework implementation | Modern portfolio implementation |
+| --- | --- | --- |
+| UI and calls | Java Swing windows; JDBC calls to the database/stored procedures | React/TypeScript pages and service adapters calling FastAPI; an independent browser-only mode |
+| Storage | SQL Server tables, views, SQL migrations and stored procedures | PostgreSQL, SQLAlchemy and Alembic; no live transfer of the school database |
+| Scope | Game database and marketplace coursework workflows | Discovery, search, collections, play records, notes, preferences and research references |
+| Private data | Desktop services connect to the DB; business logic spans Java and SQL | Server-side bearer ownership, verified sessions, stale-response guards and account-scoped drafts |
+| Search and recommendations | Java forms and database queries | Bounded bilingual parsing, editable filters and URL restoration; evidence-based recommendations; optional model interpretation |
+| Saves and concurrency | Original database procedures and coursework behavior | Conditional record/preference writes reject stale edits; drafts survive conflicts; uncertain writes require a read, not automatic replay |
+| Delivery evidence | Historical setup scripts, import tools and course materials | Unit/UI tests, isolated PostgreSQL integration, real-API browser journeys, Docker artifact checks and Computer Use |
+
+**Sequence of work:** preserve and organize the legacy implementation → establish the web UI/API → enforce ownership and add collections/personal records → align search, tag semantics and provenance → strengthen recovery, concurrency and caching → verify real build artifacts → fix account-form clicks and finish documentation. The [case study](docs/case-study.md), [migration status](docs/migration-plan.md) and `docs/verification/` retain the decisions, failures and corrections.
+
+## Authorship and AI assistance
+
+The original coursework is a **group effort**, with credit remaining with the original team. The portfolio focuses on the maintainer's subsequent individual modernization: directing requirements, scope, technical choices and acceptance, with Codex and other AI coding assistance for analysis, implementation, testing, debugging and documentation. Repeatable checks and interaction reviews support the results. The maintainer is responsible for engineering decisions, change review, verification and the final delivered result; the modern implementation includes AI-assisted code and tests.
+
+**AI-assisted development** is separate from **runtime AI**. The optional DeepSeek provider interprets a query into a constrained search intent; application code executes the database query. The model does not execute SQL, mutate private records or generate every recommendation/insight. Fallback sources are identified. The demo and automated tests need no paid model or API key. Profiles/recommendations use deterministic rules; current insights use catalog metadata, not source review text.
+
+## Repository guide
+
+| Path | Responsibility |
+| --- | --- |
+| `frontend/` | Current React/TypeScript application, UI, domain hooks, API/demo adapters and browser tests |
+| `backend/` | Current FastAPI, authentication/business routes, SQLAlchemy and tests; **`backend/alembic/` contains modern migrations** |
+| `catalog/` | Shared 80-game sample catalog and tag-family contract |
+| `tests/fixtures/` | Cross-language search contracts and authored recommendation diagnostics, not real player activity |
+| `scripts/`, `.github/workflows/` | Setup/artifact checks and four CI jobs |
+| `docs/` | Architecture, case study, setup, verification records and screenshots |
+| `UI/`, root `migrations/`, `Views/` | **Legacy Java Swing / SQL Server history**, not modern runtime dependencies |
+| `PopulationScripts/`, `WebScrape/`, `data/` | Legacy ingestion/scraping tools and data; modern startup does not scrape online sources |
+| `demo/` | Earlier static prototype; the current demo runs from `frontend/` with `?mode=demo` |
+| `ER.vsdx` | Historical database design, not the complete modern PostgreSQL model |
+
+Modern API flow: pages → hooks/service adapters → FastAPI → PostgreSQL. Profiles/recommendations are pure functions of confirmed data. There are no microservices, task queues or vector-search implementation. The pgvector image name in Compose is not evidence of vector search. See [architecture](docs/architecture.md).
+
+## Run the demo
+
+Install Node.js 24 (pinned in `.nvmrc`). From the repository root:
+
+```powershell
+cd frontend
+npm ci
+npm run dev -- --host 127.0.0.1 --port 5173
+```
+
+Open [browser-only mode](http://127.0.0.1:5173/?mode=demo). No Java, database or AI key is required. Collections, records and preferences stay in this browser, separate from server accounts.
+
+## Run with the API
+
+Keep the frontend running. With Docker installed and running, use a second terminal at the repository root:
+
+```powershell
+docker compose up -d --build postgres backend
+docker compose exec backend alembic upgrade head
+docker compose exec backend python -m app.scripts.seed
+```
+
+These initialize a new local environment. Open [API mode](http://127.0.0.1:5173/?mode=api) and register/sign in to persist data in PostgreSQL. Only the named PostgreSQL/backend services start; the frontend runs separately and SQL Server is optional legacy reproduction. Local default credentials are not suitable for public hosting.
+
+For an existing installation, back up data you need, run migrations and reload older browser clients. Migration `0006` preserves preferences. Do not rerun seed just to upgrade: seed initializes/updates sample catalog data; it is not a user-data migration. See the [backend guide](backend/README.md) for native Python setup and configuration, and the [frontend guide](frontend/README.md) for production builds, API URLs and language behavior. Root `.env` configures the backend; `frontend/.env.local` configures the frontend. Provider keys belong only on the backend, never in `VITE_*`.
+
+## Reliability and frozen scope
+
+Ownership, version conflicts, cross-tab sessions, delayed responses, offline saves and lost responses have corresponding checks. Tests use isolated schemas/disposable databases, not application-table cleanup. CI runs backend tests, frontend tests/build, real-API browser journeys and a packaged Docker/built-frontend journey. Commands appear under [Verification](#verification). The [final record](docs/verification/portfolio-freeze-2026-11-16.md) reports this revision's results; the previous [123/310/38 checks and artifact evidence](docs/verification/delivery-preferences-search-2026-11-15.md) retain their original date.
+
+Feature development is frozen. There is no active roadmap for recommendation expansion, public comments, payments, SSO, market-data collection or production operations. Accepted limits include the fixed catalog, bounded language parsing, no source-review corpus, authored recommendation diagnostics rather than user accuracy, and tab-memory-only unsaved drafts that do not survive page close/reload. Mobile checks use browser viewports, not physical devices. Older documents' future-work passages are historical context, not current commitments.
+
+</details>
+
+## Screenshots / 界面预览
+
+| Player / 玩家 | Library / 游戏库 |
+| --- | --- |
+| ![Player discovery in English](docs/screenshots/personalized-recommendations-en.png) | ![Personal library in Chinese](docs/screenshots/player-library-zh.png) |
+
+Screenshots contain sample catalog values and manually entered validation activity. / 截图中的指标与个人记录用于演示验证，不是真实市场或玩家活动。 [Artwork sources / 图片来源](docs/verification/game-artwork-sources.md)
 
 ## Verification
 
-Frontend tests and production build, from `frontend/`:
+**Frontend / 前端** — run from `frontend/` / 在此前端目录执行：
 
 ```powershell
 npm test
 npm run build
+npm audit --audit-level=low
 ```
 
-Backend tests, from the repository root using Python 3.10 or newer:
+**Backend / 后端** — install dependencies and run from the root with Python 3.10+ / 从根目录使用 Python 3.10+：
 
 ```powershell
 python -m pip install -r backend/requirements-dev.txt
 python -m unittest discover -s backend/tests -t backend
 ```
 
-To include PostgreSQL persistence, ownership, and search checks, set a local test database URL before running the same backend command:
+Set `GDL_TEST_DATABASE_URL` to an explicit disposable test database to include PostgreSQL suites; otherwise those cases skip. Use `GDL_E2E_DATABASE_URL` for `npm run test:e2e` from `frontend/`. / 使用明确的临时测试数据库设置 `GDL_TEST_DATABASE_URL`，否则数据库测试会跳过；浏览器测试从 `frontend/` 执行 `npm run test:e2e`，数据库变量为 `GDL_E2E_DATABASE_URL`。 [Setup / 具体步骤](frontend/README.md#browser-tests-with-the-real-api)
 
-```powershell
-$env:GDL_TEST_DATABASE_URL="postgresql+psycopg://gdl:gdl_dev_password@localhost:5432/gdl"
-python -m unittest discover -s backend/tests -t backend
-```
-
-Each database suite creates and removes only its own UUID-named schema. Existing application tables are not used. Without the explicit URL, database tests are skipped. Provider responses are controlled in automated AI tests; the suite does not call a paid provider. [GitHub Actions](.github/workflows/ci.yml) configures PostgreSQL for the backend tests and runs the frontend tests and build.
-
-To verify the actual Docker image and frontend build, with Docker running and frontend dependencies/Chromium installed:
+**Packaged delivery / 构建产物** — Docker running, frontend dependencies and Playwright Chromium installed / 需 Docker 已启动、前端依赖与 Playwright Chromium 已安装：
 
 ```powershell
 python scripts/verify-delivery.py --browser
 ```
 
-This creates a disposable database and uses ports 8013/4193. It does not read the project's `.env` or migrate/seed an existing database. Upgrade an existing application database with `alembic upgrade head` (or the Compose command above) before using the new preference editor; migration 0006 preserves saved choices. Reload older browser clients because preference writes now require a version.
+Creates/removes its own database/network/image and uses ports 8013/4193. No project `.env`, main database or paid model is used. / 创建并清理自身的一次性数据库、网络和镜像，使用 8013/4193 端口；不读取项目 `.env`，不碰主库，不调用付费模型。
 
-Verification records separate the executed checks from their limitations:
+## Evidence / 进一步阅读
 
-- [Packaged delivery, preference concurrency, search phrases/order and Computer Use evidence](docs/verification/delivery-preferences-search-2026-11-15.md)
-- [Personal-record conflicts, task continuity, library management and Computer Use evidence](docs/verification/record-continuity-2026-10-29.md)
-- [Session, input, concurrency and data-trust boundaries; Computer Use and performance evidence](docs/verification/boundaries-trust-2026-10-24.md)
-- [Personalized recommendations, account transitions, and bilingual evidence](docs/verification/personalized-recommendations-2026-10-15.md)
-- [Personal library, evidence-based profile, catalog corrections, and migration](docs/verification/player-library-2026-10-08.md)
-- [80-game catalog expansion and artwork provenance](docs/verification/catalog-expansion-2026-09-16.md)
-- [API workflow and delivery](docs/verification/api-delivery-2026-09-15.md)
-- [Search contract fixes, live rerun, and independent follow-up](docs/verification/search-fixes-2026-09-16.md)
-- [Original live AI baseline and expanded test catalog](docs/verification/ai-evaluation-2026-09-15.md)
-- [Collection persistence and isolation](docs/verification/collections-2026-09-14.md)
-- [Search contract and response ordering](docs/verification/search-2026-09-14.md)
-- [Module refactor](docs/verification/modules-2026-09-15.md)
-- [Bilingual interface](docs/verification/bilingual-2026-09-15.md), [entry flow](docs/verification/entry-2026-09-15.md), [player recommendations](docs/verification/recommendations-2026-09-15.md), and [research overview](docs/verification/research-overview-2026-09-15.md)
-
-## Repository Guide
-
-| Path | Purpose |
-| --- | --- |
-| `catalog/` | Shared 80-game demo catalog used by the frontend and backend seed. |
-| `frontend/` | Current React/TypeScript application, API/demo adapters, and UI tests. |
-| `backend/` | FastAPI routes, SQLAlchemy models, Alembic migrations, and backend tests. |
-| `tests/fixtures/` | Shared search contract and an independent synthetic boundary catalog for evaluation. |
-| `docs/` | Architecture, setup guides, verification records, and screenshots. |
-| `scripts/` | Local frontend, backend, and database setup helpers. |
-| `UI/`, `migrations/`, `Views/` | Original Java Swing/SQL Server application and database logic. |
-| `PopulationScripts/`, `WebScrape/`, `data/` | Legacy CSV ingestion, scraping utilities, and seed data. |
-| `demo/` | Earlier static prototype retained for reference. |
-
-Read the [architecture guide](docs/architecture.md) for the current module and data flow. The modern application uses PostgreSQL; SQL Server stored procedures, transactions, Java Swing, and bcrypt belong to the legacy implementation. The modern API uses PBKDF2 password hashing and signed bearer tokens.
-
-The retained coursework includes marketplace workflows such as purchasing, reviews, bundles, vouchers, and folders. These are historical features, not claims about the current web interface. See the [SQL Server setup](docs/local-sqlserver-setup.md), [legacy migrations](migrations/README.md), and [migration plan](docs/migration-plan.md).
-
-Game Discovery Lens is a portfolio application. Further work centers on evaluating recommendation quality with independent user scenarios, traceable AI evidence, and evaluated provider behavior; a public production deployment is outside the current demonstration scope.
+- [Final click fix and portfolio freeze / 注册点击修复与版本收尾](docs/verification/portfolio-freeze-2026-11-16.md)
+- [Docker delivery, preferences and search / 交付、偏好并发与搜索](docs/verification/delivery-preferences-search-2026-11-15.md)
+- [Personal records and task continuity / 个人记录与操作连续性](docs/verification/record-continuity-2026-10-29.md)
+- [Session, input and source boundaries / 会话、输入与数据来源边界](docs/verification/boundaries-trust-2026-10-24.md)
+- [Recommendations and evidence / 推荐与依据](docs/verification/personalized-recommendations-2026-10-15.md)
+- [Historical AI evaluation and corrected rerun / 历史 AI 评测及修正复测](docs/verification/search-fixes-2026-09-16.md)
+- [Architecture / 架构](docs/architecture.md) · [Engineering case study / 工程案例](docs/case-study.md) · [Migration status / 迁移状态](docs/migration-plan.md)

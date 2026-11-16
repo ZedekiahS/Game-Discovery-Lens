@@ -9,7 +9,7 @@ FastAPI backend for the modern Game Discovery Lens web app.
 From the repository root:
 
 ```powershell
-docker compose up -d postgres backend
+docker compose up -d --build postgres backend
 docker compose exec backend alembic upgrade head
 docker compose exec backend python -m app.scripts.seed
 ```
@@ -78,21 +78,21 @@ The anonymous `POST /api/users/session` endpoint has been removed. Use `/api/aut
 
 ### Personal Game Records
 
-Run `alembic upgrade head` before using the player library. Migration `0005_player_library` adds `player_games`, `player_preferences`, and `collections.purpose`; existing collections keep their data and receive `unspecified`. Rerun the seed script to apply the corrected shared catalog descriptions and tags; this does not import user play history.
+Run `alembic upgrade head` before using the player library. Migration `0005_player_library` adds `player_games`, `player_preferences`, and `collections.purpose`; existing collections keep their data and receive `unspecified`. Migration `0006_preference_version` adds preference versions without replacing choices. Seed initializes/updates the sample game catalog; it is not required for a schema-only upgrade and does not migrate personal activity.
 
-The `/api/me/*` endpoints require an active bearer token and derive the owner from it. They reject extra owner fields and cannot be redirected with a `userId` query. A record is independent of collections and unique per user/game. `PUT` replaces the record; repeated writes use an atomic PostgreSQL upsert. `DELETE` is idempotent and leaves collection saves intact.
-
-```json
-{"status": "playing", "affinity": "like", "notes": "Try the next chapter"}
-```
-
-Status can be `null`, `want_to_play`, `playing`, or `played`; affinity can be `neutral`, `like`, or `dislike`. Notes are trimmed and limited to 500 characters. Preference lists contain up to 12 canonical catalog tags each, are deduplicated, and cannot overlap:
+The `/api/me/*` endpoints require an active bearer token and derive the owner from it. They reject extra owner fields and cannot be redirected with a `userId` query. A record is independent of collections and unique per user/game. Full `PUT` uses the `expectedUpdatedAt` condition described above; only quick `PATCH` is an upsert of selected fields. `DELETE` requires the read timestamp, rejects a changed record and leaves collection saves intact; an already absent record succeeds without recreating it.
 
 ```json
-{"preferredTags": ["Puzzle"], "avoidedTags": ["Survival Horror"]}
+{"status": "playing", "affinity": "like", "notes": "Try the next chapter", "expectedUpdatedAt": null}
 ```
 
-Empty lists clear preferences. Collection create/update accepts optional `purpose`: `player`, `research`, or `unspecified`. The default collection's purpose can change while its name remains unchanged. These fields support evidence-based frontend profiles and deterministic personalized recommendations. They do not represent measured playtime; no separate recommendation endpoint or additional migration is needed.
+This example creates a new record; editing an existing one must echo its actual timestamp. Status can be `null`, `want_to_play`, `playing`, or `played`; affinity can be `neutral`, `like`, or `dislike`. Notes are trimmed and limited to 500 characters. Preference lists contain up to 12 canonical catalog tags each, are deduplicated, and cannot overlap. Creating the first preference snapshot uses version zero:
+
+```json
+{"preferredTags": ["Puzzle"], "avoidedTags": ["Survival Horror"], "expectedVersion": 0}
+```
+
+For later preference writes, echo the `version` returned by GET as `expectedVersion`. Empty lists with the current version clear preferences; missing versions return 422 and stale versions return 409. Collection create/update accepts optional `purpose`: `player`, `research`, or `unspecified`. The default collection's purpose can change while its name remains unchanged. These fields support evidence-based frontend profiles and deterministic personalized recommendations, not measured playtime or a separate recommendation endpoint.
 
 The seed script also creates a local admin placeholder account. Configure these values through local environment variables only:
 
